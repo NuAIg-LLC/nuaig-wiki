@@ -1,0 +1,97 @@
+---
+title: "User roles"
+description: "The eight roles, what each one owns, and who may see raw money."
+tldr:
+  - "Eight roles. Only the executive director can sign a decision."
+  - "Counselors and auditors see residents without their money. Administrators see no residents at all."
+  - "A role is set per community, and authority is re-read on every request."
+  - "Nobody signs their own exception, and approvers are named people, never inferred."
+---
+
+import Flow from '../../../components/Flow.astro';
+import Shot from '../../../components/Shot.astro';
+
+A **role** says what a person is: a counselor, a finance reviewer, an executive director.
+Roles come from the client's own identity system, so a person's role is decided by their
+employer, not by this product. The product resolves each role to a fixed set of
+capabilities on every single request. See <a href="/people/scopes/">Scopes and capabilities</a>.
+
+## The eight roles at a glance
+
+<Flow
+  uid="roles"
+  width={860}
+  height={420}
+  title="The eight roles grouped by what they can see"
+  lanes={[
+    { x: 10, y: 8, w: 840, h: 126, label: 'SEE RAW FINANCIAL FIGURES' },
+    { x: 10, y: 146, w: 840, h: 126, label: 'SEE RESIDENTS BUT NOT THE MONEY' },
+    { x: 10, y: 284, w: 840, h: 126, label: 'SEE NO RESIDENT DATA' },
+  ]}
+  nodes={[
+    { id: 'ed', x: 30, y: 44, w: 190, h: 74, eyebrow: 'THE HUMAN OF RECORD', title: 'Executive director', sub: 'Only role that signs', kind: 'ok' },
+    { id: 'fr', x: 240, y: 44, w: 190, h: 74, eyebrow: 'VERIFIES AND RUNS', title: 'Finance reviewer', sub: 'Runs and overrides', kind: 'accent' },
+    { id: 'sr', x: 450, y: 44, w: 200, h: 74, eyebrow: 'WORKS WITH FAMILIES', title: 'Sales financial reviewer', sub: 'Runs, cannot sign', kind: 'accent' },
+    { id: 'co', x: 30, y: 182, w: 190, h: 74, eyebrow: 'OWNS INTAKE', title: 'Admissions counselor', sub: 'Invites and chases' },
+    { id: 'au', x: 240, y: 182, w: 190, h: 74, eyebrow: 'OVERSIGHT', title: 'Auditor', sub: 'Read-only, incl. the trail' },
+    { id: 'ta', x: 30, y: 320, w: 190, h: 74, eyebrow: 'THE CLIENT', title: 'Tenant administrator', sub: 'Staff, policy, setup', kind: 'warn' },
+    { id: 'pa', x: 240, y: 320, w: 190, h: 74, eyebrow: 'THE MAKER', title: 'Platform administrator', sub: 'Provisions clients', kind: 'violet' },
+    { id: 'bg', x: 450, y: 320, w: 200, h: 74, eyebrow: 'EMERGENCY ONLY', title: 'Break-glass', sub: 'Nothing, until granted', kind: 'stop' },
+  ]}
+  caption="<b>Raw financial figures are a short list.</b> Counselors and auditors see a resident without seeing their money. Administrators see no residents at all."
+/>
+
+## What each role is for
+
+<div class="defs not-content">
+  <div><dt>Admissions counselor</dt><dd>Owns intake. Creates the resident record, invites the family to apply, uploads and chases documents, and reviews what comes back. Sees a resident's identity and care level, and the derived result of an assessment, but <strong>not</strong> raw balances. Can accept a submission into the pipeline.</dd></div>
+  <div><dt>Sales financial reviewer</dt><dd>An explicitly assigned sales role that may verify finances, review documents, produce unit quotes and complete qualifications. Runs assessments but cannot override one, and holds no authority to record the final decision. Never assigned by default.</dd></div>
+  <div><dt>Finance reviewer</dt><dd>Confirms financial profiles, runs and overrides assessments, verifies financial documents and validates the figures a family submitted. May answer waivers and escalations when named as an exception approver.</dd></div>
+  <div><dt>Executive director</dt><dd>The human of record. Reads everything relevant to a case, including evidence, and is the only role that can record a decision. Reads the audit trail. Cannot change documents or run assessments.</dd></div>
+  <div><dt>Auditor</dt><dd>Read-only oversight: residents at summary level, derived results, decisions and the full audit trail. Cannot mutate anything and sees no raw money or health detail.</dd></div>
+  <div><dt>Tenant administrator</dt><dd>Manages the client's staff, communities, policy, portal branding, communications and report access. Holds <strong>no resident-data capability</strong>, so administering the product never exposes a family's file.</dd></div>
+  <div><dt>Platform administrator</dt><dd>The maker's control-plane role. Provisions, activates, suspends and repairs client organisations. Carries no resident-data capability whatsoever, and no tenant-level one either.</dd></div>
+  <div><dt>Break-glass</dt><dd>A role that grants nothing on its own. Read access is added only while a time-boxed, unrevoked emergency grant is active. See <a href="/people/emergency-access/">Emergency access</a>.</dd></div>
+</div>
+
+<Shot
+  src="/img/shots/admin-staff.webp"
+  route="/admin/staff"
+  role="Client administrator"
+  caption="<b>Staff.</b> The client administrator sees everyone in the organisation, their role and account state. This is where roles are assigned, memberships are set and accounts are activated."
+/>
+
+## Rules that apply to every role
+
+<div class="split not-content">
+  <div class="panel">
+    <h4>Roles are per community</h4>
+    <p>A person's role is set per community membership. The same person can hold different roles in different buildings, and access in one never implies access in another.</p>
+  </div>
+  <div class="panel">
+    <h4>Authority is re-read every time</h4>
+    <p>The user, organisation, role and memberships are loaded from the store on every request. A revoked person loses access immediately, with no token to wait out.</p>
+  </div>
+  <div class="panel">
+    <h4>Nobody signs their own exception</h4>
+    <p>A reviewer cannot approve or resolve an exception they raised themselves, even if they appear on the approver list.</p>
+  </div>
+  <div class="panel">
+    <h4>Approvers are named, never inferred</h4>
+    <p>Anyone with ordinary financial access does not become an exception approver. Approvers are explicit people, and an empty list grants no authority.</p>
+  </div>
+</div>
+
+## Sales reviewers versus counselors
+
+The product separates two roles that are often one person in practice. The distinction
+matters because the two have very different access to money.
+
+<div class="defs not-content">
+  <div><dt>Counselor</dt><dd>Sees the person and the case. Does not see balances, income detail, or the dollar figures inside a document. Cannot run an assessment.</dd></div>
+  <div><dt>Sales financial reviewer</dt><dd>Sees the money, verifies it, and runs scenarios with the family. Cannot record the decision or override a result.</dd></div>
+</div>
+
+A client that wants one person to do both assigns them the sales financial reviewer role.
+It is a deliberate, recorded assignment by an administrator. It is never made the default
+for new staff, and no setup step grants it.

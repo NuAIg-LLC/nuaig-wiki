@@ -1,0 +1,120 @@
+---
+title: "Financial Assessment Tool"
+description: "The product wiki for the senior-living financial qualification platform: context, roles, flows, screens, and the model behind the numbers."
+tableOfContents: false
+editUrl: false
+tldr:
+  - "This wiki explains one product. It answers whether a household's money will last for as long as they live in a community, and who signed off on that."
+  - "There are two applications, a staff workspace and a family portal, both backed by a single system of record."
+  - "Every number comes from a deterministic calculation. Probability and AI may advise but never decide."
+  - "A named person makes every decision, with a written reason, against one exact result."
+  - "New here? Read What this platform is, then The end-to-end journey, and keep the Glossary open."
+---
+
+<div class="hero-x not-content">
+  <span class="hero-x__eyebrow">Product wiki</span>
+  <h1>Can this person afford to live here for the rest of their life, and who said so?</h1>
+  <p class="hero-x__lede">
+    That single question is the whole product. This wiki explains how the platform answers it:
+    the context it operates in, the people who touch a case, the flow a file travels, every
+    screen in the two applications, and the arithmetic underneath. It is written for product,
+    management and engineering alike. You should be able to understand the system without
+    reading the code.
+  </p>
+  <div class="hero-x__meta">
+    <span class="pill pill--info">Multi-tenant B2B SaaS</span>
+    <span class="pill pill--mute">Senior living · admissions</span>
+    <span class="pill pill--ok">Deterministic by design</span>
+    <span class="pill pill--warn">PII · PHI · NPI</span>
+  </div>
+</div>
+
+<div class="stat-row not-content">
+  <div class="stat"><span class="stat__k">2</span><span class="stat__l">Applications: a staff workspace and a family portal</span></div>
+  <div class="stat"><span class="stat__k">8</span><span class="stat__l">Roles, each resolving to a fixed set of scopes</span></div>
+  <div class="stat"><span class="stat__k">3</span><span class="stat__l">Qualification outcomes the engine can return</span></div>
+  <div class="stat"><span class="stat__k">0</span><span class="stat__l">Decisions the software makes on its own</span></div>
+</div>
+
+## Start reading
+
+<div class="grid-cards not-content">
+  <a class="card-x" href="/start/what-it-is/">
+    <span class="card-x__eyebrow">Orientation</span>
+    <span class="card-x__title">What this platform is</span>
+    <span class="card-x__body">One page, no jargon. The product in its own words, and the boundary it refuses to cross.</span>
+  </a>
+  <a class="card-x" href="/context/problem/">
+    <span class="card-x__eyebrow">Context</span>
+    <span class="card-x__title">The problem being solved</span>
+    <span class="card-x__body">Why a spreadsheet is not good enough, and what a bad admission actually costs.</span>
+  </a>
+  <a class="card-x" href="/people/roles/">
+    <span class="card-x__eyebrow">People</span>
+    <span class="card-x__title">User roles</span>
+    <span class="card-x__body">Who does what, who sees raw money, and who is allowed to sign.</span>
+  </a>
+  <a class="card-x" href="/flows/journey/">
+    <span class="card-x__eyebrow">Flow</span>
+    <span class="card-x__title">The end-to-end journey</span>
+    <span class="card-x__body">From first enquiry to a recorded outcome, as one diagram and seven steps.</span>
+  </a>
+  <a class="card-x" href="/screens/overview/">
+    <span class="card-x__eyebrow">Product</span>
+    <span class="card-x__title">Every screen, explained</span>
+    <span class="card-x__body">A guided walk through both applications, with real screenshots and what each one is for.</span>
+  </a>
+  <a class="card-x" href="/model/engines/">
+    <span class="card-x__eyebrow">Numbers</span>
+    <span class="card-x__title">How the numbers work</span>
+    <span class="card-x__body">The two calculation models, what they output, and where the AI is structurally forbidden.</span>
+  </a>
+</div>
+
+## If you only have five minutes
+
+<ol class="steps not-content">
+  <li>
+    <h4>A community needs to know whether a prospective resident's money will last.</h4>
+    <p>They pay privately. If the money runs out, the contract often says the resident stays anyway, and the shortfall is absorbed by everyone else.</p>
+  </li>
+  <li>
+    <h4>Staff collect the financial picture, from the family and from documents.</h4>
+    <p>A family completes a guided application from home; staff verify every figure before it counts.</p>
+  </li>
+  <li>
+    <h4>A versioned, deterministic engine projects the whole residency, month by month.</h4>
+    <p>Same inputs, same answer, forever. No clock reads, no floating-point money, no model guessing a number.</p>
+  </li>
+  <li>
+    <h4>The result is an explainable outcome, not a verdict.</h4>
+    <p>Every factor names the rule that produced it, and the engine and policy versions are stamped on the result.</p>
+  </li>
+  <li>
+    <h4>A named human records the decision, bound to that exact result.</h4>
+    <p>With a written rationale, inside an append-only audit trail that can be independently verified.</p>
+  </li>
+</ol>
+
+<div class="split not-content">
+  <div class="panel">
+    <h4>What the software does</h4>
+    <ul>
+      <li>Collects and verifies the financial picture</li>
+      <li>Projects the residency and the funding gap</li>
+      <li>Explains every factor and names its rule</li>
+      <li>Routes the case through an approval chain</li>
+      <li>Records who decided, and on what basis</li>
+    </ul>
+  </div>
+  <div class="panel">
+    <h4>What the software never does</h4>
+    <ul>
+      <li>Decline, waitlist or approve anybody</li>
+      <li>Let a language model set or change a number</li>
+      <li>Show raw financial detail to a role without the scope</li>
+      <li>Reach across a client or community boundary</li>
+      <li>Quietly re-price or re-rate an existing record</li>
+    </ul>
+  </div>
+</div>

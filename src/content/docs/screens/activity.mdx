@@ -1,0 +1,63 @@
+---
+title: "Activity log"
+description: "The tamper-evident trail, and the honesty with which it says what it leaves out."
+tldr:
+  - "The activity log shows who did what, when, and what it touched. Every entry is a row in the tamper-evident record."
+  - "It can be filtered by person, action, resource type and time range."
+  - "Resident-linked events appear only for someone who holds resident access, and the page says what it excludes rather than quietly filtering."
+  - "Reading a single resident's trail needs both audit access and resident access."
+---
+
+import Shot from '../../../components/Shot.astro';
+
+<div class="kv not-content">
+  <span><b>Route</b><code>/admin/activity</code></span>
+  <span><b>Who</b>Executive directors, auditors, client administrators</span>
+  <span><b>Order</b>Newest first, up to fifty at a time</span>
+</div>
+
+<Shot
+  src="/img/shots/activity.webp"
+  route="/admin/activity"
+  role="Auditor"
+  caption="<b>Activity log.</b> A statement that nothing here can be edited or removed, a note on what this person's view includes, filters, a narrow-the-page search, and the table of events."
+/>
+
+## What an entry says
+
+Each row records **when**, **who**, **what happened**, **what it touched**, **which fields
+were touched** and **where it originated**. Reading a sensitive record is an event just as
+writing one is, and the fields named are the classified ones, so the log can answer an
+accounting-of-disclosures question.
+
+## Filters
+
+<div class="defs not-content">
+  <div><dt>Person</dt><dd>Anyone, or one named person. The list is built from the people who appear on the page when the viewer cannot manage staff.</dd></div>
+  <div><dt>Action</dt><dd>Any action, or one kind such as create, update, read or decide.</dd></div>
+  <div><dt>Resource type</dt><dd>An exact, lowercase type, for example a policy record.</dd></div>
+  <div><dt>Time range</dt><dd>Any time, or a window.</dd></div>
+  <div><dt>Narrow this page</dt><dd>A text filter over the rows already loaded.</dd></div>
+</div>
+
+## It says what it excludes
+
+Rather than silently dropping rows a viewer may not see, the page tells them. An auditor
+who also holds resident access sees a banner saying the feed includes resident-linked
+events for the facility they have selected. Someone who holds audit access without resident
+access sees the administrative half and is told so.
+
+<div class="split not-content">
+  <div class="panel">
+    <h4>Resident events are scoped</h4>
+    <p>They are confined to the residents of the facility selected in the top bar. Switching facility reads another building's.</p>
+  </div>
+  <div class="panel">
+    <h4>A resident's own trail is stricter</h4>
+    <p>It needs both audit access and resident read access. A client administrator holds only the first and is refused.</p>
+  </div>
+  <div class="panel">
+    <h4>Nothing can be removed</h4>
+    <p>The page states plainly that entries cannot be edited or deleted. See <a href="/architecture/audit/">The audit ledger</a>.</p>
+  </div>
+</div>

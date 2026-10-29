@@ -1,0 +1,76 @@
+---
+title: "Paging and cursors"
+description: "Stable ordering, opaque cursors, bounded pages, and counts that never pretend to be totals."
+tldr:
+  - "Large collections return in bounded pages, newest first, in an order that cannot shift while you page."
+  - "A page returns a cursor for the next one. The cursor is opaque and belongs to the resource and caller it was issued for."
+  - "Page sizes are bounded, usually up to fifty, with a sensible default."
+  - "Reports use a sealed, time-limited cursor bound to the caller, the communities and the dates."
+  - "Counts shown for a page describe the page, never the whole result."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+A product that holds years of qualifications cannot return a whole collection in one go.
+Paging is how clients read large lists safely, and it follows the same rules everywhere.
+
+<Flow
+  uid="pg"
+  width={880}
+  height={190}
+  title="Keyset paging walks a stable order"
+  nodes={[
+    { id: 'p1', x: 10, y: 44, w: 190, h: 80, eyebrow: 'FIRST PAGE', title: 'Newest 20', sub: 'Plus a cursor', align: 'center' },
+    { id: 'p2', x: 250, y: 44, w: 190, h: 80, eyebrow: 'WITH THE CURSOR', title: 'The next 20', sub: 'Older than the cursor', kind: 'accent', align: 'center' },
+    { id: 'p3', x: 490, y: 44, w: 190, h: 80, eyebrow: 'AND SO ON', title: 'The next 20', sub: 'Until no cursor returns', align: 'center' },
+    { id: 'e', x: 720, y: 44, w: 140, h: 80, eyebrow: 'THE END', title: 'No cursor', sub: 'Nothing older', kind: 'ok', align: 'center' },
+  ]}
+  edges={[
+    { from: 'p1.r', to: 'p2.l', kind: 'accent', label: 'cursor' },
+    { from: 'p2.r', to: 'p3.l', kind: 'accent', label: 'cursor' },
+    { from: 'p3.r', to: 'e.l', kind: 'default' },
+  ]}
+  caption="<b>Each page begins where the last ended,</b> not at an offset. New records arriving never cause a record to be skipped or shown twice."
+/>
+
+## The rules
+
+<div class="defs not-content">
+  <div><dt>A stable order</dt><dd>Collections are ordered by when they were created, newest first, with the record's identifier as the tie-break. Because the order depends on fixed values, it cannot shift while a client is paging.</dd></div>
+  <div><dt>Bounded pages</dt><dd>A page size parameter with a default and a maximum, typically ten or twenty by default and fifty at most. Asking for more is rejected, not truncated silently.</dd></div>
+  <div><dt>Keyset, not offset</dt><dd>The cursor names the last record seen, so the next page is "older than this one". Offsets drift as data changes. This does not.</dd></div>
+  <div><dt>An opaque cursor</dt><dd>Clients treat a cursor as a token and pass it back unchanged. It is not constructed, parsed or incremented.</dd></div>
+  <div><dt>A cursor belongs to its resource</dt><dd>A cursor from one collection, one resident or one caller is rejected anywhere else.</dd></div>
+  <div><dt>The end is explicit</dt><dd>When there is no further page, no cursor is returned.</dd></div>
+</div>
+
+## Report paging
+
+Cross-community reports have extra care because they combine communities.
+
+<div class="defs not-content">
+  <div><dt>Sealed cursors</dt><dd>The cursor is sealed, expires after an hour, and is bound to the caller, the organisation, the exact set of communities and the exact dates. It cannot be replayed under different filters.</dd></div>
+  <div><dt>Microsecond precision</dt><dd>The cursor keeps the full time precision of the records, so two qualifications completed in the same millisecond are neither skipped nor repeated.</dd></div>
+  <div><dt>Bounds</dt><dd>Up to twenty communities, a period of at most 366 days, and fifty rows per page. The period is half-open: it includes the start and excludes the end.</dd></div>
+  <div><dt>Canonical identifiers</dt><dd>Identifiers are lower-cased before comparison, so a different spelling of the same community cannot be selected twice or defeat the cursor binding.</dd></div>
+</div>
+
+## Counts are honest
+
+A page of results often comes with a summary, such as how many qualifications are shown or
+how many have a funding shortfall. Those figures **describe the page**. They are labelled as
+such, because a client that reads "twelve shortfalls" off a page of twenty and reports it as
+a total has made a statistical claim nobody supported.
+
+A true population statistic is a different thing. It needs a defined treatment of
+corrections, changing policy cohorts and residents receiving support, and the product does
+not offer one until those are defined.
+
+## Practical guidance for clients
+
+<ol class="steps not-content">
+  <li><h4>Always follow the cursor</h4><p>Never compute the next request yourself. If a cursor comes back, use it. If none does, you are done.</p></li>
+  <li><h4>Keep filters fixed across pages</h4><p>Change a filter and you start again from the first page.</p></li>
+  <li><h4>Treat a failed page as an error</h4><p>A failed read is never an empty result. An empty page and a failed page are different facts.</p></li>
+  <li><h4>Do not store cursors</h4><p>They are for walking a list now, not for bookmarking a position.</p></li>
+</ol>

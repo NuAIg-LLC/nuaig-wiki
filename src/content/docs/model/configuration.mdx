@@ -1,0 +1,120 @@
+---
+title: "Configuration and settings"
+description: "Four layers, one rule: no client-specific behaviour in the product, only settings with safe defaults."
+tldr:
+  - "Every difference between clients is a setting, never a branch in the product. A new setting must default to preserving current behaviour."
+  - "Settings resolve in four layers: platform defaults, organisation master settings, community overrides the client unlocks, and a pinned snapshot."
+  - "Policy is versioned and published with an expected revision, so two administrators cannot overwrite each other."
+  - "A qualification pins the policy and pricing it used, so changing a setting never changes an old answer."
+  - "The product ships no approved financial assumptions. Clients supply them."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+This product serves several client organisations, and they differ. They differ in how many
+approvals a decision needs, in what they call a level of care, in whether a refund counts
+towards a threshold. The rule that handles every one of those differences is the same, and
+it is strict:
+
+> **No client-specific behaviour is ever written into the product. A difference between
+> clients is a setting whose default preserves current behaviour, and it is documented.**
+
+## Why the rule has teeth
+
+A product that quietly becomes several products cannot be reasoned about. Every special
+case is a permanent cost, a place where one client's behaviour can surprise another, and a
+fact someone has to remember. The rule keeps the product one product.
+
+<div class="split not-content">
+  <div class="panel panel--ok">
+    <h4>What is allowed</h4>
+    <ul>
+      <li>A setting with a clear name and a documented default</li>
+      <li>A default that reproduces existing behaviour exactly</li>
+      <li>A setting that one client changes and another never touches</li>
+    </ul>
+  </div>
+  <div class="panel panel--stop">
+    <h4>What is not</h4>
+    <ul>
+      <li>Branching on a client, a community or a name</li>
+      <li>A default that changes what existing clients see</li>
+      <li>An undocumented behaviour that only some clients get</li>
+    </ul>
+  </div>
+</div>
+
+## The four layers
+
+<Flow
+  uid="cfg"
+  width={880}
+  height={190}
+  title="Settings resolve through four layers, each narrowing the one above"
+  nodes={[
+    { id: 'p', x: 10, y: 30, w: 190, h: 110, eyebrow: '1 PLATFORM', title: 'Defaults', sub: ['Ship with the product', 'Preserve current behaviour', 'Never approved financial values'], align: 'center' },
+    { id: 'o', x: 232, y: 30, w: 190, h: 110, eyebrow: '2 ORGANISATION', title: 'Master settings', sub: ['Central assumptions and', 'catalogues, published by the', 'client\'s administrator'], kind: 'accent', align: 'center' },
+    { id: 'c', x: 454, y: 30, w: 190, h: 110, eyebrow: '3 COMMUNITY', title: 'Local overrides', sub: ['Only fields the client has', 'opened: prices, assigned', 'contracts'], align: 'center' },
+    { id: 's', x: 676, y: 30, w: 174, h: 110, eyebrow: '4 THE RECORD', title: 'Pinned snapshot', sub: ['Frozen into every', 'qualification, forever'], kind: 'ok', align: 'center' },
+  ]}
+  edges={[
+    { from: 'p.r', to: 'o.l', kind: 'accent' },
+    { from: 'o.r', to: 'c.l', kind: 'accent' },
+    { from: 'c.r', to: 's.l', kind: 'accent' },
+  ]}
+  caption="<b>The fourth layer is not a setting. It is a guarantee.</b> Once a qualification exists, nothing that changes afterwards can reach it."
+/>
+
+## What is configured, and by whom
+
+<div class="defs not-content">
+  <div><dt>Life-plan policy (organisation)</dt><dd>Approved thresholds or none, the contract catalogue with allowed refund rates, named care duration profiles, annual rates for investment return, income increase, expense increase and a separate fee increase for each level of care, the insurance weight, the maximum projection length, and the five conventions. Published by a client administrator.</dd></div>
+  <div><dt>Life-plan pricing (community)</dt><dd>Which central contracts the community offers with an entrance fee and refund rate for each, a monthly fee for each level of care, and the second-person fee. A community can never change central durations, thresholds or rates.</dd></div>
+  <div><dt>Unit schedules</dt><dd>Dated per-unit prices with a source, plus the list of named price-reduction approvers.</dd></div>
+  <div><dt>Qualification review policy</dt><dd>Independent prerequisites and who may complete them, committee slots, how long a review stays valid, and the named waiver and escalation approvers. Set for the organisation and optionally overridden for a community.</dd></div>
+  <div><dt>Assessment policy</dt><dd>The runway model's tier cutoffs, look-back, state limits and pricing, centrally, with monthly care prices overridable per facility.</dd></div>
+  <div><dt>Family portal</dt><dd>Name, accent colour, welcome text, contact person, and which sections and document types are requested.</dd></div>
+  <div><dt>Communications</dt><dd>Whether outbound messages are enabled and the gateways used.</dd></div>
+</div>
+
+## The five conventions of the life-plan model
+
+These are the clearest examples of the rule. Each default preserves the model's original
+behaviour.
+
+| Setting | Options | Default |
+| --- | --- | --- |
+| Return convention | Monthly on the declining balance, or annual at opening | Monthly on the declining balance |
+| Refund counts towards threshold | Yes or no | Yes |
+| Couple leaves independent living | Independently, or both on the earlier date | Independently |
+| Duration source | Named profiles, or actuarial tables (not loaded, so refused) | Named profiles |
+| Care level labels | Any words, for the four fixed levels | Independent living, assisted living, memory care, skilled nursing |
+
+## Publishing a change
+
+A policy is never edited in place. It is **published as a new version**, and publishing
+follows the same rules as every other change in the product:
+
+<ol class="steps not-content">
+  <li><h4>Read the current configuration</h4><p>The read returns an opaque revision token describing exactly what the editor is looking at.</p></li>
+  <li><h4>Publish with the expected revision</h4><p>The token is sent back with the change and an idempotency key. The store takes a lock for the organisation and compares.</p></li>
+  <li><h4>A mismatch is a conflict</h4><p>If someone else published first, the change is refused with a conflict. The administrator reloads and decides. The product never rebases for them.</p></li>
+  <li><h4>A match creates a new version</h4><p>The earlier version remains. Nothing is overwritten.</p></li>
+</ol>
+
+Publishing a central change also checks the community assignments that depend on it, so a
+catalogue edit cannot silently invalidate a community's pricing.
+
+## Unset means unset
+
+The product ships **no approved financial assumptions**: no thresholds, no growth rates, no
+care durations, no prices. A fresh organisation has an empty policy, and the product says so
+instead of filling the gap. Until the client publishes approved thresholds, the outcome of a
+projection is *unconfigured*, and a qualification cannot be completed.
+
+This is a feature. A default threshold that a client forgot to review would quietly become
+their policy. An empty one cannot.
+
+See <a href="/operations/governance/">Configuration governance</a> for who may publish
+what, and <a href="/people/tenancy/">Tenancy model</a> for how the layers map to the
+organisation and its buildings.

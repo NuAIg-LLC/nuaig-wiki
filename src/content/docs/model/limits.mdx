@@ -1,0 +1,93 @@
+---
+title: "Known model limits"
+description: "What the models do not do, stated plainly so that nothing is mistaken for covered."
+tldr:
+  - "The models are planning conventions, not clinical predictions or certified replications of any spreadsheet."
+  - "They use explicit monthly care profiles, not actuarial tables, and take no age, sex or health input."
+  - "Several things are deliberately simple: a single pooled investment base, no debt interest, no behavioural response, fixed care order."
+  - "Differences from a client's own workbook, such as day-count and proration conventions, need an explicit ruling before they are modelled either way."
+---
+
+A model is only as trustworthy as its authors are honest about what it leaves out. This
+page lists, in one place, what the product's models **do not** do. If something is on this
+list, do not assume it is handled.
+
+## The models are conventions, not predictions
+
+<div class="split not-content">
+  <div class="panel">
+    <h4>Not a clinical forecast</h4>
+    <p>A care profile says how many months a resident spends at each level for planning purposes. It is not a prediction of anyone's health.</p>
+  </div>
+  <div class="panel">
+    <h4>Not a certified replication</h4>
+    <p>The life-plan model is a monthly planner. It is not certified numerically equivalent to any client's spreadsheet, and the differences are listed below.</p>
+  </div>
+  <div class="panel">
+    <h4>Not approved by default</h4>
+    <p>The product supplies no thresholds, rates or durations. A result is only as approved as the policy the client published.</p>
+  </div>
+</div>
+
+## What the life-plan model deliberately does not do
+
+<div class="defs not-content">
+  <div><dt>Select durations from demographics</dt><dd>There is no age, sex, diagnosis or health input. Durations come from named profiles a reviewer chooses. Actuarial selection is recognised as a future policy-layer option, but it is not available, and the model refuses rather than guessing.</dd></div>
+  <div><dt>Adjust automatically for health</dt><dd>No path leads from health information to a qualification outcome. Any future use needs documented approval, an explicit authorisation, a reason, audit and tests.</dd></div>
+  <div><dt>Model the order of care flexibly</dt><dd>A resident passes through independent living, assisted living, memory care and skilled nursing in that order. Returning to a lower level or skipping one is not modelled.</dd></div>
+  <div><dt>Charge debt interest</dt><dd>A negative balance earns nothing and accrues no assumed interest. It exposes the unfunded cost without pricing the borrowing.</dd></div>
+  <div><dt>Separate pools of investment</dt><dd>All funds that become available join a single projected investment base. Preventing double counting of an investment's payout and its modelled return is part of verifying the evidence, not something the model can see.</dd></div>
+  <div><dt>Apply tax or access rules to asset types</dt><dd>An asset's kind records what it is. It does not apply tax treatment, trust access rules or eligibility. The value entered must already be the verified net amount actually available.</dd></div>
+  <div><dt>Simulate the timing of a resale</dt><dd>The contingent refund depends on the unit being resold, and that timing is not simulated. The refund is therefore never available cash.</dd></div>
+  <div><dt>Model an entrance-fee deferral</dt><dd>The entrance fee is taken at month zero. A short deferral pending a house sale is modelled as timed proceeds arriving later, not as a deferred fee, so the cash-flow effect is explicit.</dd></div>
+  <div><dt>Model behaviour</dt><dd>No household changes its spending in response to a falling balance.</dd></div>
+</div>
+
+## Differences from a spreadsheet
+
+Operators often run the same logic in an existing workbook, and that workbook usually
+makes different, undocumented choices. They matter, because a few cents of difference in a
+convention can change which side of a threshold a marginal household falls on.
+
+<div class="defs not-content">
+  <div><dt>Annual or monthly</dt><dd>Workbooks commonly work in annual fractions of occupancy. The model works month by month, with explicit profiles and independent care paths.</dd></div>
+  <div><dt>Day-count bases</dt><dd>Workbooks may mix a 365-day and a 365.25-day year. The model has one convention.</dd></div>
+  <div><dt>Return timing</dt><dd>A workbook may credit a full year's return on the opening balance. The model defaults to monthly on the declining balance, and offers the annual convention as a setting so a client can compare.</dd></div>
+  <div><dt>Shared independent-living exit</dt><dd>A workbook may move both residents out of independent living on one date. The model offers this as a setting.</dd></div>
+  <div><dt>Proration of the first month</dt><dd>Billing conventions for a partial first month differ from the monthly planning convention here. Exact equivalence needs a ruling before it is claimed.</dd></div>
+  <div><dt>Negative balances</dt><dd>A workbook may accrue negative earnings on a negative balance. The model does not.</dd></div>
+</div>
+
+A client migrating from a workbook can be shown their own cases under both return
+conventions side by side. That makes the difference visible rather than arguing about it.
+
+## What the runway model does not do
+
+<div class="defs not-content">
+  <div><dt>Model a lifetime</dt><dd>It uses one flat price and one person. A cost that rises yearly, a couple, or an entrance fee are outside it. That is why the life-plan model exists.</dd></div>
+  <div><dt>Represent current law</dt><dd>The built-in Medicaid limits, look-back window and penalty figures are demonstration values. A deployer supplies reviewed, versioned policy for each jurisdiction.</dd></div>
+  <div><dt>Let health move the tier</dt><dd>Health flags annotate the trajectory and the story, never the tier.</dd></div>
+</div>
+
+## What the probability layer does not do
+
+See the list at the end of <a href="/model/simulation/">Advanced analysis</a>. In short: it does
+not correlate length of stay with returns, does not vary fees, does not model transitions
+between levels, and does not model behaviour.
+
+## What the platform does not decide
+
+<div class="split not-content">
+  <div class="panel panel--stop">
+    <h4>Admission</h4>
+    <p>A person decides, always.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>Legal and actuarial policy</h4>
+    <p>The product mechanises a client's published policy. It does not choose one.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>Waiting lists and deposits</h4>
+    <p>Commercial mechanics around qualification are left to the client's own systems.</p>
+  </div>
+</div>

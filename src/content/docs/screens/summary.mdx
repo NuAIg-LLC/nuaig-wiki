@@ -1,0 +1,83 @@
+---
+title: "Prospect summary"
+description: "The one document a family is allowed to take home, built from a strict whitelist."
+tldr:
+  - "The prospect summary is a printable page staff prepare and share through an approved channel. The recipient needs no login."
+  - "It is a whitelist, not a hidden stylesheet: what is not on the list is never put on the page."
+  - "It shows starting assets, timed proceeds, income, costs, care months and fees, balances at care transitions, and the refund as a separate contingent line."
+  - "Internal notes, per-resident income detail, internal thresholds and approver notes are excluded by construction."
+  - "There is no public link. Staff print or save as PDF."
+---
+
+import Shot from '../../../components/Shot.astro';
+
+<div class="kv not-content">
+  <span><b>Route</b><code>/prospects/{'{id}'}/life-plan/qualifications/{'{id}'}/print</code></span>
+  <span><b>Who</b>Staff who may read the qualification</span>
+  <span><b>Recipient</b>The prospective resident, with no account</span>
+</div>
+
+<Shot
+  src="/img/shots/qual-print-full.webp"
+  route="/prospects/{id}/life-plan/qualifications/{qualificationId}/print"
+  role="Sales financial reviewer"
+  caption="<b>The summary, in preparation.</b> Buttons to go back or print, a reminder about browser headers, and below it the document itself: a confidential planning summary for the prospective resident."
+/>
+
+## What it is
+
+A family often needs something to take home and think about. This is that, and nothing
+more. It is a **financial planning summary**, prepared by staff from a completed
+qualification, that a family can read without logging in to anything.
+
+## Why it is a whitelist
+
+A summary meant for outsiders must not leak what is meant for insiders. The page is
+assembled from an explicit list of what may appear, rather than from the full record with
+parts hidden. A field that is not on the list is never fetched.
+
+<div class="split not-content">
+  <div class="panel panel--ok">
+    <h4>Included</h4>
+    <ul>
+      <li>The prospect and the selected contract</li>
+      <li>Assets available at entrance, and later proceeds</li>
+      <li>Entrance fee, household income and investment return</li>
+      <li>Long-term care insurance recognised, and total expenses</li>
+      <li>Care months and projected fees by level</li>
+      <li>Balances at each care transition and any funding shortfall</li>
+      <li>The ending balance, then the contingent refund separately</li>
+    </ul>
+  </div>
+  <div class="panel panel--stop">
+    <h4>Excluded by construction</h4>
+    <ul>
+      <li>Internal notes and exception history</li>
+      <li>The original household entries and account documents</li>
+      <li>Per-resident income detail</li>
+      <li>Internal outcome thresholds and approver notes</li>
+      <li>Observation notes</li>
+    </ul>
+  </div>
+</div>
+
+## How the refund is worded
+
+The summary states the refund plainly and shows it apart from the ending balance. Its
+wording says that **both residents must leave and the unit must be resold**, and that the
+refund cannot pay for ongoing care. A family should never be left thinking it is cash they
+can spend.
+
+## How it is shared
+
+<div class="defs not-content">
+  <div><dt>Staff prepare it</dt><dd>The page is an authenticated staff screen. Staff use the browser's Print or Save as PDF.</dd></div>
+  <div><dt>Turn off browser headers</dt><dd>The page reminds staff to do this, so that the internal address of the staff page is not printed on the document.</dd></div>
+  <div><dt>Shared through an approved channel</dt><dd>The product does not email it automatically and publishes no public link. The recipient receives a document, not an account.</dd></div>
+</div>
+
+## A fair caveat
+
+The care phases and the monthly arithmetic are planning conventions. They are not a clinical
+prediction. The summary is meant to help a family understand how the numbers work out, not
+to promise how any one life will unfold.

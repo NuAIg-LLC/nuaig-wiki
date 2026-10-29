@@ -1,0 +1,88 @@
+---
+title: "Open questions"
+description: "Questions that need a named owner and an answer, and what the product does until it gets one."
+tldr:
+  - "These questions belong to the client, to counsel or to leadership. An engineer must not answer them by accident."
+  - "For each one the product has a safe default behaviour that holds until an owner decides."
+  - "The safe default is always the conservative one: report as unconfigured, refuse, or keep the evidence."
+  - "When a question is answered, the answer moves to Decisions on record and this page changes."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+Some questions in this product are not engineering questions. They carry money, legal
+exposure or compliance obligations, and the right answer depends on a particular client.
+This page keeps them in one place, with an **owner** and, importantly, **what the product
+does until they are answered**.
+
+<Flow
+  uid="oq"
+  width={880}
+  height={210}
+  title="How an open question is closed"
+  nodes={[
+    { id: 'a', x: 10, y: 46, w: 190, h: 84, eyebrow: '1', title: 'A question is raised', sub: ['Listed here with an owner'], align: 'center' },
+    { id: 'b', x: 230, y: 46, w: 190, h: 84, eyebrow: '2', title: 'Safe default holds', sub: ['The product stays', 'conservative'], kind: 'warn', align: 'center' },
+    { id: 'c', x: 450, y: 46, w: 190, h: 84, eyebrow: '3', title: 'The owner decides', sub: ['In writing, with reasons'], kind: 'accent', align: 'center' },
+    { id: 'd', x: 670, y: 46, w: 190, h: 84, eyebrow: '4', title: 'It becomes a setting', sub: ['Or a decision on record'], kind: 'ok', align: 'center' },
+  ]}
+  edges={[
+    { from: 'a.r', to: 'b.l', kind: 'accent' },
+    { from: 'b.r', to: 'c.l', kind: 'accent' },
+    { from: 'c.r', to: 'd.l', kind: 'ok' },
+  ]}
+  caption="<b>An answer arrives as a setting, never as a hard-coded behaviour.</b> That keeps it per client and reversible."
+/>
+
+## The questions
+
+| # | Question | Usual owner | What the product does until it is answered |
+| --- | --- | --- | --- |
+| 1 | **Outcome thresholds.** Where does a definite fit begin, where does not qualified end, and do they vary by community or date? | Finance leadership | Reports the outcome as unconfigured. Projections can be read. Qualifications cannot be completed. |
+| 2 | **Should the contingent refund count towards the thresholds?** | Finance leadership | Counts it, as the default. A setting changes it. |
+| 3 | **Which return and couple conventions apply?** Monthly or annual return crediting, and independent or shared exit from independent living. | Finance leadership | Monthly on the declining balance, and independent. Both alternatives are available as settings. |
+| 4 | **Do the client's existing workbooks reconcile?** An agreed set of anonymised, completed cases with expected outcomes. | Finance leadership, with the product team | The product does not claim equivalence. It can show a client's cases under both conventions side by side. |
+| 5 | **May health information inform a projected stay?** And if so how, under what authorisation. | Counsel | No path from health to outcome exists. Durations come from named profiles. |
+| 6 | **What is the actuarial source for durations?** Current tables, how age is handled, how levels map, how couples move together, and rounding. | Counsel and financial policy owner | Actuarial selection is refused. Durations come from named profiles. |
+| 7 | **What are the retention periods, legal holds and disposal rules?** By data class. | Legal | Evidence is kept indefinitely and only operational data is tidied. |
+| 8 | **What is the authoritative source of unit prices and availability?** Dated schedule or live system, and the interface. | Operations and finance | Prices are dated, sourced schedules with a reference to where each came from. No live feed is implied. |
+| 9 | **Who may approve a price reduction, and does the existing adjustment form move into the product?** | Operations leadership | An empty approver list. No reduction can be approved until names are supplied. |
+| 10 | **How should a short entrance-fee deferral be modelled?** | Finance leadership | The fee is taken at month zero. A deferral pending a house sale is modelled as timed proceeds. |
+| 11 | **How is a partial first month billed?** | Finance leadership | A monthly planning convention. Exact equivalence with a billing convention is not claimed. |
+| 12 | **Should there be requalification at a later anniversary?** And what triggers it. | Leadership | None. History is preserved, and no automatic anniversary decision or message occurs. |
+| 13 | **Who are the backup approvers if the chain changes?** | Operations leadership | Explicit assigned approvers with a pending state. No silent fallback authority. |
+| 14 | **How fresh must evidence be, and which tax years and pages are required?** | Finance and compliance | People verify periods and completeness. The product does not enforce freshness. |
+| 15 | **Who owns waiting lists, deposits and unit holds?** | Client commercial leadership | Not in the product. The client's own systems hold them. |
+| 16 | **How are population trends defined?** Treatment of corrections, changing policy cohorts and residents receiving support, before any statement about residents who outlived their funds. | Leadership and analysts | Reports describe pages of qualifications and their latest observed outcome. They state that counts are not population totals. |
+| 17 | **Should automated or AI clients be given read access?** To what, for whom, under what agreement. | Client security and compliance | The tool surface is not enabled. |
+| 18 | **Should the audit chain be anchored outside the platform?** | Client security | The chain is tamper-evident within the platform. Anchoring is an operational option. |
+
+## Why these are not answered in the product
+
+The product is designed so that **each of these can be answered without changing code**,
+and so that nobody can answer one by accident. In each case the safe default is the
+conservative one:
+
+<div class="split not-content">
+  <div class="panel panel--warn">
+    <h4>Report it as unconfigured</h4>
+    <p>For anything numeric the client must supply: thresholds and rates.</p>
+  </div>
+  <div class="panel panel--warn">
+    <h4>Refuse</h4>
+    <p>For anything with legal weight: health use and actuarial selection.</p>
+  </div>
+  <div class="panel panel--warn">
+    <h4>Keep the evidence</h4>
+    <p>For anything about deletion: retention and holds.</p>
+  </div>
+</div>
+
+## Adding or closing a question
+
+<ol class="steps not-content">
+  <li><h4>Add a row with an owner</h4><p>A question without an owner is a hope. Name a role, not a person.</p></li>
+  <li><h4>State the safe default</h4><p>What the product does today, so nobody is surprised.</p></li>
+  <li><h4>On an answer, change a setting</h4><p>Never hard-code it. See <a href="/model/configuration/">Configuration and settings</a>.</p></li>
+  <li><h4>Move the reasoning to the record</h4><p>Write the decision on <a href="/decisions/record/">Decisions on record</a> and remove the row here.</p></li>
+</ol>

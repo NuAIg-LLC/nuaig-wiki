@@ -1,0 +1,97 @@
+---
+title: "Leadership reporting"
+description: "Reading across communities without acquiring access to any of them."
+tldr:
+  - "A report covers completed qualifications and their latest observed outcome across the communities a person has been explicitly granted."
+  - "A grant is per person and per community, made by an administrator, and it creates no resident access by itself."
+  - "The reader must also hold a live membership in each community with the financial, health and assessment read scopes."
+  - "Up to 20 communities per run and a period of at most 366 days. Counts describe the page shown, not the whole population."
+  - "Reports show a minimal summary. Private notes and original instrument lines are excluded."
+---
+
+import Flow from '../../../components/Flow.astro';
+import Shot from '../../../components/Shot.astro';
+
+Leadership needs a view across communities, and the product refuses to give it by the
+obvious route. A tenant-wide "see everything" capability would turn one administrator
+mistake into an organisation-wide disclosure. So reporting is built from permissions that
+are **explicit, narrow and individually revocable**.
+
+## Two things must both be true
+
+<Flow
+  uid="rp"
+  width={860}
+  height={260}
+  title="A report needs both a grant and a membership, in every community it covers"
+  nodes={[
+    { id: 'g', x: 20, y: 34, w: 250, h: 90, eyebrow: 'FROM A CLIENT ADMINISTRATOR', title: 'A reporting grant', sub: ['Named person, named community,', 'versioned and revocable'], kind: 'accent', align: 'center' },
+    { id: 'm', x: 20, y: 150, w: 250, h: 90, eyebrow: 'ALREADY IN PLACE', title: 'A live membership', sub: ['Holding the financial, health', 'and assessment read scopes'], align: 'center' },
+    { id: 'and', x: 330, y: 92, w: 110, h: 76, title: 'Both', sub: 'In every community', kind: 'warn', align: 'center' },
+    { id: 'run', x: 500, y: 92, w: 170, h: 76, eyebrow: 'THEN', title: 'The report runs', sub: ['One community at a time,', 'inside its own boundary'], kind: 'ok', align: 'center' },
+    { id: 'rej', x: 710, y: 92, w: 140, h: 76, eyebrow: 'ANY ONE MISSING', title: 'Refused', sub: ['The whole request'], kind: 'stop', align: 'center' },
+  ]}
+  edges={[
+    { from: 'g.r', to: 'and.l', kind: 'accent' },
+    { from: 'm.r', to: 'and.l', kind: 'accent' },
+    { from: 'and.r', to: 'run.l', kind: 'ok' },
+    { from: 'run.r', to: 'rej.l', kind: 'stop', label: 'if not' },
+  ]}
+  caption="<b>A grant never creates access.</b> It only permits a person who already has access to look across communities. Remove the membership and the grant stops working."
+/>
+
+## Granting access
+
+<Shot
+  src="/img/shots/report-access.webp"
+  route="/admin/report-access"
+  role="Client administrator"
+  caption="<b>Report access.</b> A client administrator picks an eligible staff member and a community. The page explains that a grant does not create a membership or widen a role."
+/>
+
+<div class="defs not-content">
+  <div><dt>Eligibility</dt><dd>The person must be an active user, in an active community, with an active membership holding the required read scopes. Platform administrators and emergency identities can never be granted routine reporting.</dd></div>
+  <div><dt>Versioned</dt><dd>Each grant carries a version. A stale write conflicts instead of overwriting, and a grant that exists outside the page being edited causes a conflict rather than being silently duplicated.</dd></div>
+  <div><dt>Revocable at any time</dt><dd>Including after the person's membership has been removed.</dd></div>
+</div>
+
+## Running a report
+
+<Shot
+  src="/img/shots/reports-run.webp"
+  route="/reports/life-plan"
+  role="Finance reviewer"
+  caption="<b>Qualification reports.</b> Choose up to twenty granted communities and a date range, then run. Each row shows the original outcome, any funding shortfall, the ending balance, the separate contingent refund and the latest observed outcome."
+/>
+
+<div class="defs not-content">
+  <div><dt>Choices</dt><dd>Only communities the person is currently allowed to report on are offered. They select up to twenty, and the period is at most 366 days. Dates default to the last thirty days and include the full selected days in UTC.</dd></div>
+  <div><dt>Every request is re-checked</dt><dd>The user, organisation, community, membership role and grant are verified each time, and the rows that establish them are locked while the community is read, so access cannot be revoked mid-report without the report noticing.</dd></div>
+  <div><dt>One community at a time</dt><dd>Each community is read inside its own isolation boundary and the results are merged. There is no tenant-wide bypass of the resident tables.</dd></div>
+  <div><dt>All or nothing</dt><dd>If any one selected community is not authorised, the whole request is rejected rather than quietly omitting it.</dd></div>
+  <div><dt>Stable paging</dt><dd>Results sort by original completion time, newest first, with a sealed cursor bound to the person, the organisation, the selected communities and the dates, so a page cannot be replayed under different filters.</dd></div>
+</div>
+
+## What a row contains
+
+A row is a **minimum-necessary history**: the resident and community names, the policy and
+pricing the qualification used, when it was completed, its original outcome and financial
+summary, and the most recent observation. It deliberately excludes the original
+instrument lines, the full monthly projection and every private note.
+
+## Two honest caveats the screen states
+
+<div class="split not-content">
+  <div class="panel">
+    <h4>Counts describe the page</h4>
+    <p>The summary figures at the top count the rows shown, not the whole query. The screen labels them that way, so nobody mistakes a page for a population.</p>
+  </div>
+  <div class="panel">
+    <h4>A forecast is not an outcome</h4>
+    <p>A qualification is a forecast, not an admission decision and not an observed result. Reports keep the three apart.</p>
+  </div>
+</div>
+
+A report row links to the resident's summary only for the community currently selected.
+Opening a resident in another community still requires selecting that community through the
+ordinary membership flow.

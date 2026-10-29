@@ -1,0 +1,151 @@
+---
+title: "The rules that shape the product"
+description: "Twelve invariants that explain why the product behaves the way it does, and what each one protects."
+tldr:
+  - "Twelve rules explain the product. Two matter most: deterministic arithmetic, and a human owns every adverse outcome."
+  - "Money is whole cents and no calculation ever reads the clock."
+  - "Records are immutable. A correction is a new record that points at the old one."
+  - "Isolation is enforced by the store, a conflict is an answer, and a retry is never a second change."
+  - "Probability advises, unverified input never reaches arithmetic, and every access leaves a trace."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+Almost every surprising behaviour in the product is the consequence of one of the rules
+below. They are stated here once, in plain language, so that nobody has to rediscover them
+by breaking one. If a change seems to require breaking a rule, the change is wrong or the
+rule needs a recorded decision. It is never quietly bent.
+
+## The two that everything else follows from
+
+<div class="split not-content">
+  <div class="panel panel--info">
+    <h4>Rule one</h4>
+    <p><strong>Deterministic arithmetic, probabilistic language.</strong> Every number that decides anything is computed by versioned code that returns the same answer every time. Language models and probability may explain and advise. They may not decide.</p>
+  </div>
+  <div class="panel panel--info">
+    <h4>Rule two</h4>
+    <p><strong>A human owns every adverse outcome.</strong> The system never declines, waitlists or approves anyone. A named person does, with a written reason, against one exact result.</p>
+  </div>
+</div>
+
+## The full list
+
+### 1. Money is whole cents
+
+Every amount is an integer count of cents. Every percentage is an integer count of basis
+points. No decimal fractions appear anywhere money is handled.
+
+*Why:* decimal arithmetic loses a cent in ways that are invisible and impossible to
+reconcile. A figure that may be evidence must reproduce exactly.
+
+### 2. Calculation never reads the clock
+
+No calculation looks at today's date. Every date it needs is an explicit input.
+
+*Why:* a projection replayed years later must return identical figures. A calculation that
+quietly uses the current date cannot.
+
+### 3. A recorded result is immutable
+
+A qualification, a decision, a quote, an observation and an audit event are never edited or
+deleted. A correction is a new record that points at the one it corrects.
+
+*Why:* these are evidence. If history can be rewritten, it is not history.
+
+### 4. Isolation is enforced by the store, not by the code
+
+Separation between client organisations, and between communities within one, is a property
+of the database itself. A query that forgets to filter returns nothing rather than
+everything.
+
+*Why:* a single missed filter in application logic is an invisible, organisation-wide data
+leak. A control that survives a bug is worth more than one that depends on there being none.
+
+### 5. A conflict is an answer
+
+Every change names the version of the record it was based on. If the record has moved, the
+change is refused and the conflict is shown to the person. It is never rebased and retried
+automatically.
+
+*Why:* a silent retry applies a decision to facts the person never saw.
+
+### 6. A repeated request is never a second change
+
+Every change carries a caller-chosen key. Sending the same request again returns the
+original answer and does nothing new. Sending different content under the same key is an
+error.
+
+*Why:* networks fail halfway. Without this, a retry after a timeout can create a duplicate
+invitation, a duplicate decision or a duplicate charge.
+
+### 7. Probability advises, and the deterministic result decides
+
+The probability layer may report distributions, likelihoods and sensitivities. It may never
+set, change or influence a recorded outcome, and it is held to this in three independent
+ways: it has no database access, its stored form has no field for an outcome, and its table
+accepts only inserts.
+
+*Why:* an advisory number that can leak into a decision is a decision made by something
+nobody can explain.
+
+### 8. No client-specific behaviour in the product
+
+The product never branches on which client it is serving. A difference between clients is
+a setting, with a default that preserves current behaviour, and it is documented.
+
+*Why:* every special case is a permanent maintenance cost, and a product that has quietly
+become several products cannot be reasoned about.
+
+### 9. Show the minimum, and say so
+
+A response contains only what the asker's role requires, and states when something was
+withheld. The restriction is applied when the response is built, not by hiding it on screen.
+
+*Why:* a field that was sent to the browser has been disclosed, however it is styled.
+
+### 10. Nothing is promoted unverified
+
+Anything entered by a family, extracted from a document, or typed into a form is a
+proposal until a person confirms it. Extraction never feeds a calculation directly.
+
+*Why:* untrusted input must never reach the arithmetic unreviewed.
+
+### 11. Every access leaves a trace
+
+Every read and write of regulated data appends an event to a tamper-evident trail, naming
+the person, the action, the record and the fields touched.
+
+*Why:* accountability for disclosure is a legal obligation, and the trail is also a product
+feature that client auditors expect.
+
+### 12. Port behaviour, never "improve" it silently
+
+When behaviour is reproduced from an earlier version, it is reproduced exactly. An
+improvement is a separate change with its own test and its own recorded reason.
+
+*Why:* an unrecorded improvement is indistinguishable from a regression, and in a product
+that produces evidence, the difference matters.
+
+## How the rules fit together
+
+<Flow
+  uid="rules"
+  width={860}
+  height={290}
+  title="How the rules protect each stage of a case"
+  nodes={[
+    { id: 'in', x: 14, y: 20, w: 180, h: 74, eyebrow: 'INPUT', title: 'A figure arrives', sub: ['Rule 10: unverified', 'until a person confirms'], align: 'center' },
+    { id: 'calc', x: 240, y: 20, w: 180, h: 74, eyebrow: 'CALCULATION', title: 'The answer is made', sub: ['Rules 1, 2 and 7:', 'cents, no clock, no advice'], kind: 'accent', align: 'center' },
+    { id: 'rec', x: 466, y: 20, w: 180, h: 74, eyebrow: 'RECORD', title: 'It is stored', sub: ['Rules 3 and 5:', 'immutable, versioned'], align: 'center' },
+    { id: 'dec', x: 692, y: 20, w: 154, h: 74, eyebrow: 'DECISION', title: 'A person signs', sub: ['Rule 2: named, reasoned'], kind: 'ok', align: 'center' },
+    { id: 'iso', x: 14, y: 176, w: 400, h: 70, eyebrow: 'UNDERNEATH ALL OF IT', title: 'Isolation, minimum necessary, audit', sub: 'Rules 4, 9 and 11 hold at every stage', kind: 'violet' },
+    { id: 'cfg', x: 446, y: 176, w: 400, h: 70, eyebrow: 'AROUND ALL OF IT', title: 'Settings, never special cases', sub: 'Rules 8 and 12 govern how the product changes', kind: 'violet' },
+  ]}
+  edges={[
+    { from: 'in.r', to: 'calc.l', kind: 'accent' },
+    { from: 'calc.r', to: 'rec.l', kind: 'accent' },
+    { from: 'rec.r', to: 'dec.l', kind: 'accent' },
+  ]}
+  caption="<b>Three rules act on the case as it moves, and three hold underneath it throughout.</b>"
+/>

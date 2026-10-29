@@ -1,0 +1,130 @@
+---
+title: "Documents and verification"
+description: "Ingestion as a gate, extraction as a proposal, and a person as the authority."
+tldr:
+  - "Uploading a document is a gate, not a folder: type checks, malware scan, encryption and a checksum."
+  - "The assistant proposes a document type and the figures in it, with a confidence score."
+  - "A person verifies or rejects each one. Extraction never fills the record on its own."
+  - "Anything that is not confident lands in a review queue for a human to confirm."
+  - "Accepting a submission is blocked while any requested document is missing, unscanned or unreviewed."
+---
+
+import Flow from '../../../components/Flow.astro';
+import Shot from '../../../components/Shot.astro';
+
+A family's documents are the evidence behind every number. The flow is built around one
+idea: **a machine may read, but only a person may believe.**
+
+## The path a document takes
+
+<Flow
+  uid="doc"
+  width={880}
+  height={300}
+  title="From upload to a verified figure"
+  lanes={[
+    { x: 8, y: 8, w: 570, h: 130, label: 'THE GATE (automatic)' },
+    { x: 8, y: 150, w: 864, h: 140, label: 'THE PROPOSAL AND THE DECISION' },
+  ]}
+  nodes={[
+    { id: 'up', x: 24, y: 40, w: 120, h: 78, eyebrow: '1', title: 'Upload', sub: ['PDF or image'], align: 'center' },
+    { id: 'chk', x: 160, y: 40, w: 130, h: 78, eyebrow: '2', title: 'Check', sub: ['Real type from', 'the file itself'], align: 'center' },
+    { id: 'scan', x: 306, y: 40, w: 120, h: 78, eyebrow: '3', title: 'Scan', sub: ['Malware gate'], kind: 'warn', align: 'center' },
+    { id: 'store', x: 442, y: 40, w: 120, h: 78, eyebrow: '4', title: 'Store', sub: ['Encrypted,', 'checksummed'], align: 'center' },
+    { id: 'ocr', x: 24, y: 184, w: 150, h: 78, eyebrow: '5', title: 'Read the text', sub: ['Text recognition'], align: 'center' },
+    { id: 'ext', x: 198, y: 184, w: 170, h: 78, eyebrow: '6', title: 'Propose', sub: ['Type, fields,', 'confidence'], kind: 'violet', align: 'center' },
+    { id: 'q', x: 392, y: 184, w: 150, h: 78, eyebrow: '7', title: 'Review queue', sub: ['If not confident'], kind: 'warn', align: 'center' },
+    { id: 'ver', x: 566, y: 184, w: 150, h: 78, eyebrow: '8', title: 'A person decides', sub: ['Verify or reject'], kind: 'ok', align: 'center' },
+    { id: 'use', x: 740, y: 184, w: 116, h: 78, eyebrow: '9', title: 'Used', sub: ['By a reviewer'], align: 'center' },
+  ]}
+  edges={[
+    { from: 'up.r', to: 'chk.l', kind: 'accent' },
+    { from: 'chk.r', to: 'scan.l', kind: 'accent' },
+    { from: 'scan.r', to: 'store.l', kind: 'accent' },
+    { from: 'store.b', to: 'ocr.t', kind: 'accent' },
+    { from: 'ocr.r', to: 'ext.l', kind: 'accent' },
+    { from: 'ext.r', to: 'q.l', kind: 'dash' },
+    { from: 'q.r', to: 'ver.l', kind: 'accent' },
+    { from: 'ver.r', to: 'use.l', kind: 'ok' },
+  ]}
+  caption="<b>Steps one to four are a gate. Steps five to nine are a proposal and a decision.</b> The assistant appears only in step six, and what it produces is never trusted on its own."
+/>
+
+## The gate
+
+<div class="defs not-content">
+  <div><dt>The real file type</dt><dd>The type is detected from the file's own leading bytes. The label the uploader supplied is only a hint and is never trusted, so a program renamed to look like a statement is rejected.</dd></div>
+  <div><dt>Malware scan</dt><dd>A document is quarantined until scanned. An unscanned document cannot be accepted into the pipeline.</dd></div>
+  <div><dt>Storage</dt><dd>Stored under a per-client key, encrypted, with a checksum recorded on write and checked again on read. Stored objects are written once and never overwritten.</dd></div>
+  <div><dt>Text recognition</dt><dd>Plain documents are read locally. Scanned pages and images go to a recognition provider. If the provider fails, the document fails closed rather than silently skipping the step.</dd></div>
+</div>
+
+## The proposal
+
+The assistant reads the text and proposes a document type, and the values it finds, each
+with a confidence score. It also flags anything suspicious, such as text that looks like an
+attempt to instruct the assistant. Before the assistant sees a document, direct identifiers
+are reduced on a best-effort basis. That reduction is a safeguard, not de-identification,
+and the product treats every document as fully sensitive regardless.
+
+Proposed values are **observations, not facts**:
+
+<div class="defs not-content">
+  <div><dt>Tax return income</dt><dd>An annual figure. Never treated as monthly income without an explicit conversion by a person.</dd></div>
+  <div><dt>Pay stub</dt><dd>Covers a stated period that has to be normalised to a month by a person.</dd></div>
+  <div><dt>Home value</dt><dd>Not the same as equity. Mortgage balances are debt.</dd></div>
+  <div><dt>Trust amounts</dt><dd>Not automatically available assets. Whether and when funds are reachable is a human judgement.</dd></div>
+</div>
+
+## The decision
+
+<Shot
+  src="/img/shots/document.webp"
+  route="/documents/{id}"
+  role="Finance reviewer"
+  caption="<b>A document under review.</b> On one side, the document as uploaded. On the other, what was read from it, how confident that reading is, and any anomaly. The reviewer verifies it or rejects it, and can add a note."
+/>
+
+Every extraction carries a fixed flag that says a human must review it. There is no
+configuration that turns this off, and the calculation refuses to run on a profile nobody
+has verified.
+
+<Shot
+  src="/img/shots/review-queue.webp"
+  route="/review"
+  role="Finance reviewer"
+  caption="<b>The review queue.</b> Documents the assistant was not confident about wait here for a person. It is separate from the pipeline on purpose: the pipeline is residents, this is evidence."
+/>
+
+## Reviewing a family's submission
+
+When a family submits, staff open the submission and work through it document by document.
+
+<Shot
+  src="/img/shots/submission-review.webp"
+  route="/submissions/{id}"
+  role="Finance reviewer"
+  caption="<b>Reviewing a submission.</b> Each document shows what was detected, the family's own label, the extracted figure and its confidence, with Verify and Reject. The activity panel on the right is the trail the family can also see."
+/>
+
+<div class="defs not-content">
+  <div><dt>Verify</dt><dd>Confirms the type and the figures. A document must be verified before its figures can inform a calculation.</dd></div>
+  <div><dt>Reject</dt><dd>Marks it unusable, with a reason. The counselor can ask the family for a replacement.</dd></div>
+  <div><dt>Validate the financials</dt><dd>A person with the financial scope confirms the income, assets and benefit figures as a whole. A counselor can run the conversation but cannot do this step.</dd></div>
+  <div><dt>Accept</dt><dd>Blocked while any requested document is missing, unscanned or unreviewed.</dd></div>
+</div>
+
+## Promotion
+
+Promotion is one explicit step. It creates the resident record, copies the verified
+documents across to their permanent location, and carries the validated financial profile
+with it. If the financials were validated they arrive ready to assess. Otherwise a person
+still has to confirm them in the workspace. From this moment the family portal has no
+further reach into the record.
+
+<Shot
+  src="/img/shots/resident-documents.webp"
+  route="/prospects/{id}  (Documents step)"
+  role="Finance reviewer"
+  caption="<b>After promotion.</b> The documents sit on the resident record, each marked verified, ready for the next step."
+/>

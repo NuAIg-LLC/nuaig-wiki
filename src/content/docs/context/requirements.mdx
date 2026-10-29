@@ -1,0 +1,77 @@
+---
+title: "Requirements register"
+description: "The fourteen numbered client requirements the product was designed against, and where each is answered."
+tldr:
+  - "Fourteen numbered requirements came from the client's own discovery work and shaped the product."
+  - "Each row says what was asked and which part of the product answers it, with a link."
+  - "Anything that needs the client's approval, such as thresholds, retention and health use, is handled by a setting, never a guess."
+  - "A requirement being met by the product is separate from the client accepting the policy numbers behind it."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+These requirements came out of structured discovery with a life-plan operator, and they are
+the clearest statement of what the product is for. They are numbered **R1 to R14** and the
+numbers are used throughout the organisation, so they are kept stable here.
+
+Each row names the requirement and the part of the product that answers it. The product
+supplies the **mechanism**. The **policy numbers** that drive it, such as thresholds and
+growth rates, always belong to the client and are entered by them.
+
+<Flow
+  uid="req"
+  width={860}
+  height={170}
+  title="Mechanism belongs to the product, policy belongs to the client"
+  nodes={[
+    { id: 'm', x: 20, y: 36, w: 360, h: 94, eyebrow: 'THE PRODUCT SUPPLIES', title: 'The mechanism', sub: ['Projection, classification, approval chain,', 'masking, versioning, audit'], kind: 'accent' },
+    { id: 'p', x: 480, y: 36, w: 360, h: 94, eyebrow: 'THE CLIENT SUPPLIES', title: 'The policy', sub: ['Thresholds, rates, care durations, contract terms,', 'named approvers, retention periods'], kind: 'warn' },
+  ]}
+  edges={[
+    { from: 'p.l', to: 'm.r', kind: 'dash', label: 'published and versioned' },
+  ]}
+  caption="<b>The product never ships approved assumptions.</b> Until the client publishes them, it reports that they are missing instead of guessing."
+/>
+
+## The fourteen requirements
+
+| ID | The client asked for | How the product answers it |
+| --- | --- | --- |
+| **R1** | Three financial outcomes, with thresholds set centrally: a definite fit, probably not so consider another unit, and not qualified. | Three classified outcomes plus an explicit **unconfigured** state until thresholds are approved. See <a href="/model/outcomes/">Outcomes and thresholds</a>. |
+| **R2** | Live scenarios across unit types, entrance fees and asset strategies. | The household workspace and the <a href="/screens/modeling/">projection lab</a> recalculate on demand without saving anything. |
+| **R3** | Per-person and combined finances for couples, including income changes after a death. | Each resident has their own income, assets and care path, with explicit survivor percentages. See <a href="/model/life-plan/">The life-plan model</a>. |
+| **R4** | A central contract catalogue assigned to communities, where communities set fees but not actuarial assumptions. | Central policy owns contracts, rates and thresholds. A community supplies only prices for contracts assigned to it. See <a href="/model/configuration/">Configuration and settings</a>. |
+| **R5** | Health-based duration adjustments, subject to legal review. | No automatic path from health to outcome. Care durations come from named profiles a reviewer selects. See <a href="/model/ai-boundary/">Where AI starts and stops</a>. |
+| **R6** | Unit-level pricing from a schedule, where increases are allowed and decreases need approval. | Dated, source-referenced price schedules. A decrease needs an independent named approver. See <a href="/flows/pricing/">Units, pricing and quotes</a>. |
+| **R7** | Prior sale price and contract for a unit, visible to sales. | Prior sales and outstanding refund obligations are kept with the unit and shown when quoting. |
+| **R8** | A place to record exceptions and promises made to a family. | Permanent, encrypted notes on the qualification, correctable but never editable. See <a href="/screens/workflow/">Qualification workflow</a>. |
+| **R9** | A financial form with instrument types such as pensions, retirement accounts and trusts. | Typed assets with owner and availability month, plus verified document kinds for each type of evidence. |
+| **R10** | A printed or emailed prospect summary that needs no prospect login. | A strict-whitelist printable summary staff prepare and share through an approved channel. See <a href="/screens/summary/">Prospect summary</a>. |
+| **R11** | Financial and account-bearing documents restricted to sales, the director and escalation contacts. | Financial and health reads are separate scopes. Documents are gated by kind. See <a href="/people/minimum-necessary/">Minimum necessary access</a>. |
+| **R12** | Secure central storage of qualifications, with retention subject to legal advice. | Immutable, encrypted snapshots. The product never deletes evidentiary records automatically. See <a href="/operations/retention/">Retention and legal hold</a>. |
+| **R13** | Restricted leadership reporting, for example the last ten qualifications in a community. | Cross-community reports behind explicit per-community grants. See <a href="/flows/reporting/">Leadership reporting</a>. |
+| **R14** | Historical trends, including residents who outlived their funds. | Dated observations recorded against the original forecast, which is never rewritten. See <a href="/flows/observations/">After move-in</a>. |
+
+## Workflow requirements outside the numbered list
+
+<div class="defs not-content">
+  <div><dt>Flexible order of prerequisites</dt><dd>Four or five review steps may be completed in any order, with the health assessment usually last. The workflow treats each prerequisite as independent and infers no sequence.</dd></div>
+  <div><dt>Joint decisions and committees</dt><dd>Sales and the director decide together, and some communities add a committee. The chain is configurable per organisation, with distinct named people in each slot.</dd></div>
+  <div><dt>Short entrance-fee deferral pending a home sale</dt><dd>Modelled as timed net proceeds arriving in a stated month. The entrance fee itself is still taken at month zero, so a deferral is never silently assumed.</dd></div>
+  <div><dt>Evidence collected from several sources</dt><dd>Tax pages, institution statements, property value less mortgage, and insurance. Each is a document kind a person verifies.</dd></div>
+</div>
+
+## Decisions that belong to the client
+
+Several requirements depend on a decision the client has to make and own. The product is
+designed so that none of them can be answered by an engineer by accident.
+
+<div class="defs not-content">
+  <div><dt>Outcome thresholds</dt><dd>Where "definite fit" begins and "not qualified" ends. Until approved, the product returns the unconfigured state.</dd></div>
+  <div><dt>Use of health information</dt><dd>Whether, and how, health may influence a projected stay. Until counsel rules, the product does not use it.</dd></div>
+  <div><dt>Retention periods and legal holds</dt><dd>How long each class of record is kept. The product invents none.</dd></div>
+  <div><dt>Authoritative pricing source</dt><dd>Whether prices come from a schedule or a live system. The product records the source of every price it holds.</dd></div>
+  <div><dt>Named approvers</dt><dd>Who may waive, escalate or approve a price reduction. An empty list grants no authority.</dd></div>
+</div>
+
+See <a href="/decisions/open-questions/">Open questions</a> for the full list and its owners.

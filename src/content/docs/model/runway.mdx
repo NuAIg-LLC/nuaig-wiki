@@ -1,0 +1,115 @@
+---
+title: "The runway model"
+description: "Private-pay runway, funding gap, Medicaid crossover, look-back and the four risk tiers."
+tldr:
+  - "The runway model asks how many months a resident can pay a flat monthly bill, and what they would be short over the planned stay."
+  - "Runway is the month liquid assets run out. Funding gap is the total shortfall over the stay less what liquid assets can cover."
+  - "The risk tier is set only by money: runway, imminent Medicaid crossover, a look-back transfer, and a funding gap."
+  - "Health flags annotate the care trajectory but never move the tier."
+  - "Every result lists the rules that fired and carries the engine and policy versions."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+The runway model is a simple, fully explainable question: **given what this person has and
+what they earn, how long can they pay, and what is missing if they stay as long as
+planned?** Read <a href="/model/engines/">Two models, one product</a> first if you are
+unsure when it applies.
+
+## What goes in
+
+<div class="defs not-content">
+  <div><dt>Monthly income</dt><dd>What the resident receives each month, plus any recurring contribution from a responsible party.</dd></div>
+  <div><dt>Liquid assets</dt><dd>Cash and holdings that can be drawn on.</dd></div>
+  <div><dt>Home equity</dt><dd>With a flag for whether it counts towards the Medicaid asset test.</dd></div>
+  <div><dt>Long-term care benefit</dt><dd>A monthly amount and how many months remain, or that it continues without limit.</dd></div>
+  <div><dt>Recent transfers</dt><dd>The amount moved recently and how long ago the largest one was.</dd></div>
+  <div><dt>Care level and state</dt><dd>The level of care, which sets the monthly cost, and the state, which sets the Medicaid limits.</dd></div>
+  <div><dt>Planned length of stay</dt><dd>The horizon, in months, that the funding gap is measured over.</dd></div>
+</div>
+
+Nothing about who the person is enters the calculation. Care level is allowed, because it
+is a legitimate, non-protected factor that drives cost.
+
+## What comes out
+
+<Flow
+  uid="rw"
+  width={880}
+  height={290}
+  title="How the runway model produces its outputs"
+  nodes={[
+    { id: 'in', x: 10, y: 98, w: 150, h: 90, eyebrow: 'INPUT', title: 'Verified profile', sub: ['Income, assets,', 'benefit, transfers'], align: 'center' },
+    { id: 'burn', x: 190, y: 98, w: 170, h: 90, eyebrow: 'EACH MONTH', title: 'Cost minus income', sub: ['Net burn, after any', 'benefit that applies'], kind: 'accent', align: 'center' },
+    { id: 'run', x: 390, y: 20, w: 200, h: 70, eyebrow: 'OUTPUT', title: 'Runway', sub: 'The month liquid assets run out' },
+    { id: 'gap', x: 390, y: 110, w: 200, h: 70, eyebrow: 'OUTPUT', title: 'Funding gap', sub: 'Total shortfall over the stay, less assets' },
+    { id: 'med', x: 390, y: 200, w: 200, h: 70, eyebrow: 'OUTPUT', title: 'Medicaid crossover', sub: 'When countable assets hit the limit' },
+    { id: 'tier', x: 640, y: 98, w: 220, h: 90, eyebrow: 'RESULT', title: 'Risk tier and rules', sub: ['One of four tiers, with the', 'exact rules that set it'], kind: 'ok', align: 'center' },
+  ]}
+  edges={[
+    { from: 'in.r', to: 'burn.l', kind: 'accent' },
+    { from: 'burn.r', to: 'run.l', kind: 'accent' },
+    { from: 'burn.r', to: 'gap.l', kind: 'accent' },
+    { from: 'burn.r', to: 'med.l', kind: 'accent' },
+    { from: 'run.r', to: 'tier.l', kind: 'ok' },
+    { from: 'gap.r', to: 'tier.l', kind: 'ok' },
+    { from: 'med.r', to: 'tier.l', kind: 'ok' },
+  ]}
+  caption="<b>One month-by-month simulation drives all three outputs.</b> It runs in whole cents with no floating point and no clock."
+/>
+
+<div class="defs not-content">
+  <div><dt>Net monthly burn</dt><dd>The resolved monthly care cost, minus income and contribution, minus any long-term care benefit that applies. Positive means money is leaving.</dd></div>
+  <div><dt>Covers cost</dt><dd>When net burn is zero or negative, income already covers the bill. Then there is no runway to report and no Medicaid crossover.</dd></div>
+  <div><dt>Private-pay runway</dt><dd>Run the months forward, paying each month's shortfall from liquid assets. Runway is the first month the assets cannot cover it.</dd></div>
+  <div><dt>Funding gap</dt><dd>Add up every month's shortfall across the planned stay, then subtract liquid assets. Never less than zero.</dd></div>
+  <div><dt>Medicaid crossover</dt><dd>Run the same months against countable assets, which are liquid assets plus home equity if it counts. Crossover is the month they fall to the state's asset limit.</dd></div>
+  <div><dt>Look-back</dt><dd>A transfer above a small de minimis amount, made inside the look-back window, is a violation. The estimated penalty period is the transfer divided by a state private-pay figure.</dd></div>
+  <div><dt>Care escalation</dt><dd>How the level of care, and so the cost, could step up over the stay. Informational: it informs the story and does not move the tier.</dd></div>
+</div>
+
+## How the tier is set
+
+The tier starts at the level the runway implies and is then raised, never lowered, by
+three further rules. Every rule that applies is recorded in the result.
+
+| Rule | Effect |
+| --- | --- |
+| Income covers cost | Lowest tier. No runway is reported. |
+| Runway below the high cutoff | Highest tier |
+| Runway below the elevated cutoff | Elevated |
+| Runway below the moderate cutoff | Moderate |
+| Runway at or above the moderate cutoff | Lowest tier |
+| A look-back violation | At least elevated |
+| Medicaid crossover within the imminent window, and income does not cover cost | At least elevated |
+| A funding gap exists, and income does not cover cost | At least moderate |
+
+The cutoffs, the imminent window, the look-back window, the de minimis amount, the state
+asset limits and the penalty divisors are all **policy**, not code. They are published and
+versioned by the client, so compliance can read and approve the numbers without reading any
+program.
+
+<div class="split not-content">
+  <div class="panel panel--ok">
+    <h4>Tiers</h4>
+    <p>Low, moderate, elevated and high. The tier is a description of the finances, and a person decides what to do about it.</p>
+  </div>
+  <div class="panel panel--ok">
+    <h4>Built-in defaults</h4>
+    <p>The product carries demonstration defaults so a fresh organisation can try it. They are placeholders, not current legal limits, and are replaced by the client's published policy.</p>
+  </div>
+</div>
+
+## Health flags
+
+A resident may carry health flags in five categories: cognitive, mobility, clinical,
+behavioural and social. A flag can shorten the interval at which the projected level of care
+steps up. It appears as a factor in the explanation. It **never** changes the tier, and it
+is removed from view entirely for anyone without the health scope.
+
+## Explainability
+
+Alongside the tier the result carries the **rules that fired** and a list of **factors**:
+labelled, severity-graded, each with a sentence of evidence. A minimised copy of the
+figures, with no names or account numbers, is what the assistant uses to draft the plain
+summary. See <a href="/model/ai-boundary/">Where AI starts and stops</a>.

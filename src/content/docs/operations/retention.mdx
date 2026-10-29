@@ -1,0 +1,113 @@
+---
+title: "Retention and legal hold"
+description: "What the product keeps, what it cleans up on its own, and what it deliberately leaves to the client's legal advisers."
+tldr:
+  - "The product cleans up only operational data automatically: expired sessions, old idempotency records, expired invitations and old delivery records."
+  - "It never deletes resident records, documents, qualifications, decisions, observations or the audit trail automatically."
+  - "How long each class of record must be kept, and any legal hold, are the client's legal decisions. The product invents no schedule."
+  - "Data classes are recorded on every field so a client's schedule can be applied by class."
+  - "A request to delete or export a resident's data is a procedure, not a button."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+Keeping data for the right length of time is partly an operational question and partly a
+legal one. The product handles the first and deliberately does not guess the second.
+
+<Flow
+  uid="ret"
+  width={880}
+  height={340}
+  title="What is cleaned up automatically, and what is never touched"
+  lanes={[
+    { x: 8, y: 8, w: 420, h: 324, label: 'CLEANED UP AUTOMATICALLY (operational)' },
+    { x: 452, y: 8, w: 420, h: 324, label: 'NEVER DELETED AUTOMATICALLY (evidence)' },
+  ]}
+  nodes={[
+    { id: 'a', x: 28, y: 44, w: 380, h: 50, title: 'Expired or revoked family sessions' },
+    { id: 'b', x: 28, y: 104, w: 380, h: 50, title: 'Old idempotency records', sub: 'Never one still in flight' },
+    { id: 'c', x: 28, y: 164, w: 380, h: 50, title: 'Spent rate-limit counters' },
+    { id: 'd', x: 28, y: 224, w: 380, h: 50, title: 'Expired invitations', sub: 'Revoked, codes cleared' },
+    { id: 'e', x: 28, y: 284, w: 380, h: 40, title: 'Terminal delivery records', sub: 'Only if the client sets a period' },
+    { id: 'f', x: 472, y: 44, w: 380, h: 50, title: 'Resident records and financial profiles', kind: 'ok' },
+    { id: 'g', x: 472, y: 104, w: 380, h: 50, title: 'Documents and extracted values', kind: 'ok' },
+    { id: 'h', x: 472, y: 164, w: 380, h: 50, title: 'Qualifications, reviews, decisions, observations', kind: 'ok' },
+    { id: 'i', x: 472, y: 224, w: 380, h: 50, title: 'Policy and pricing versions, quotes, sales', kind: 'ok' },
+    { id: 'j', x: 472, y: 284, w: 380, h: 40, title: 'The audit ledger', kind: 'ok' },
+  ]}
+  caption="<b>The line is between plumbing and evidence.</b> Plumbing is tidied on a schedule. Evidence is kept until a person with authority decides otherwise."
+/>
+
+## What is cleaned up
+
+A maintenance task runs on a schedule and removes data that has no evidentiary value:
+
+<div class="defs not-content">
+  <div><dt>Family sessions</dt><dd>Expired or revoked sessions.</dd></div>
+  <div><dt>Idempotency records</dt><dd>Stored answers older than the operational retention period, never one that is still in progress.</dd></div>
+  <div><dt>Rate-limit counters</dt><dd>Counters that have reset.</dd></div>
+  <div><dt>Expired invitations</dt><dd>Revoked, and their one-time codes cleared, even though the invitation record itself is kept.</dd></div>
+  <div><dt>Delivery records</dt><dd>Delivered or failed messages older than a period the client chooses. If no period is set, none are removed.</dd></div>
+</div>
+
+The periods are deployment settings. The task reports what it removed and is safe to run
+repeatedly.
+
+## What is never automatic
+
+Resident records, documents, qualifications, decisions, observations, policy versions and
+the audit ledger carry **no automatic deletion**, and several are immutable by permission.
+This is deliberate. Deleting evidence on a timer, on a guessed schedule, is a harder mistake
+to undo than keeping it too long.
+
+## What belongs to the client
+
+<div class="defs not-content">
+  <div><dt>Retention periods by class</dt><dd>How long each class of record must be kept: identity, health, financial, derived output and documents. These differ by jurisdiction and by contract, and they are the client's legal advisers' to set.</dd></div>
+  <div><dt>Legal holds</dt><dd>Suspending disposal because of a dispute or an inquiry.</dd></div>
+  <div><dt>Disposal and export</dt><dd>How a record is reviewed, approved for disposal, destroyed and proved destroyed, and what must be exported first.</dd></div>
+  <div><dt>Individual requests</dt><dd>How a resident's or a family's request to see or delete their data is received, verified and answered.</dd></div>
+</div>
+
+Until the client has approved a retention schedule, the safe position is the product's
+default: **keep everything evidentiary, and tidy only the plumbing**.
+
+## What the product provides to help
+
+<div class="split not-content">
+  <div class="panel">
+    <h4>A class on every field</h4>
+    <p>Each sensitive field is classified on intake, so a schedule can be written and applied by class instead of record by record.</p>
+  </div>
+  <div class="panel">
+    <h4>Immutability that protects holds</h4>
+    <p>Evidence that cannot be updated or deleted by the application is evidence that cannot be lost to an accident while a hold is meant to protect it.</p>
+  </div>
+  <div class="panel">
+    <h4>Provable history</h4>
+    <p>The hash-chained ledger and the pinned snapshots make "what existed, when" answerable, which is what a hold or an inquiry asks.</p>
+  </div>
+</div>
+
+## Responding to a deletion or access request
+
+Because disposal is not automated, a request is handled as a **procedure** with a named
+owner:
+
+<ol class="steps not-content">
+  <li><h4>Receive and verify the request</h4><p>And who is asking, and on whose behalf.</p></li>
+  <li><h4>Check for holds and obligations to retain</h4><p>A legal duty to keep a record can outweigh a request to delete it.</p></li>
+  <li><h4>Decide, and record the decision</h4><p>By the client's authority, with the reason.</p></li>
+  <li><h4>Carry it out through a controlled administrative change</h4><p>Not an ad hoc edit. Every step should be reviewable.</p></li>
+  <li><h4>Confirm and keep the evidence</h4><p>That the request was handled, and what was and was not removed.</p></li>
+</ol>
+
+Because a staged family application can have a document removed by its owner before
+submission, a family can already withdraw something they uploaded in error. That is a
+different thing from disposal of a record staff have accepted.
+
+## Backups
+
+Backup and restore practices, including how long backups are kept and how a restore honours
+a deletion that has since happened, are infrastructure decisions that interact with this
+policy. A retention schedule is incomplete until it says what happens to backups.

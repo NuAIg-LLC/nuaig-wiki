@@ -1,0 +1,9 @@
+---
+// Turns on in-place page navigation. The header, the left rail and the
+// floating Gist button stay put while only the page list and the content change.
+import Default from '@astrojs/starlight/components/Head.astro';
+import { ClientRouter } from 'astro:transitions';
+---
+
+<Default><slot /></Default>
+<ClientRouter />

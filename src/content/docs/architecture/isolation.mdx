@@ -1,0 +1,112 @@
+---
+title: "Isolation and tenancy"
+description: "Four independent walls, and what each one is for."
+tldr:
+  - "Isolation is enforced by the records store itself, not by application code, so a missed filter cannot leak data."
+  - "There are four walls: the organisation boundary, the community boundary, the family portal's own identity and axis, and per-role grants."
+  - "Both isolation axes fail closed. If the context is unset, the store returns no rows."
+  - "The application connects as an identity that cannot bypass isolation, and migrations run as a different one."
+  - "Negative tests exist specifically to catch a query that crosses a boundary, and they are never weakened."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+A shared platform for many clients has one overriding duty: **one client must never see
+another's data.** The product does not rely on every query remembering to filter. It
+arranges for the store to refuse.
+
+## Why application code is not enough
+
+A rule enforced only in application code is a rule that one forgotten filter breaks, and the
+breakage is invisible. The query is valid, it returns rows, and nobody notices that the rows
+belong to someone else. The only safe design is one in which **forgetting is harmless**.
+
+<Flow
+  uid="iso"
+  width={880}
+  height={360}
+  title="Four walls, each independent of the others"
+  lanes={[
+    { x: 8, y: 8, w: 864, h: 344, label: 'EVERY REQUEST PASSES THROUGH ALL OF THEM' },
+  ]}
+  nodes={[
+    { id: 'w1', x: 28, y: 44, w: 190, h: 120, eyebrow: 'WALL 1', title: 'Organisation', sub: ['Set once per transaction.', 'Rows of any other client', 'are invisible'], kind: 'accent' },
+    { id: 'w2', x: 248, y: 44, w: 190, h: 120, eyebrow: 'WALL 2', title: 'Community', sub: ['Set for resident work.', 'Staff reach only the', 'buildings they belong to'], kind: 'accent' },
+    { id: 'w3', x: 468, y: 44, w: 190, h: 120, eyebrow: 'WALL 3', title: 'The portal\'s own wall', sub: ['A separate identity and a', 'per-application axis for', 'external families'], kind: 'violet' },
+    { id: 'w4', x: 688, y: 44, w: 164, h: 120, eyebrow: 'WALL 4', title: 'Grants', sub: ['Each identity may touch', 'only the tables and', 'verbs it needs'], kind: 'warn' },
+    { id: 'f', x: 28, y: 204, w: 824, h: 110, eyebrow: 'WHAT MAKES THEM DEPENDABLE', title: 'They fail closed, they are enforced below the application, and each is tested by trying to break it', sub: ['An unset context returns no rows. The application connects as an identity that cannot bypass isolation.', 'Negative tests try to cross each boundary, and they are never loosened to get a build to pass.'], kind: 'ghost' },
+  ]}
+  caption="<b>A mistake in one wall does not breach the others.</b> That is why there are four, not one."
+/>
+
+## Wall one: the organisation
+
+<div class="defs not-content">
+  <div><dt>How</dt><dd>At the start of each transaction the records service sets the organisation, for that transaction only, from the caller's verified identity. Every business table has a policy stating that a row is visible only when its organisation matches the one set.</dd></div>
+  <div><dt>Fail closed</dt><dd>If the organisation is unset or empty, the comparison is against nothing and matches no row. A missing context produces an empty answer, never a full one.</dd></div>
+  <div><dt>Forced for everyone</dt><dd>The policy applies even to the table's owner. The application connects as an identity that is neither owner nor administrator, because an owner would bypass it.</dd></div>
+  <div><dt>Writes too</dt><dd>A write is checked as well as a read. A row cannot be inserted into another organisation.</dd></div>
+  <div><dt>Invisible, not forbidden</dt><dd>Reading another organisation's resident returns not found. The record is not hidden behind a refusal. For the caller it does not exist.</dd></div>
+</div>
+
+## Wall two: the community
+
+Within an organisation, resident-level records carry a second axis.
+
+<div class="defs not-content">
+  <div><dt>How</dt><dd>For resident work the request names the community in use. The service verifies the caller holds a membership there, then sets it for the transaction. The resident-level tables only show rows for that community.</dd></div>
+  <div><dt>Why it is separate</dt><dd>Administering a building and seeing its residents are different authorities. The organisation-wide administrator needs the first and must never get the second, and the second axis is what keeps them apart.</dd></div>
+  <div><dt>Configuration is different</dt><dd>Policy and portal settings select a target by value, and are not isolated by community. They name their target explicitly, and naming one changes no isolation context.</dd></div>
+</div>
+
+## Wall three: the family portal
+
+<div class="defs not-content">
+  <div><dt>Its own database identity</dt><dd>The portal can reach only the staging tables. It has no grant on any resident record and none on the audit trail, so touching one is a permission error, not an empty result.</dd></div>
+  <div><dt>A second axis</dt><dd>Per request, an application axis is set, with policies of its own. A family session cannot reach another family's application even if the portal had a bug.</dd></div>
+  <div><dt>Narrow lookups</dt><dd>The portal can resolve an invitation or a session through two small, hardened lookups that return only what the caller needs. They do not widen access.</dd></div>
+</div>
+
+## Wall four: grants
+
+<div class="defs not-content">
+  <div><dt>Least privilege per identity</dt><dd>Each runtime identity is granted only the tables and verbs its job needs. The delivery worker cannot read a resident. The portal cannot read the audit trail.</dd></div>
+  <div><dt>Immutable by permission</dt><dd>Evidence tables are granted insert and read only. Even the records service cannot update or delete a qualification, a decision or an audit event.</dd></div>
+  <div><dt>Hardened lookups for the few cross-boundary needs</dt><dd>The platform operator's directory of organisations, the identity directory and aggregate monitoring all read through single hardened lookups that return metadata or aggregates only. None is an isolation bypass.</dd></div>
+</div>
+
+## The cross-boundary operations, all of them
+
+There are a handful of places where something must legitimately look across organisations.
+They are enumerated here because the right number to have is small and known.
+
+| Need | How it is met | What it returns |
+| --- | --- | --- |
+| The platform operator lists organisations | One hardened lookup | Control-plane metadata and readiness counts |
+| Resolve an invitation or portal session | Two narrow lookups | Only what the family surface needs |
+| Rate limiting | A restricted counter function | A count, nothing else |
+| Delivery monitoring | One aggregate function | Counts and ages |
+| Resolving a staff identity at sign-in | One lookup | The coordinates needed to establish the organisation |
+
+## How it is kept honest
+
+<div class="split not-content">
+  <div class="panel">
+    <h4>Negative tests</h4>
+    <p>Tests try to read, write and list across organisations, across communities, and from the portal, and they must fail. They exist to catch exactly the mistake the design is meant to survive.</p>
+  </div>
+  <div class="panel">
+    <h4>Real storage in tests</h4>
+    <p>These tests run against a real database rather than a stand-in, because the isolation rules are the thing being tested.</p>
+  </div>
+  <div class="panel">
+    <h4>Never weakened</h4>
+    <p>A failing isolation test means the code is wrong or the invariant is changing by deliberate, recorded decision. It is never relaxed to get green.</p>
+  </div>
+</div>
+
+## For clients with stricter needs
+
+A shared store with enforced row-level isolation is the baseline. A client whose obligations
+demand a physically separate store is a different, more expensive tier, and the product's
+isolation rules are written so that tier is an addition, not a rewrite.

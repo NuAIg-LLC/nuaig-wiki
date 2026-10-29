@@ -1,0 +1,110 @@
+---
+/**
+ * "The Gist": a floating button on every page that opens a short summary.
+ * Pages supply `tldr` bullets in their frontmatter. A page without any gets a
+ * summary generated in the browser from its headings, so it is never empty.
+ */
+const route = (Astro.locals as any).starlightRoute;
+const data = route?.entry?.data ?? {};
+const title: string = data.title ?? '';
+const description: string = data.description ?? '';
+const tldr: string[] = Array.isArray(data.tldr) ? data.tldr : [];
+---
+
+<div class="gist" data-has-tldr={tldr.length > 0 ? 'true' : 'false'}>
+  <section class="gist__panel" id="gist-panel" role="dialog" aria-label="The gist of this page" hidden>
+    <header class="gist__head">
+      <span class="gist__eyebrow">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l1.9 5.6 5.6 1.9-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.9z M18.5 15l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9z" fill="currentColor"></path></svg>
+        The gist
+      </span>
+      <button class="gist__x" type="button" aria-label="Close the gist">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"></path></svg>
+      </button>
+    </header>
+    <h2 class="gist__title">{title}</h2>
+    {description && <p class="gist__desc">{description}</p>}
+    <ol class="gist__list">
+      {tldr.map((t) => <li>{t}</li>)}
+    </ol>
+    <footer class="gist__foot">
+      <span class="gist__read" data-read></span>
+      <span class="gist__keys"><kbd>G</kbd> to toggle</span>
+    </footer>
+  </section>
+
+  <button class="gist__fab" type="button" aria-label="Open the gist of this page" aria-expanded="false" aria-controls="gist-panel">
+    <span class="gist__ping" aria-hidden="true"></span>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l1.9 5.6 5.6 1.9-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.9z M18.5 15l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9z" fill="currentColor"></path></svg>
+    <span class="gist__label">The gist</span>
+  </button>
+</div>
+
+<script>
+  // The page is swapped in place, so wiring happens on every page load, while
+  // the document-level listeners are attached exactly once.
+  let root: HTMLElement | null = null;
+  let panel: HTMLElement | null = null;
+  let fab: HTMLButtonElement | null = null;
+
+  const set = (open: boolean) => {
+    if (!root || !panel || !fab) return;
+    panel.hidden = !open;
+    fab.setAttribute('aria-expanded', String(open));
+    root.classList.toggle('is-open', open);
+    if (open) {
+      try { localStorage.setItem('gist-seen', '1'); } catch {}
+      root.classList.add('is-seen');
+    }
+  };
+
+  const init = () => {
+    root = document.querySelector<HTMLElement>('.gist');
+    if (!root) return;
+    // Lift out of the content column so no fixed sidebar can sit above it.
+    document.body.appendChild(root);
+    panel = root.querySelector<HTMLElement>('.gist__panel');
+    fab = root.querySelector<HTMLButtonElement>('.gist__fab');
+    const close = root.querySelector<HTMLButtonElement>('.gist__x');
+    const list = root.querySelector<HTMLOListElement>('.gist__list');
+    const read = root.querySelector<HTMLElement>('[data-read]');
+    if (!panel || !fab || !close || !list || !read) return;
+
+    // No bullets supplied: build them from what the page already says.
+    if (!list.children.length) {
+      const heads = [...document.querySelectorAll('.sl-markdown-content h2')]
+        .map((h) => (h.textContent ?? '').replace(/^#\s*/, '').trim())
+        .filter(Boolean)
+        .slice(0, 6);
+      for (const h of heads) {
+        const li = document.createElement('li');
+        li.textContent = h;
+        list.appendChild(li);
+      }
+      if (!heads.length) list.remove();
+    }
+
+    const words = (document.querySelector('.sl-markdown-content')?.textContent ?? '')
+      .trim()
+      .split(/\s+/).length;
+    read.textContent = `About ${Math.max(1, Math.round(words / 210))} min read`;
+
+    try { if (localStorage.getItem('gist-seen')) root.classList.add('is-seen'); } catch {}
+
+    fab.addEventListener('click', () => set(!!panel?.hidden));
+    close.addEventListener('click', () => set(false));
+  };
+
+  document.addEventListener('astro:page-load', init);
+
+  document.addEventListener('keydown', (e) => {
+    const t = e.target as HTMLElement | null;
+    const typing = !!t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable);
+    if (!panel) return;
+    if (e.key === 'Escape' && !panel.hidden) set(false);
+    else if (!typing && !e.metaKey && !e.ctrlKey && !e.altKey && e.key.toLowerCase() === 'g') set(panel.hidden);
+  });
+  document.addEventListener('click', (e) => {
+    if (panel && !panel.hidden && root && !root.contains(e.target as Node)) set(false);
+  });
+</script>

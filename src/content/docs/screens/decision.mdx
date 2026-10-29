@@ -1,0 +1,65 @@
+---
+title: "Decision"
+description: "Four outcomes, one signer, and a reference to the exact result the decision rests on."
+tldr:
+  - "The Decision step is where the executive director records approve, decline, waitlist or request more information."
+  - "A written reason is mandatory, and the decision is bound to the assessment it was based on."
+  - "Only the executive director holds the capability. Nobody else, and no other route, can record one."
+  - "Once recorded, the screen shows the decision, the reasoning, who recorded it and when. The record cannot be edited."
+---
+
+import Shot from '../../../components/Shot.astro';
+
+<div class="kv not-content">
+  <span><b>Route</b><code>/prospects/{'{id}'}</code> (Decision step)</span>
+  <span><b>Record</b>Executive director only</span>
+  <span><b>Read</b>Sales and finance reviewers, directors, auditors</span>
+</div>
+
+## Recording a decision
+
+<Shot
+  src="/img/shots/decision-open.webp"
+  route="/prospects/{id}  (Decision step)"
+  role="Executive director"
+  caption="<b>Record your decision.</b> The panel says the full picture is available, that a person owns the call and that the engine does not make it. An outcome selector and a required reasoning box sit above the action."
+/>
+
+<div class="defs not-content">
+  <div><dt>Outcome</dt><dd>Approve, decline, waitlist, or request more information.</dd></div>
+  <div><dt>Reasoning</dt><dd>Required. It becomes part of the permanent record, so the screen asks for the call, the numbers and the situation, in the person's own words.</dd></div>
+  <div><dt>The assessment it rests on</dt><dd>The decision is bound to the latest assessment. If the figures, the policy or the calculation have changed since, the decision is refused inside the same transaction as the insert, and a fresh assessment is required.</dd></div>
+</div>
+
+## Once recorded
+
+<Shot
+  src="/img/shots/decision-recorded.webp"
+  route="/prospects/{id}  (Decision step)"
+  role="Executive director"
+  caption="<b>The decision on record.</b> The outcome, the reasoning, and who recorded it and when. The screen confirms that the resident's screening is complete: every step is done and on the record."
+/>
+
+The recorded decision is shown as a permanent entry. It cannot be edited or deleted, the
+resident moves to the decided stage, and that stage cannot be moved back by hand.
+
+## What it refuses
+
+<div class="split not-content">
+  <div class="panel panel--stop">
+    <h4>Anyone but the director</h4>
+    <p>For everyone else the step explains that the director records the outcome and tells them to ask. The capability is held by one role and checked by the records service.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>A decision without a reason</h4>
+    <p>The reasoning is required. An empty one is rejected.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>A decision on stale facts</h4>
+    <p>A decision citing an assessment that is no longer the current one, or whose inputs have moved, is refused.</p>
+  </div>
+</div>
+
+For lifetime-contract qualifications, the decision is made through an approval chain and a
+stricter signing step. See <a href="/screens/workflow/">Qualification workflow</a> and
+<a href="/flows/decision/">Review, sign-off and decision</a>.

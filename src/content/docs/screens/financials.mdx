@@ -1,0 +1,73 @@
+---
+title: "Financials"
+description: "The financial profile a reviewer confirms, and the boundary around who may see it."
+tldr:
+  - "The Financials step is where a reviewer confirms the numbers: monthly income, liquid assets, benefits, home equity, transfers and planned stay."
+  - "Figures can be pulled from verified documents with a single action, and each shows the document it came from."
+  - "The same address shows a counselor a locked step with an explanation, and shows a finance reviewer the figures."
+  - "Confirming the profile is what allows an assessment to run. An unverified profile is refused."
+---
+
+import Shot from '../../../components/Shot.astro';
+
+<div class="kv not-content">
+  <span><b>Route</b><code>/prospects/{'{id}'}</code> (Financials step)</span>
+  <span><b>Needs</b>The financial scope to see or change figures</span>
+</div>
+
+## For someone who may confirm the numbers
+
+<Shot
+  src="/img/shots/financials-finance.webp"
+  route="/prospects/{id}  (Financials step)"
+  role="Finance reviewer"
+  caption="<b>Confirm the numbers.</b> A panel of figures drawn from verified documents, each with a Use this control and the document it came from, then the fields a reviewer confirms or corrects."
+/>
+
+The step opens with the figures the verified documents support, such as a monthly benefit,
+monthly income and liquid assets, each linked to its source document. A reviewer can use a
+figure with one action, or use all of them, and then adjusts or fills the rest.
+
+<div class="defs not-content">
+  <div><dt>Monthly income and liquid assets</dt><dd>The two figures the runway calculation rests on.</dd></div>
+  <div><dt>Long-term care benefit</dt><dd>The monthly benefit and how many months remain, or that it continues without limit.</dd></div>
+  <div><dt>Home equity</dt><dd>Whether it counts, and how much. Home value is distinct from equity.</dd></div>
+  <div><dt>Family contribution</dt><dd>A recurring contribution from a responsible party.</dd></div>
+  <div><dt>Recent transfers</dt><dd>Amounts moved recently and when the largest one happened, which feeds the look-back check.</dd></div>
+  <div><dt>Planned length of stay</dt><dd>The horizon the funding gap is measured over.</dd></div>
+</div>
+
+Saving **verifies** the profile. That is the step that allows an assessment to run: the
+calculation refuses to run on a profile no person has confirmed.
+
+## For someone who may not
+
+<Shot
+  src="/img/shots/financials-counselor.webp"
+  route="/prospects/{id}  (Financials step)"
+  role="Admissions counselor"
+  caption="<b>The same address, a different answer.</b> The step is marked as handled by finance, the counselor is told they do not have access to these figures, and the panel says who does this next."
+/>
+
+The counselor is not shown an error. The rail marks the step as belonging to finance, the
+panel says that a finance reviewer handles it, names who does this next, and offers a way
+to move on to the next step they can act on.
+
+## Why it is built this way
+
+<div class="split not-content">
+  <div class="panel">
+    <h4>The numbers are an input, not a fact</h4>
+    <p>Everything on this step is something a person has to stand behind. The assistant and the family propose, and this step is where a person disposes.</p>
+  </div>
+  <div class="panel">
+    <h4>Sources stay attached</h4>
+    <p>A figure keeps a link to the document it came from, so a later reviewer can see why it was believed.</p>
+  </div>
+  <div class="panel">
+    <h4>Authority is real, not cosmetic</h4>
+    <p>The counselor's view is not the finance view with fields hidden. The records service does not send the figures to a role that may not have them.</p>
+  </div>
+</div>
+
+See <a href="/people/minimum-necessary/">Minimum necessary access</a>.

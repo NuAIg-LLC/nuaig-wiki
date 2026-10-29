@@ -1,0 +1,44 @@
+---
+title: "Review queue"
+description: "Evidence waiting on a reviewer, kept separate from the resident pipeline on purpose."
+tldr:
+  - "The review queue lists documents the assistant could not read confidently, waiting for a person to confirm or correct them."
+  - "It is separate from the pipeline on purpose: the pipeline is residents, the queue is evidence."
+  - "It has its own search, a document-type filter, and ordering by upload age or extraction confidence."
+  - "An empty queue says so plainly: nothing needs review right now."
+---
+
+import Shot from '../../../components/Shot.astro';
+
+<div class="kv not-content">
+  <span><b>Route</b><code>/review</code></span>
+  <span><b>Who</b>Finance reviewers and other document verifiers</span>
+</div>
+
+<Shot
+  src="/img/shots/review-queue.webp"
+  route="/review"
+  role="Finance reviewer"
+  caption="<b>Review queue.</b> Here the queue is empty, and the screen says so: nothing needs review right now. When the assistant is uncertain about a document, it appears here."
+/>
+
+## What it is for
+
+When a document's text could not be read with enough confidence, a person has to look at
+it. The review queue gathers every such document in the community so the reviewer does not
+have to open residents one by one to find them.
+
+## How it behaves
+
+<div class="defs not-content">
+  <div><dt>Ordering</dt><dd>By how long the document has waited, or by how confident the extraction was, so the least certain or the oldest can be handled first.</dd></div>
+  <div><dt>Filtering</dt><dd>A search, and a filter by document type, such as bank statements only.</dd></div>
+  <div><dt>Opening a document</dt><dd>Takes the reviewer to the document screen, where they confirm or correct what was read. See <a href="/screens/documents/">Documents and extraction</a>.</dd></div>
+  <div><dt>Content is still gated</dt><dd>A reviewer sees the content of a document only if they hold the scope its kind requires.</dd></div>
+</div>
+
+## Why it is separate from the pipeline
+
+The pipeline answers "which residents need attention". The queue answers "which pieces of
+evidence need a person". They are different questions with different owners, and mixing them
+would bury one under the other.

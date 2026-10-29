@@ -1,0 +1,182 @@
+---
+title: "Resource catalogue"
+description: "Every resource the platform exposes, what it is for, and the permission each operation needs."
+tldr:
+  - "About a hundred operations over a few dozen resources, grouped here by what they are for."
+  - "Each row names the permission the operation requires. A person must hold it, and the community in use must be one they belong to."
+  - "Changes are marked as requiring an idempotency key. Edits also take the revision the caller saw."
+  - "Nothing here lets a client act on another organisation's data."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+This is the map of the interface: what exists, what each operation is for, and what it
+takes to call it. Request and response shapes live in the published machine-readable
+contract. This page explains the *intent*, which a contract cannot.
+
+**Reading the tables.** *Permission* is the scope from
+<a href="/people/scopes/">Scopes and capabilities</a>. A **key** mark means the operation is a
+change and needs an idempotency key. Where no permission is shown, the operation is open to
+anyone authenticated and authorised for the record by membership.
+
+<Flow
+  uid="cat"
+  width={880}
+  height={260}
+  title="The resource areas"
+  nodes={[
+    { id: 'a', x: 10, y: 20, w: 200, h: 56, title: 'Residents and assessments', align: 'center' },
+    { id: 'b', x: 230, y: 20, w: 200, h: 56, title: 'Documents', align: 'center' },
+    { id: 'c', x: 450, y: 20, w: 200, h: 56, title: 'Applications and portal', kind: 'violet', align: 'center' },
+    { id: 'd', x: 670, y: 20, w: 200, h: 56, title: 'Life-plan qualifications', kind: 'accent', align: 'center' },
+    { id: 'e', x: 10, y: 100, w: 200, h: 56, title: 'Units, prices and quotes', kind: 'accent', align: 'center' },
+    { id: 'f', x: 230, y: 100, w: 200, h: 56, title: 'Review workflow', kind: 'accent', align: 'center' },
+    { id: 'g', x: 450, y: 100, w: 200, h: 56, title: 'Reports and observations', align: 'center' },
+    { id: 'h', x: 670, y: 100, w: 200, h: 56, title: 'Audit and analytics', align: 'center' },
+    { id: 'i', x: 10, y: 180, w: 200, h: 56, title: 'Configuration', kind: 'warn', align: 'center' },
+    { id: 'j', x: 230, y: 180, w: 200, h: 56, title: 'Organisation and staff', kind: 'warn', align: 'center' },
+    { id: 'k', x: 450, y: 180, w: 200, h: 56, title: 'Notifications', align: 'center' },
+    { id: 'l', x: 670, y: 180, w: 200, h: 56, title: 'Platform control plane', kind: 'violet', align: 'center' },
+  ]}
+  caption="<b>Twelve areas.</b> Each has its own section below."
+/>
+
+## Residents and assessments
+
+| Operation | Purpose | Permission |
+| --- | --- | --- |
+| List and read residents | Find and open resident records, with stage and counts | `prospects:read` |
+| Create a resident, edit a resident | Start or amend a case | `prospects:write`, key |
+| Read and write the financial profile | The verified figures behind a calculation | `financials:read`, key on write |
+| Read and write health flags | Care-relevant flags that annotate the trajectory | `phi:read`; write also `prospects:write` |
+| Project a scenario | Calculate a runway scenario, saving nothing | `assessments:read`, `financials:read`, `phi:read` |
+| Run an assessment | Compute and store a runway result | `assessments:run`, key |
+| Read an assessment | The result, masked to the caller | `assessments:read` |
+| Override an assessment | Mark a result overridden, with a reason | `assessments:override`, key |
+| Record a decision | The human-of-record decision, bound to an assessment | `decisions:write`, key |
+| Read decisions | Recorded decisions for a resident | `decisions:read` |
+
+## Documents
+
+| Operation | Purpose | Permission |
+| --- | --- | --- |
+| List and read a resident's documents | Metadata, kind and review status | `documents:read` |
+| Upload a document | Add evidence, through the ingestion gate | `documents:write`, key |
+| Read a document's content | The file itself, gated by its kind | `documents:read` plus the scope the kind needs |
+| Extract fields | Ask the assistant to propose fields | `documents:read`, key |
+| Review a document | Verify or reject, with a note | `documents:write`, key |
+| Read extracted financials | Figures read from verified documents | `documents:read`, `financials:read` |
+| The review queue | Documents waiting for a person | `documents:read` |
+
+## Applications and the family portal
+
+| Operation | Purpose | Permission |
+| --- | --- | --- |
+| Create an application | Start a family application and its invitation | `applications:manage`, key |
+| List, read an application | The submissions queue and a submission | `applications:manage` |
+| Issue and revoke an invitation | Reach or cut off a contact | `applications:manage`, key on issue |
+| Process and review a staged document | Read and verify what a family uploaded | `applications:manage`, key |
+| Validate financials | Confirm the family's figures | `applications:manage`, `financials:read`, key |
+| Promote | Accept a submission as a resident | `applications:promote`, key |
+| Portal: read an invitation, claim, verify | The family's way in | None, protected by the one-time code |
+| Portal: read, save sections, upload, submit | The guided application | A portal session, scoped to one application |
+| Portal: add or remove a helper | Share a narrow grant | A portal session, owner only |
+
+The portal operations are served on a separate surface, authenticated by a portal session
+rather than a staff credential, and they can only reach the staging area.
+
+## Life-plan qualifications
+
+| Operation | Purpose | Permission |
+| --- | --- | --- |
+| Read configuration | The central policy and a community's pricing | Read scopes, or a client administrator |
+| Publish configuration | New central policy or community pricing | `tenant:admin`, key, expected revision |
+| Project a household | Calculate, saving nothing | The three read scopes |
+| Complete a qualification | Store an immutable snapshot | `assessments:run`, key, expected configuration revision |
+| List and read qualifications | History and a decrypted snapshot | The three read scopes |
+| Run advanced analysis | Seeded simulation beside a qualification | The three read scopes, `assessments:run`, key |
+| List analyses | The stored artifacts for a qualification | The three read scopes |
+
+## Units, prices and quotes
+
+| Operation | Purpose | Permission |
+| --- | --- | --- |
+| Create and edit a unit | Inventory, edits need the revision | `tenant:admin` |
+| Publish and read price schedules | Dated prices with a source | Publish `tenant:admin` |
+| Resolve the effective schedule | Which schedule applies on a date | Read scopes |
+| Append and read prior sales | History with revisions | Append `tenant:admin` |
+| Read and set approvers | The named people who may approve a reduction | `tenant:admin` |
+| Create and read quotes | A price pinned to a unit and a date | `assessments:run` to create |
+| Decide a quote | Approve or reject a price reduction | A configured approver, key |
+
+## Review workflow
+
+| Operation | Purpose | Permission |
+| --- | --- | --- |
+| Read the review policy | Requirements, committee, approvers | Read scopes |
+| Publish the review policy | Configure the chain | `tenant:admin`, key, expected revision |
+| Read a qualification's review | State, events and decision | The three read scopes |
+| Append a review event | A prerequisite, recommendation, approval, waiver, escalation or note | Role-dependent, key, expected revision |
+| Record the final decision | Approve or decline | `decisions:write`, key, expected revision |
+
+## Reports and observations
+
+| Operation | Purpose | Permission |
+| --- | --- | --- |
+| List granted communities | The communities a person may report on | Read scopes |
+| Run a report | Qualifications across communities | Explicit grant plus read scopes, key |
+| Read and grant report access | Who may report on which community | `tenant:admin`, key, version |
+| Append and list observations | Verified follow-up facts and corrections | `assessments:run` to append, key |
+
+## Audit and analytics
+
+| Operation | Purpose | Permission |
+| --- | --- | --- |
+| Read the audit feed | The tamper-evident trail | `audit:read` |
+| Verify the chain | Check the ledger's integrity | `audit:read` |
+| Read a resident's trail | The events for one resident | `audit:read` and `prospects:read` |
+| Facility analytics | Distributions across a community | `assessments:read` |
+
+## Configuration
+
+| Operation | Purpose | Permission |
+| --- | --- | --- |
+| Assessment policy: read, list scopes, read versions, publish | The runway model's policy | `tenant:admin`, key, expected revision |
+| Family portal configuration: read and publish | Branding and requested items | `tenant:admin`, key, expected revision |
+
+Configuration names its **target** explicitly: the organisation default or a particular
+community. Naming a target changes no isolation context and grants no resident access.
+
+## Organisation and staff
+
+| Operation | Purpose | Permission |
+| --- | --- | --- |
+| Read and edit the organisation | Name and profile | `tenant:admin` |
+| List, create, edit communities | The buildings | `tenant:admin` |
+| List, invite, activate, deactivate staff | Accounts | `users:manage` |
+| Set a role and community memberships | What each person is and where | `users:manage` |
+| List, issue, revoke emergency grants | Break-glass | `users:manage` |
+
+## Notifications
+
+| Operation | Purpose | Permission |
+| --- | --- | --- |
+| Settings, delivery log, suppressions | Communications administration | `tenant:admin` |
+| Release a suppression | Undo a false block, audited | `tenant:admin`, key |
+| Provider callbacks | Signed delivery and opt-out events | Verified by signature |
+
+## Platform control plane
+
+| Operation | Purpose | Permission |
+| --- | --- | --- |
+| Create, list, read an organisation | Provisioning | `platform:admin`, key on create |
+| Edit settings and status | Lifecycle, with a reason | `platform:admin` |
+| Activate or repair an administrator | Recover a locked-out client | `platform:admin` |
+| List an organisation's staff | Control-plane metadata only | `platform:admin` |
+
+## Identity and session
+
+| Operation | Purpose |
+| --- | --- |
+| Who am I | The caller's identity, role and scopes |
+| Which communities | The buildings the caller holds a membership in |

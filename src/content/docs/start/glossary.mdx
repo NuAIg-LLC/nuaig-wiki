@@ -1,0 +1,92 @@
+---
+title: "Glossary"
+description: "Every domain term used in this wiki, defined once."
+tldr:
+  - "Every term is defined once and grouped: business, money, care, product, access control, data classes."
+  - "A qualification is an immutable record. A decision is a human act bound to exactly one qualification."
+  - "The contingent refund never funds care. Estate value reports it separately from the ending balance."
+  - "Scopes are the unit of permission and roles are bundles of them."
+  - "Revisions and idempotency keys are what make changes safe."
+---
+
+The product borrows heavily from senior-living and financial vocabulary. Where a word has
+a looser meaning in ordinary use, the definition here is the one the product means.
+
+## The business
+
+<div class="defs not-content">
+  <div><dt>Client organisation</dt><dd>A customer of the platform. One organisation operates one or more communities. Data never crosses between organisations.</dd></div>
+  <div><dt>Community</dt><dd>A single physical place where residents live. Staff hold membership of a community, and that membership is what grants access to its resident records.</dd></div>
+  <div><dt>Prospect</dt><dd>A person, or a couple, applying to live at a community. The staff workspace calls the file a resident record.</dd></div>
+  <div><dt>Household</dt><dd>The one or two people whose money is modelled together, with their shared and individual assets, income and expenses.</dd></div>
+  <div><dt>Responsible party</dt><dd>A family member or adviser acting for the applicant. Their own finances are a separate data subject with separate consent.</dd></div>
+  <div><dt>Admission</dt><dd>The business decision to accept someone as a resident. Made by people. The platform records it but never makes it.</dd></div>
+</div>
+
+## Money and contracts
+
+<div class="defs not-content">
+  <div><dt>Entrance fee</dt><dd>A large one-time payment made at move-in under a life-plan contract, often partly refundable to the estate once the resident leaves and the unit is resold.</dd></div>
+  <div><dt>Contract type</dt><dd>The shape of the agreement. The catalogue distinguishes non-refundable, refundable and rental. A rental contract has no entrance fee and no refund.</dd></div>
+  <div><dt>Refund rate</dt><dd>The share of the entrance fee contractually returnable. The central catalogue lists which rates a contract may use, and community pricing may only choose from that list.</dd></div>
+  <div><dt>Contingent refund</dt><dd>The refund a household's estate would eventually receive. Contingent because it requires both residents to have left and the unit to have been resold. Never treated as cash available to pay for care.</dd></div>
+  <div><dt>Estate value</dt><dd>Ending balance plus the contingent refund. Always reported separately from the ending balance.</dd></div>
+  <div><dt>Monthly care fee</dt><dd>The recurring fee for the level of care a resident currently needs. It rises sharply at each level.</dd></div>
+  <div><dt>Second-person fee</dt><dd>The additional monthly charge when two residents share an independent-living unit. Only one of them carries the base fee.</dd></div>
+  <div><dt>Basis point</dt><dd>One hundredth of a percent. Every rate in the product is a whole number of basis points, so 450 means 4.5 percent.</dd></div>
+  <div><dt>Timed proceeds</dt><dd>Money that arrives later, such as the net proceeds of a house sale. Recorded with the month it becomes available, never counted before then.</dd></div>
+</div>
+
+## Care
+
+<div class="defs not-content">
+  <div><dt>Level of care</dt><dd>Independent living, assisted living, memory care, skilled nursing. Cost rises at each step, and the model moves a resident through them in order.</dd></div>
+  <div><dt>Care duration profile</dt><dd>An approved, named set of month counts at each level of care. Chosen explicitly by a reviewer. The product never selects one from a resident's age, sex or health.</dd></div>
+  <div><dt>Long-term care benefit</dt><dd>Insurance that pays towards care at specified levels for a specified window. Recognised conservatively and capped at the month's actual care charge.</dd></div>
+  <div><dt>Benevolence</dt><dd>Subsidised care for a resident who has outlived their money but whose contract entitles them to stay. The cost this whole exercise exists to anticipate.</dd></div>
+  <div><dt>Acuity</dt><dd>How much assistance a resident needs. Health information, and therefore restricted.</dd></div>
+</div>
+
+## The product's own vocabulary
+
+<div class="defs not-content">
+  <div><dt>Projection</dt><dd>A month-by-month model of a household's money across the whole residency. Calculating one changes nothing and stores nothing.</dd></div>
+  <div><dt>Qualification</dt><dd>A completed, immutable projection stored with its inputs, policy, pricing, model version, result and the person who attested to the figures.</dd></div>
+  <div><dt>Outcome</dt><dd>The classification of a qualification: definite fit, consider another unit, not qualified, or unconfigured.</dd></div>
+  <div><dt>Unconfigured</dt><dd>The outcome when the client has published no approved thresholds. The projection is still valid and readable, but it cannot be completed as a qualification.</dd></div>
+  <div><dt>Funding shortfall</dt><dd>Any month in which the household's available balance closes below zero. One such month makes the outcome not qualified, whatever the ending balance says.</dd></div>
+  <div><dt>Decision</dt><dd>The human act of approving, declining, waitlisting or requesting more information. Bound to one exact qualification, with a written reason.</dd></div>
+  <div><dt>Observation</dt><dd>A dated record of what actually happened to a household after move-in, compared against the original forecast rather than a revised one.</dd></div>
+  <div><dt>Unit quote</dt><dd>An immutable price for a specific unit on a specific date, pinned to the schedule and configuration it was priced from.</dd></div>
+  <div><dt>Advanced analysis</dt><dd>The advisory probability layer. Reports how a household behaves across many plausible futures. It cannot set or influence an outcome.</dd></div>
+  <div><dt>Prerequisite</dt><dd>A named review step that must be completed, or formally waived, before an approval can be signed. Configured per organisation.</dd></div>
+  <div><dt>Waiver</dt><dd>A central exception releasing a case from one prerequisite. Requested by a reviewer, granted by a different named authority.</dd></div>
+  <div><dt>Escalation</dt><dd>A case-specific concern raised for independent resolution. An unresolved escalation blocks approval.</dd></div>
+</div>
+
+## Access control
+
+<div class="defs not-content">
+  <div><dt>Role</dt><dd>What a person is: counselor, finance reviewer, executive director, and so on. Comes from the client's own identity system.</dd></div>
+  <div><dt>Scope</dt><dd>The unit of permission. A role resolves to a fixed set of scopes on every single request. See <a href="/people/scopes/">Scopes and capabilities</a>.</dd></div>
+  <div><dt>Membership</dt><dd>A person's link to one community. Holding a role is not enough; membership is what opens that community's resident records.</dd></div>
+  <div><dt>Minimum necessary</dt><dd>The principle that a response carries only the fields the asker's role requires. Applied when the response is built, not hidden in the screen.</dd></div>
+  <div><dt>Break-glass</dt><dd>Time-boxed emergency read access, granted explicitly, never implied by a role, and audited as its own event.</dd></div>
+  <div><dt>Revision</dt><dd>An opaque token identifying the exact version of a record a reader saw. Echoed on write so that a concurrent change conflicts instead of overwriting.</dd></div>
+  <div><dt>Idempotency key</dt><dd>A caller-supplied identifier that makes a repeated request return the original answer instead of performing the change twice.</dd></div>
+</div>
+
+## Data classes
+
+Every sensitive field carries a class from the moment it is collected. The class decides
+how it is stored, who may read it, and whether it may appear in a log.
+
+<div class="defs not-content">
+  <div><dt>Identity</dt><dd>Name, date of birth, address, contact details.</dd></div>
+  <div><dt>High-sensitivity identity</dt><dd>National insurance or social security identifiers. Replaced with a token at the boundary and never held in plain form.</dd></div>
+  <div><dt>Health information</dt><dd>Care level, diagnosis, acuity, benefit eligibility.</dd></div>
+  <div><dt>Financial information</dt><dd>Income, assets, balances, statements.</dd></div>
+  <div><dt>Third-party financial</dt><dd>A guarantor's or responsible party's finances. A distinct data subject with its own consent.</dd></div>
+  <div><dt>Derived</dt><dd>Calculated output such as a balance curve or an outcome. Still sensitive, because it is computed from the categories above.</dd></div>
+  <div><dt>Document</dt><dd>An uploaded file. Treated as a mixed-class payload until a person has classified it.</dd></div>
+</div>

@@ -1,0 +1,88 @@
+---
+title: "Where AI starts and stops"
+description: "The assistant reads documents and drafts words. It cannot set a number, change an outcome or record a decision."
+tldr:
+  - "The assistant does three things: reads uploaded documents into proposed fields, drafts a plain-language summary of a result, and flags anomalies."
+  - "It cannot set a tier or an outcome, change a number, or record a decision. That boundary is structural, not a prompt instruction."
+  - "Anything it proposes carries a flag that says a human must review it, and there is no setting that turns the flag off."
+  - "Personal identifiers are reduced before a document reaches the model, and a deterministic stand-in lets the whole product run with no external model at all."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+Language models are probabilistic, non-reproducible and opaque. Those are unacceptable
+properties for a **decision** about whether someone can live somewhere, and exactly the
+properties that make them useful for **reading and writing**. The product draws one hard
+line between the two.
+
+> **Deterministic arithmetic, probabilistic language.**
+
+<Flow
+  uid="ai"
+  width={880}
+  height={320}
+  title="What the assistant may and may not do"
+  lanes={[
+    { x: 8, y: 8, w: 430, h: 304, label: 'THE ASSISTANT MAY' },
+    { x: 452, y: 8, w: 420, h: 304, label: 'THE ASSISTANT MAY NEVER' },
+  ]}
+  nodes={[
+    { id: 'a1', x: 28, y: 44, w: 390, h: 66, eyebrow: 'READ', title: 'Propose fields from a document', sub: 'With a confidence score, for a person to confirm', kind: 'violet' },
+    { id: 'a2', x: 28, y: 126, w: 390, h: 66, eyebrow: 'WRITE', title: 'Draft a plain-language summary', sub: 'Of a result the model already computed', kind: 'violet' },
+    { id: 'a3', x: 28, y: 208, w: 390, h: 66, eyebrow: 'FLAG', title: 'Point out anomalies and gaps', sub: 'So a reviewer knows where to look', kind: 'violet' },
+    { id: 'n1', x: 472, y: 44, w: 380, h: 52, title: 'Set a tier or an outcome', kind: 'stop', align: 'center' },
+    { id: 'n2', x: 472, y: 108, w: 380, h: 52, title: 'Change or supply a number', kind: 'stop', align: 'center' },
+    { id: 'n3', x: 472, y: 172, w: 380, h: 52, title: 'Record, approve or decline anyone', kind: 'stop', align: 'center' },
+    { id: 'n4', x: 472, y: 236, w: 380, h: 52, title: 'Feed a calculation without a person', kind: 'stop', align: 'center' },
+  ]}
+  caption="<b>The assistant works on words around the numbers.</b> It never works on the numbers."
+/>
+
+## Why the boundary is structural
+
+A boundary described in a prompt is a hope. These are mechanisms:
+
+<div class="defs not-content">
+  <div><dt>The calculation's input is a strict shape</dt><dd>Any unknown field is rejected, so protected-class attributes such as age, birth date, name, identity number and diagnosis cannot be smuggled into the decision path. Tests assert that they never appear in it.</dd></div>
+  <div><dt>Extraction carries a fixed flag</dt><dd>Every extraction result says a human must review it. The value is fixed, not configurable. The calculation additionally refuses to run on a profile no person has verified.</dd></div>
+  <div><dt>The summary is downstream and inert</dt><dd>The assistant receives a minimised projection of the result, with no names and no account numbers. Its prose is stored beside the result and never inside it, so it cannot alter a figure.</dd></div>
+  <div><dt>Tier and outcome are produced by one place</dt><dd>Only the deterministic calculation computes them. The assistant has no path to set them.</dd></div>
+</div>
+
+## Protecting what it reads
+
+<div class="split not-content">
+  <div class="panel">
+    <h4>Reduction before the model</h4>
+    <p>Direct identifiers are reduced on a best-effort basis before a document reaches the model, and text that looks like an attempt to instruct the assistant is flagged. This is a safeguard, not de-identification, and every document is still treated as fully sensitive.</p>
+  </div>
+  <div class="panel">
+    <h4>Grounding</h4>
+    <p>What comes back is checked against the figures it was given, so a summary that drifts from the result can be caught.</p>
+  </div>
+  <div class="panel">
+    <h4>Approval before use</h4>
+    <p>A live provider is only used after the exact arrangement, including retention and the agreement covering sensitive data, has been approved for the organisation. Until then the product refuses to process documents through one.</p>
+  </div>
+</div>
+
+## It can run with no model at all
+
+The product ships with a **deterministic stand-in** for the assistant. With it, every screen
+works, every flow completes and every test runs without a single external call. Extraction
+returns predictable values and summaries are templated from the figures.
+
+That is more than a convenience. It means the correctness of the product never depends on
+a model being available, and a model outage degrades a nicety rather than blocking a case.
+
+## When the assistant is wrong
+
+It will sometimes be wrong, and the design assumes so.
+
+<div class="defs not-content">
+  <div><dt>A misread figure</dt><dd>It lands in the review queue or on a document screen with a confidence score. A person confirms or corrects it before it can matter.</dd></div>
+  <div><dt>A poor summary</dt><dd>It is words beside a result. The figures and the tier are unaffected, and the person reading can see both.</dd></div>
+  <div><dt>An attempted manipulation</dt><dd>Text embedded in a document that tries to steer the assistant is flagged, and in any case the assistant has nothing to steer: it cannot change a number or a decision.</dd></div>
+</div>
+
+See <a href="/flows/documents/">Documents and verification</a> and <a href="/people/minimum-necessary/">Minimum necessary access</a>.

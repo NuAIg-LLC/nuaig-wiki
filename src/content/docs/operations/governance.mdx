@@ -1,0 +1,117 @@
+---
+title: "Configuration governance"
+description: "Who may publish what, how a change should be reviewed, and how a mistake is undone."
+tldr:
+  - "The product enforces who may publish a setting and detects concurrent edits. It cannot enforce whether the values are right. That is the client's governance."
+  - "Every change is a new version, so nothing is overwritten and any earlier state can be restored by publishing it again."
+  - "Changes that move a qualification outcome deserve review by finance leadership before publication."
+  - "A good change process projects known cases before and after, and records who approved."
+  - "A change never alters a past qualification, because each pins the policy and pricing it used."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+The platform decides **who may publish** a setting and makes sure two people cannot
+overwrite one another. It cannot decide whether the numbers are right. That is a matter of
+the client's own governance, and this page describes what good governance looks like around
+the controls the product provides.
+
+## What the product guarantees
+
+<div class="defs not-content">
+  <div><dt>Only the right authority publishes</dt><dd>Central policy, pricing, review policy, price approvers, portal settings and report access are all administrator functions. Ordinary staff cannot change them.</dd></div>
+  <div><dt>Every publication is a version</dt><dd>Nothing is edited in place. Earlier versions remain, so the history of every assumption is complete.</dd></div>
+  <div><dt>Concurrent edits conflict</dt><dd>An editor sends the revision it loaded. If someone published first, the change is refused and the administrator reviews. See <a href="/interfaces/concurrency/">Revisions and idempotency</a>.</dd></div>
+  <div><dt>Published changes are audited</dt><dd>With who, what and when, in the client's own ledger.</dd></div>
+  <div><dt>History is protected</dt><dd>A qualification pins the exact policy and pricing it used, so a later change cannot alter it. Quotes and approvals that depended on a changed setting go stale and are refused.</dd></div>
+  <div><dt>Nothing is supplied</dt><dd>The product ships no approved financial values. An empty policy is reported as empty.</dd></div>
+</div>
+
+## Who owns what
+
+<Flow
+  uid="gov"
+  width={880}
+  height={260}
+  title="Owners and the settings they are accountable for"
+  nodes={[
+    { id: 'fin', x: 10, y: 20, w: 270, h: 96, eyebrow: 'FINANCE LEADERSHIP', title: 'Owns the numbers', sub: ['Thresholds, growth rates, care durations,', 'contract catalogue, review validity'], kind: 'accent' },
+    { id: 'leg', x: 305, y: 20, w: 270, h: 96, eyebrow: 'LEGAL AND COMPLIANCE', title: 'Owns the rules around data', sub: ['Retention, legal holds, use of health', 'information, document classes'], kind: 'warn' },
+    { id: 'ops', x: 600, y: 20, w: 270, h: 96, eyebrow: 'OPERATIONS', title: 'Owns the people and prices', sub: ['Approvers, committee slots, unit prices,', 'inventory, portal wording'], kind: 'default' },
+    { id: 'adm', x: 190, y: 156, w: 500, h: 76, eyebrow: 'THE CLIENT ADMINISTRATOR', title: 'Publishes, on their behalf', sub: 'The only person who can change a setting, and the person the audit trail names', kind: 'ok' },
+  ]}
+  edges={[
+    { from: 'fin.b', to: 'adm.t:0.15', kind: 'accent', label: 'approves' },
+    { from: 'leg.b', to: 'adm.t:0.5', kind: 'accent' },
+    { from: 'ops.b', to: 'adm.t:0.85', kind: 'accent' },
+  ]}
+  caption="<b>The person who publishes is not usually the person who decides.</b> The audit trail names the publisher, so the client should keep a record of who approved."
+/>
+
+## A change process worth having
+
+The product gives every change a version and an author. A client's process turns that into
+accountability. A sound one, in practice:
+
+<ol class="steps not-content">
+  <li>
+    <h4>Classify the change</h4>
+    <p><strong>Outcome-moving</strong>: thresholds, growth rates, care durations, conventions, fee schedules. <strong>Structural</strong>: the contract catalogue, the review chain, approvers. <strong>Cosmetic</strong>: portal wording, labels. Each tier warrants different approval.</p>
+  </li>
+  <li>
+    <h4>Get the owner's approval in writing</h4>
+    <p>Finance leadership for anything outcome-moving. The product records who published, not who agreed. The agreement should live somewhere the client keeps it.</p>
+  </li>
+  <li>
+    <h4>Project known cases first</h4>
+    <p>Keep a small set of representative households, including marginal ones, and project them before and after. The workspace lets a reviewer keep a baseline and compare an alternative, and warns when the two used different configuration versions.</p>
+  </li>
+  <li>
+    <h4>Publish at a quiet time</h4>
+    <p>A published central change makes in-flight quotes and reviews stale. Publishing between busy periods avoids sending reviewers back to re-project mid-case.</p>
+  </li>
+  <li>
+    <h4>Tell the people it affects</h4>
+    <p>Reviewers will see conflicts and refreshed assumptions. A note beforehand turns a surprise into a routine.</p>
+  </li>
+  <li>
+    <h4>Record the version label</h4>
+    <p>Every policy carries a human-readable version label. Use a convention that says when and why, so a qualification's pinned version is meaningful to a human years later.</p>
+  </li>
+</ol>
+
+## Changes that need extra care
+
+<div class="defs not-content">
+  <div><dt>Thresholds</dt><dd>The floors move marginal households between outcomes. A threshold change is a business policy decision. Past qualifications are unaffected, and new ones follow the new floors.</dd></div>
+  <div><dt>The refund convention</dt><dd>Whether the contingent refund counts towards thresholds changes the classification of marginal households without changing any figure. Treat it as a threshold-level decision.</dd></div>
+  <div><dt>The return convention</dt><dd>Monthly or annual crediting changes balances. Prefer the default for new communities.</dd></div>
+  <div><dt>The contract catalogue</dt><dd>Publishing a central change checks community assignments that depend on it, so an edit cannot silently invalidate a community's pricing. Expect the check to refuse an edit that would.</dd></div>
+  <div><dt>The review chain</dt><dd>Publishing a new effective policy invalidates earlier completions and approvals on open cases, which is correct and may surprise reviewers.</dd></div>
+  <div><dt>Approvers</dt><dd>Changing the approver list makes pending price reductions need re-requesting. It does not affect completed qualifications.</dd></div>
+</div>
+
+## Undoing a mistake
+
+Because nothing is overwritten, undoing a change is simple:
+
+<div class="split not-content">
+  <div class="panel panel--ok">
+    <h4>Publish the earlier values again</h4>
+    <p>The earlier version is still there. Publishing its values creates a new, later version with the old numbers. The mistaken version remains in history.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>There is no deletion</h4>
+    <p>A published version cannot be removed, and a qualification already made on it keeps it. That is the point.</p>
+  </div>
+</div>
+
+Qualifications completed under a mistaken version are not repaired by reverting. If a
+decision depends on one, requalify it. The earlier snapshot stays as evidence of what was
+believed at the time.
+
+## Keeping a record outside the product
+
+The audit trail names who published and when. It does not carry the rationale. Keep, in the
+client's own records: the approval, the reason, the cases projected before and after, and
+the version label that resulted. Together with the audit trail, that is a complete account.

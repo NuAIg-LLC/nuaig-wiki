@@ -1,0 +1,97 @@
+---
+title: "Errors and responses"
+description: "Every kind of failure, what it means, and which ones are the product working exactly as designed."
+tldr:
+  - "Failures carry a stable code and a message a person can act on. There are eight codes."
+  - "Several failures are the product working correctly: a refusal to act on stale facts, an invisible record in another organisation, a withheld field."
+  - "A record in another organisation is reported as not found, never as forbidden, so its existence is not revealed."
+  - "Unavailable means a dependency allowed to be absent is absent, for example advisory analytics. It is not the platform being broken."
+  - "A lost or timed-out change is recovered by repeating the same request with the same key."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+Every failure from the interface has the same shape: a **stable code**, a human-readable
+message, and sometimes structured details. Clients should branch on the code, never on the
+wording of a message.
+
+## The eight codes
+
+| Code | Status | What it means | What to do |
+| --- | --- | --- | --- |
+| **Validation** | 422 | The request was understood but is not acceptable: a missing field, a bad value, a missing idempotency key, a blank that must not be read as zero. | Fix the request. Do not retry unchanged. |
+| **Unauthorized** | 401 | The caller could not be identified, or their credential is invalid or expired. | Sign in again. |
+| **Forbidden** | 403 | The caller is identified but lacks a permission, or the specific action is not theirs to take. | Ask the owner of the step. Do not retry. |
+| **Tenant isolation** | 403 | The request reached for something outside the caller's organisation. | A caller bug. Never expected in normal use. |
+| **Not found** | 404 | The record does not exist **or is not visible to this caller**. | Check the identifier and the community in use. |
+| **Conflict** | 409 | The change cannot be applied against the current state: a stale revision, a key reused for a different request, a decision on out-of-date facts. | Reload, show the person, let them decide. |
+| **Unavailable** | 503 | An optional dependency is not available. | Retry later, or carry on without it. |
+| **Internal** | 500 | Something went wrong inside the platform. | Report it. Retrying a change with the same key is safe. |
+
+A separate **rate limited** response (429) is returned by the family portal when too many
+attempts are made, with a plain message asking the person to wait.
+
+<Flow
+  uid="err"
+  width={880}
+  height={260}
+  title="Which failures are the product doing its job"
+  nodes={[
+    { id: 'a', x: 10, y: 30, w: 270, h: 76, eyebrow: 'WORKING AS DESIGNED', title: 'Conflict', sub: ['A stale revision, a stale decision,', 'or a reused key. Show the person.'], kind: 'ok' },
+    { id: 'b', x: 305, y: 30, w: 270, h: 76, eyebrow: 'WORKING AS DESIGNED', title: 'Not found, across organisations', sub: ['An invisible record is reported', 'as absent, not forbidden.'], kind: 'ok' },
+    { id: 'c', x: 600, y: 30, w: 270, h: 76, eyebrow: 'WORKING AS DESIGNED', title: 'Forbidden, for a missing scope', sub: ['The role does not hold it.', 'The screen explains who does.'], kind: 'ok' },
+    { id: 'd', x: 10, y: 140, w: 270, h: 76, eyebrow: 'A CALLER PROBLEM', title: 'Validation', sub: ['Fix the request.', 'Retrying it unchanged will not help.'], kind: 'warn' },
+    { id: 'e', x: 305, y: 140, w: 270, h: 76, eyebrow: 'TRANSIENT', title: 'Unavailable', sub: ['An optional dependency is absent.', 'Retry later or carry on.'], kind: 'warn' },
+    { id: 'f', x: 600, y: 140, w: 270, h: 76, eyebrow: 'A PLATFORM PROBLEM', title: 'Internal', sub: ['Report it. Repeating the same', 'request with the same key is safe.'], kind: 'stop' },
+  ]}
+  caption="<b>Not every error is a bug.</b> Three of these are the safeguards doing exactly what they were built to do."
+/>
+
+## Failures that are decisions
+
+<div class="defs not-content">
+  <div><dt>A stale revision</dt><dd>You changed something someone else changed first. Reload and decide.</dd></div>
+  <div><dt>A stale configuration</dt><dd>Policy or pricing changed after a reviewer's projection. Completing is refused until they project again.</dd></div>
+  <div><dt>A stale quote</dt><dd>The schedule, the inventory, the configuration or the approval it depended on changed. The quote is refused rather than repriced.</dd></div>
+  <div><dt>A stale decision</dt><dd>The qualification or assessment a decision cites is no longer the latest, or the policy or calculation changed. A new one is required.</dd></div>
+  <div><dt>An unmet gate</dt><dd>A prerequisite, committee approval or escalation is unresolved. The message names which.</dd></div>
+  <div><dt>An unconfigured policy</dt><dd>Completing a qualification without approved thresholds is refused with a message to approve them first.</dd></div>
+</div>
+
+## What an error does not reveal
+
+Errors are written so that they cannot be used to learn things the caller should not know.
+
+<div class="split not-content">
+  <div class="panel">
+    <h4>Existence</h4>
+    <p>A record in another organisation, or another community the caller does not belong to, is "not found". A refusal would confirm the record exists.</p>
+  </div>
+  <div class="panel">
+    <h4>Sensitive content</h4>
+    <p>Messages do not echo figures, names or document contents. Details carry structure, not data.</p>
+  </div>
+  <div class="panel">
+    <h4>Validity of invitations</h4>
+    <p>Asking the family portal for a code gives the same answer whether or not the invitation is valid, so the form cannot enumerate links.</p>
+  </div>
+</div>
+
+## Retrying safely
+
+<ol class="steps not-content">
+  <li><h4>Network failure or timeout on a change</h4><p>Repeat the identical request with the identical key. Whether the first attempt landed or not, the outcome is correct.</p></li>
+  <li><h4>A server error on a change</h4><p>The same. Do not generate a new key.</p></li>
+  <li><h4>A conflict</h4><p>Do not retry. Reload, present, decide. See <a href="/interfaces/concurrency/">Revisions and idempotency</a>.</p></li>
+  <li><h4>A validation failure</h4><p>Change the request first.</p></li>
+  <li><h4>An unavailable dependency</h4><p>Back off and retry, or proceed without the optional feature.</p></li>
+</ol>
+
+## Reading a successful response
+
+A success is not always a complete picture. Check two things:
+
+<div class="defs not-content">
+  <div><dt>Was a mask applied?</dt><dd>Where a response was filtered to the caller's access, it says so. Treating a withheld figure as zero is a mistake.</dd></div>
+  <div><dt>Is there a next page?</dt><dd>A list that returns a cursor is not finished. See <a href="/interfaces/paging/">Paging and cursors</a>.</dd></div>
+</div>

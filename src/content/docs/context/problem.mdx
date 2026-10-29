@@ -1,0 +1,112 @@
+---
+title: "The problem being solved"
+description: "Why a spreadsheet is not good enough, and what one bad admission actually costs."
+tldr:
+  - "Life-plan contracts promise care for life, including after a resident's money runs out."
+  - "The shortfall is created at admission and paid for years later as benevolence, funded by other residents."
+  - "A spreadsheet reads the clock, has no shared definitions, runs one projection, and leaves no trail."
+  - "The platform makes outcomes central, reproducible and auditable, while keeping the speed of a spreadsheet."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+## The promise a community makes
+
+Many senior-living communities sell a **life-plan contract**. The resident pays a large
+entrance fee and then monthly fees, and the community promises care for the rest of their
+life, including through higher levels of care that cost far more than the level they move
+in at.
+
+That promise is the product. It is also the risk. The contract does not say "until your
+money runs out". It says the resident stays.
+
+## What happens when the money does run out
+
+<Flow
+  uid="prob"
+  width={860}
+  height={250}
+  title="How one admission becomes a long-term liability"
+  nodes={[
+    { id: 'a', x: 10, y: 60, w: 150, h: 84, eyebrow: 'DAY ONE', title: 'Moves in', sub: ['Pays the entrance fee', 'Independent living'], align: 'center' },
+    { id: 'b', x: 190, y: 60, w: 150, h: 84, eyebrow: 'YEARS 1 TO 8', title: 'Funds hold', sub: ['Income and savings', 'cover the fees'], kind: 'ok', align: 'center' },
+    { id: 'c', x: 370, y: 60, w: 150, h: 84, eyebrow: 'YEARS 8 TO 15', title: 'Care costs climb', sub: ['Assisted, memory,', 'then nursing care'], kind: 'warn', align: 'center' },
+    { id: 'd', x: 550, y: 60, w: 150, h: 84, eyebrow: 'YEAR 15', title: 'Money runs out', sub: ['The contract still', 'says they stay'], kind: 'stop', align: 'center' },
+    { id: 'e', x: 730, y: 60, w: 120, h: 84, eyebrow: 'FROM THEN ON', title: 'Benevolence', sub: ['Other residents', 'fund the care'], kind: 'stop', align: 'center' },
+  ]}
+  edges={[
+    { from: 'a.r', to: 'b.l', kind: 'accent' },
+    { from: 'b.r', to: 'c.l', kind: 'accent' },
+    { from: 'c.r', to: 'd.l', kind: 'accent' },
+    { from: 'd.r', to: 'e.l', kind: 'stop' },
+  ]}
+  notes={[
+    { x: 430, y: 200, text: 'The decision that causes this is made once, on day zero, on a spreadsheet.', align: 'middle' },
+  ]}
+  caption="<b>The shortfall is created at admission and paid for fifteen years later.</b> By then nothing can be done about it, because the resident is entitled to stay."
+/>
+
+The shortfall becomes a **benevolence cost**: care provided below its price, funded by
+everyone else's monthly fees. A single mistaken admission can be a seven-figure liability
+spread across a decade or more. The cost does not appear in the year of the mistake, which
+is exactly why it is easy to make.
+
+## So the question is a lifetime question
+
+A monthly-rent question ("can they pay next month's bill?") is easy and nearly useless.
+The question that matters is much harder:
+
+<div class="defs not-content">
+  <div><dt>How long will they live here?</dt><dd>Not a single number. A stay has a length at each level of care, and each of those is uncertain.</dd></div>
+  <div><dt>What will it cost them, month by month?</dt><dd>Fees rise each year, and rise differently at each level of care. A couple's costs change when one of them leaves.</dd></div>
+  <div><dt>What will they have to pay it with?</dt><dd>Income that may or may not continue to a surviving spouse, savings that earn something while they last, a house that sells in six months, an insurance benefit that pays only for certain care.</dd></div>
+  <div><dt>When, if ever, does it fail?</dt><dd>The first month the balance goes negative is the shortfall. Later windfalls do not undo it.</dd></div>
+</div>
+
+## Why a spreadsheet cannot carry this
+
+The usual tool for this is a spreadsheet, one copy per community, maintained by whoever
+built it. It works until it does not, and the ways it fails are structural.
+
+<div class="split not-content">
+  <div class="panel panel--stop">
+    <h4>It reads the clock</h4>
+    <p>A formula that uses today's date gives a different answer when the file is reopened. The figure that was approved is no longer reproducible. For a record that may be evidence years later, that is disqualifying.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>It has no shared definition</h4>
+    <p>Each community decides for itself what counts as a marginal case. Leadership cannot compare two communities, because the word does not mean the same thing in both.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>It runs one projection</h4>
+    <p>It returns an ending balance and nothing about how confident anyone should be in it. A household that clears the line by a dollar looks identical to one that clears it by a million.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>It cannot be governed</h4>
+    <p>Anyone with the file can change a rate. There is no record of who changed which assumption, when, or whether anyone approved it.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>It cannot protect what it holds</h4>
+    <p>A file containing a family's finances, identity and health is copied, emailed and left on laptops. Nothing limits who sees which part of it.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>It leaves no trail</h4>
+    <p>If a decision is later questioned, there is no reliable record of what was entered, what was verified, and who agreed.</p>
+  </div>
+</div>
+
+## What this platform changes
+
+It replaces the spreadsheet with a governed, auditable answer, and it keeps the part of
+the spreadsheet people liked, which is that a sales person can sit with a family and see
+how the numbers move.
+
+<div class="stat-row not-content">
+  <div class="stat"><span class="stat__k">1</span><span class="stat__l">Definition of every outcome, set centrally by finance leadership</span></div>
+  <div class="stat"><span class="stat__k">0</span><span class="stat__l">Calculations that read today's date</span></div>
+  <div class="stat"><span class="stat__k">100%</span><span class="stat__l">Of reads and writes of regulated data recorded</span></div>
+  <div class="stat"><span class="stat__k">1</span><span class="stat__l">Named person accountable for every decision</span></div>
+</div>
+
+The next page describes the manual process this is replacing, so you can see where each
+piece of the product comes from.

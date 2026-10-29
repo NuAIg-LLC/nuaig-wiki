@@ -1,0 +1,85 @@
+---
+title: "Agent and tool access"
+description: "How an AI client or other automated tool could be given access: scoped exactly like a person, and read-mostly."
+tldr:
+  - "An automated tool or AI client is never more trusted than a person. It receives the same scopes, masks and isolation."
+  - "The design is a read-mostly tool surface that authenticates the client and decides authority from the store on every call."
+  - "It never passes a client's credential on to another service. Where it must call out, it acts as its own client."
+  - "It is not enabled in a standard deployment, and an organisation must ask for it."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+Organisations increasingly want to let an assistant or an automation read from their
+systems. The platform has a position on this, and it is the same position it has on
+everything else: **a machine is held to the same rules as a person, and never to fewer.**
+
+<div class="kv not-content">
+  <span><b>Status</b>Not enabled in a standard deployment</span>
+  <span><b>Posture</b>Read-mostly</span>
+  <span><b>Authority</b>The same as a person's</span>
+</div>
+
+<Flow
+  uid="ag"
+  width={880}
+  height={250}
+  title="An automated client is scoped like a person"
+  nodes={[
+    { id: 'cl', x: 10, y: 80, w: 170, h: 84, eyebrow: 'A CLIENT', title: 'Assistant or tool', sub: ['Authenticated as a', 'named person or app'], kind: 'violet', align: 'center' },
+    { id: 'rs', x: 230, y: 80, w: 190, h: 84, eyebrow: 'THE TOOL SURFACE', title: 'Resource server', sub: ['Checks the credential,', 'issuer and audience'], kind: 'accent', align: 'center' },
+    { id: 'au', x: 470, y: 20, w: 190, h: 84, eyebrow: 'EVERY CALL', title: 'Authority from the store', sub: ['Role, membership and', 'scopes, re-read'], align: 'center' },
+    { id: 'mk', x: 470, y: 140, w: 190, h: 84, eyebrow: 'EVERY RESPONSE', title: 'Masked as for the person', sub: ['Same fields, same', 'withheld markers'], align: 'center' },
+    { id: 'rec', x: 710, y: 80, w: 150, h: 84, eyebrow: 'READ-MOSTLY', title: 'System of record', sub: ['Audited like a', 'staff read'], align: 'center' },
+  ]}
+  edges={[
+    { from: 'cl.r', to: 'rs.l', kind: 'accent' },
+    { from: 'rs.r', to: 'au.l', kind: 'accent' },
+    { from: 'rs.r', to: 'mk.l', kind: 'accent' },
+    { from: 'au.r', to: 'rec.l', kind: 'ok' },
+    { from: 'mk.r', to: 'rec.l', kind: 'ok' },
+  ]}
+  caption="<b>The tool surface adds no authority of its own.</b> It is another way to reach the same records under the same rules."
+/>
+
+## The principles
+
+<ol class="steps not-content">
+  <li>
+    <h4>Never more than a person</h4>
+    <p>The same role-to-scope rules, the same community membership requirement, the same minimum-necessary masks, and the same audit. A tool that asks for something its person may not read gets the same refusal.</p>
+  </li>
+  <li>
+    <h4>Read-mostly</h4>
+    <p>The surface is designed around reading. A tool that can summarise a case does not need to be able to decide one, and no tool can record a decision.</p>
+  </li>
+  <li>
+    <h4>Credentials are validated properly</h4>
+    <p>The issuer and audience are checked exactly. A credential minted for some other purpose is refused.</p>
+  </li>
+  <li>
+    <h4>Never forward a credential</h4>
+    <p>When a tool call needs another service, the platform acts as its own client for that service. It does not hand the caller's credential onward, which would let any downstream service impersonate the caller.</p>
+  </li>
+  <li>
+    <h4>The assistant still cannot decide</h4>
+    <p>Giving an AI client read access changes who can see a case. It does not change who can decide one. See <a href="/model/ai-boundary/">Where AI starts and stops</a>.</p>
+  </li>
+</ol>
+
+## Why it is off by default
+
+Programmatic access that reaches records and is deployed, but that nobody reviews because
+nobody uses it, is a worse position than not having it. So the capability is not part of a
+standard deployment. An organisation that wants it asks for it, and it is then reviewed like
+any other access path: which people may use it, which tools it exposes, and what audit it
+produces.
+
+## What to ask before enabling it
+
+<div class="defs not-content">
+  <div><dt>Who is the tool acting for?</dt><dd>A named person's authority, or a service identity with deliberately narrow scopes. "Everything" is not an answer.</dd></div>
+  <div><dt>Which communities?</dt><dd>Membership still applies. A tool acting for someone sees only the buildings that person belongs to.</dd></div>
+  <div><dt>What can leave the organisation?</dt><dd>Anything a tool reads may be passed to a model. That is a data-protection decision for the client, made with the same care as sending the data anywhere else.</dd></div>
+  <div><dt>What will be audited?</dt><dd>Every read is recorded with the actor and the fields touched, so a tool's reads are as visible as a person's.</dd></div>
+</div>

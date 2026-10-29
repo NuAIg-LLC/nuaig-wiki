@@ -1,0 +1,98 @@
+---
+title: "Screen index"
+description: "Every screen in both applications, grouped by the job it does."
+tldr:
+  - "Twenty-two screens across two applications, grouped by the job they do rather than by where they sit in a menu."
+  - "Every screen page shows a real screenshot, who can open it, and what it refuses to do."
+  - "All names, balances and communities in screenshots are synthetic."
+  - "The screen never offers an action the records service would refuse."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+The product has two applications and a handful of areas inside the main one. This page is a
+map. Each entry links to a page that shows the screen, says who can open it, and explains
+what it is for and what it deliberately will not do.
+
+<div class="kv not-content">
+  <span><b>Screenshots</b>Captured from a working system with synthetic data only</span>
+  <span><b>Roles shown</b>As captured: counselor, finance, director, administrators, family</span>
+</div>
+
+<Flow
+  uid="map"
+  width={880}
+  height={360}
+  title="The screens grouped by who uses them"
+  lanes={[
+    { x: 8, y: 8, w: 270, h: 344, label: 'THE FAMILY PORTAL' },
+    { x: 290, y: 8, w: 330, h: 344, label: 'THE STAFF WORKSPACE' },
+    { x: 632, y: 8, w: 240, h: 344, label: 'ADMINISTRATION' },
+  ]}
+  nodes={[
+    { id: 'p1', x: 24, y: 44, w: 238, h: 52, title: 'Invitation and code', sub: 'Front door', kind: 'violet' },
+    { id: 'p2', x: 24, y: 108, w: 238, h: 52, title: 'Guided application', sub: 'Sections and documents', kind: 'violet' },
+    { id: 's1', x: 306, y: 44, w: 298, h: 44, title: 'Home, pipeline, resident record' },
+    { id: 's2', x: 306, y: 98, w: 298, h: 44, title: 'Documents, financials, review queue' },
+    { id: 's3', x: 306, y: 152, w: 298, h: 44, title: 'Assessment, decision, projection lab' },
+    { id: 's4', x: 306, y: 206, w: 298, h: 44, title: 'Submissions and promotion' },
+    { id: 's5', x: 306, y: 260, w: 298, h: 44, title: 'Life-plan, quotes, review workflow', kind: 'accent' },
+    { id: 's6', x: 306, y: 308, w: 298, h: 34, title: 'Summary, observations, reports', kind: 'accent' },
+    { id: 'a1', x: 648, y: 44, w: 208, h: 52, title: 'Staff, facilities, access' },
+    { id: 'a2', x: 648, y: 108, w: 208, h: 52, title: 'Policy, pricing, workflow' },
+    { id: 'a3', x: 648, y: 172, w: 208, h: 52, title: 'Units and approvers' },
+    { id: 'a4', x: 648, y: 236, w: 208, h: 52, title: 'Activity log, emergency access' },
+    { id: 'a5', x: 648, y: 300, w: 208, h: 42, title: 'Platform control plane', kind: 'violet' },
+  ]}
+  caption="<b>Three audiences, three trust levels.</b> The family portal is deliberately a separate application, and the platform control plane is deliberately separate from client administration."
+/>
+
+## Day to day: finding and working a case
+
+<div class="grid-cards not-content">
+  <a class="card-x" href="/screens/home/"><span class="card-x__eyebrow">Staff</span><span class="card-x__title">Staff home</span><span class="card-x__body">Where the team needs you today.</span></a>
+  <a class="card-x" href="/screens/pipeline/"><span class="card-x__eyebrow">Staff</span><span class="card-x__title">Pipeline</span><span class="card-x__body">Every resident by stage, as a board or a queue.</span></a>
+  <a class="card-x" href="/screens/resident/"><span class="card-x__eyebrow">Staff</span><span class="card-x__title">The resident record</span><span class="card-x__body">One record, five steps.</span></a>
+  <a class="card-x" href="/screens/documents/"><span class="card-x__eyebrow">Staff</span><span class="card-x__title">Documents and extraction</span><span class="card-x__body">What was read, and what a person confirmed.</span></a>
+  <a class="card-x" href="/screens/financials/"><span class="card-x__eyebrow">Staff</span><span class="card-x__title">Financials</span><span class="card-x__body">The profile and the masking boundary.</span></a>
+  <a class="card-x" href="/screens/assessment/"><span class="card-x__eyebrow">Staff</span><span class="card-x__title">Assessment</span><span class="card-x__body">The deterministic result, factor by factor.</span></a>
+  <a class="card-x" href="/screens/decision/"><span class="card-x__eyebrow">Staff</span><span class="card-x__title">Decision</span><span class="card-x__body">Four outcomes, one signer.</span></a>
+  <a class="card-x" href="/screens/review-queue/"><span class="card-x__eyebrow">Staff</span><span class="card-x__title">Review queue</span><span class="card-x__body">Evidence waiting for a person.</span></a>
+  <a class="card-x" href="/screens/modeling/"><span class="card-x__eyebrow">Staff</span><span class="card-x__title">Projection lab</span><span class="card-x__body">A scratchpad for a conversation.</span></a>
+</div>
+
+## The family side
+
+<div class="grid-cards not-content">
+  <a class="card-x" href="/screens/portal/"><span class="card-x__eyebrow">Family</span><span class="card-x__title">Family portal</span><span class="card-x__body">The external surface and the walls around it.</span></a>
+  <a class="card-x" href="/screens/submissions/"><span class="card-x__eyebrow">Staff</span><span class="card-x__title">Submissions</span><span class="card-x__body">Where family work becomes staff work.</span></a>
+</div>
+
+## Life-plan qualification
+
+<div class="grid-cards not-content">
+  <a class="card-x" href="/screens/life-plan/"><span class="card-x__eyebrow">Staff</span><span class="card-x__title">Life-plan workspace</span><span class="card-x__body">Household entry, projection and comparison.</span></a>
+  <a class="card-x" href="/screens/summary/"><span class="card-x__eyebrow">Staff</span><span class="card-x__title">Prospect summary</span><span class="card-x__body">The one page a family takes home.</span></a>
+  <a class="card-x" href="/screens/units/"><span class="card-x__eyebrow">Staff</span><span class="card-x__title">Units and pricing</span><span class="card-x__body">Inventory, schedules and quotes.</span></a>
+  <a class="card-x" href="/screens/workflow/"><span class="card-x__eyebrow">Staff</span><span class="card-x__title">Qualification workflow</span><span class="card-x__body">The approval chain as a timeline.</span></a>
+  <a class="card-x" href="/screens/observations/"><span class="card-x__eyebrow">Staff</span><span class="card-x__title">Observations</span><span class="card-x__body">What happened, against the forecast.</span></a>
+  <a class="card-x" href="/screens/reports/"><span class="card-x__eyebrow">Leadership</span><span class="card-x__title">Reports</span><span class="card-x__body">Across communities, by explicit grant.</span></a>
+</div>
+
+## Running the platform
+
+<div class="grid-cards not-content">
+  <a class="card-x" href="/screens/sign-in/"><span class="card-x__eyebrow">Everyone</span><span class="card-x__title">Signing in</span><span class="card-x__body">Identity and sessions.</span></a>
+  <a class="card-x" href="/screens/admin/"><span class="card-x__eyebrow">Client admin</span><span class="card-x__title">Administration</span><span class="card-x__body">Staff, facilities, policy and access.</span></a>
+  <a class="card-x" href="/screens/activity/"><span class="card-x__eyebrow">Audit</span><span class="card-x__title">Activity log</span><span class="card-x__body">The tamper-evident trail.</span></a>
+  <a class="card-x" href="/screens/platform/"><span class="card-x__eyebrow">Maker</span><span class="card-x__title">Platform control plane</span><span class="card-x__body">Provisioning a client.</span></a>
+</div>
+
+## What every screen has in common
+
+<div class="defs not-content">
+  <div><dt>It never offers a refused action</dt><dd>A button the records service would reject is not shown. Where a step belongs to someone else, the screen names the owner and the reason.</dd></div>
+  <div><dt>It names what it edits</dt><dd>Administrative editors take their target from the address, never from whichever community happens to be selected in the top bar, so two people following one link edit the same thing.</dd></div>
+  <div><dt>A conflict is shown, not hidden</dt><dd>Every editor remembers the version it loaded. If someone else changed the record, the screen says so and asks the person to review. It never overwrites and never retries on its own.</dd></div>
+  <div><dt>Drafts live in the page</dt><dd>Sensitive drafts are not written to the browser's storage, a cookie or the address. They disappear when the person leaves.</dd></div>
+</div>

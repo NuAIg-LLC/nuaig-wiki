@@ -1,0 +1,111 @@
+---
+title: "Life-plan qualification"
+description: "Household, projection, comparison and completion: how a reviewer turns a family's finances into a recorded qualification."
+tldr:
+  - "A qualification projects a whole residency month by month for one or two residents, against central policy and the community's prices."
+  - "Calculating a projection saves nothing. Completing a qualification stores an immutable snapshot."
+  - "Blank fields stay blank and fail validation. They are never quietly read as zero."
+  - "Completion needs an explicit attestation that the inputs were verified, and the exact configuration revision that was reviewed."
+  - "A scenario with no approved thresholds can be previewed but never completed."
+---
+
+import Flow from '../../../components/Flow.astro';
+import Shot from '../../../components/Shot.astro';
+
+This is the primary instrument for a community that sells lifetime contracts. A reviewer,
+usually a sales financial reviewer, sits with the household's figures, projects the
+residency, compares alternatives, and completes a **qualification**: a frozen record of the
+inputs, the policy, the pricing and the result.
+
+## The flow
+
+<Flow
+  uid="ql"
+  width={880}
+  height={330}
+  title="From household entry to a stored qualification"
+  lanes={[
+    { x: 8, y: 8, w: 864, h: 170, label: 'DRAFTING (nothing is saved)' },
+    { x: 8, y: 190, w: 864, h: 130, label: 'COMPLETING (an immutable record is created)' },
+  ]}
+  nodes={[
+    { id: 'hh', x: 24, y: 40, w: 170, h: 84, eyebrow: '1', title: 'Enter the household', sub: ['One or two residents,', 'assets, income, costs'], align: 'center' },
+    { id: 'quote', x: 24, y: 220, w: 170, h: 84, eyebrow: 'OPTIONAL', title: 'Attach a unit quote', sub: ['The exact price the', 'family was shown'], kind: 'violet', align: 'center' },
+    { id: 'proj', x: 224, y: 40, w: 170, h: 84, eyebrow: '2', title: 'Project', sub: ['Against current policy', 'and pricing'], kind: 'accent', align: 'center' },
+    { id: 'cmp', x: 424, y: 40, w: 190, h: 84, eyebrow: '3', title: 'Compare', sub: ['Keep a baseline,', 'try an alternative'], align: 'center' },
+    { id: 'att', x: 424, y: 220, w: 190, h: 84, eyebrow: '4', title: 'Attest', sub: ['Inputs were verified,', 'revision reviewed'], kind: 'warn', align: 'center' },
+    { id: 'done', x: 644, y: 220, w: 210, h: 84, eyebrow: '5', title: 'Qualification stored', sub: ['Inputs, policy, pricing,', 'result, who attested'], kind: 'ok', align: 'center' },
+    { id: 'rep', x: 644, y: 40, w: 210, h: 84, eyebrow: 'IF THRESHOLDS MISSING', title: 'Preview only', sub: ['Outcome is unconfigured,', 'cannot be completed'], kind: 'stop', align: 'center' },
+  ]}
+  edges={[
+    { from: 'hh.r', to: 'proj.l', kind: 'accent' },
+    { from: 'proj.r', to: 'cmp.l', kind: 'accent' },
+    { from: 'cmp.b', to: 'att.t', kind: 'accent' },
+    { from: 'att.r', to: 'done.l', kind: 'ok' },
+    { from: 'quote.r', to: 'att.l', kind: 'dash' },
+    { from: 'cmp.r', to: 'rep.l', kind: 'stop' },
+  ]}
+  caption="<b>Drafting is free. Completing is a commitment.</b> A reviewer can recalculate as often as they like. Only completion writes anything."
+/>
+
+## Entering the household
+
+<div class="defs not-content">
+  <div><dt>Residents</dt><dd>One or two. Identified by a stable label inside the household, never by name, identity number or birth date. One resident is the primary on the contract.</dd></div>
+  <div><dt>Care duration profile</dt><dd>Chosen explicitly for each resident from the client's approved profiles. There is no age, sex or health input, and the product never selects a profile on a reviewer's behalf.</dd></div>
+  <div><dt>Income</dt><dd>Two streams per resident: adjustable income, which grows with the client's assumption, and fixed income, which does not. Each carries an explicit survivor percentage for the months after that resident leaves while the other remains.</dd></div>
+  <div><dt>Assets</dt><dd>Typed holdings with an owner and the month in which they become available. Joint assets are entered once. The value is the verified net amount available to the household, not a gross property or trust value.</dd></div>
+  <div><dt>Timed proceeds</dt><dd>An asset can arrive later, such as the net proceeds of a house sale in month six. It is not counted before that month.</dd></div>
+  <div><dt>Other costs</dt><dd>Monthly household expenses outside community fees, plus per-person extra costs with a start and a duration.</dd></div>
+  <div><dt>Insurance benefits</dt><dd>Entered as positive amounts with the care levels they cover, a start, a duration and whether they rise with inflation. They are weighted conservatively and capped at the actual care charge.</dd></div>
+  <div><dt>Estate transfers</dt><dd>An explicit amount leaving the household at a resident's exit, for example to other beneficiaries. Never inferred from ownership.</dd></div>
+</div>
+
+**Blank stays blank.** A field the reviewer has not filled in fails validation. It is never
+read as zero, because "we did not ask" and "the answer is nothing" are very different facts
+about a family's money.
+
+<Shot
+  src="/img/shots/life-plan-result.webp"
+  route="/prospects/{id}/life-plan"
+  role="Sales financial reviewer"
+  caption="<b>The household workspace.</b> The assumptions and the quote the price came from sit above the household entry. On the right, the projected result with the outcome, the funds at entrance, the ending balance, the contingent refund and the care cost by level."
+/>
+
+## Projecting and comparing
+
+Calculating a projection runs the full month-by-month model and shows the result beside the
+inputs. It changes nothing in the store.
+
+A reviewer can **keep a baseline** and calculate an alternative next to it, for example a
+different contract or a different home-sale timing. If the two were calculated against
+different versions of the client's configuration, the screen says so, because comparing
+them would be comparing two different sets of assumptions.
+
+The draft lives only in the page. It is not written to the browser's storage, a cookie or
+the address, and it disappears when the reviewer leaves.
+
+## Completing
+
+Completion is a separate, deliberate act with three requirements:
+
+<div class="defs not-content">
+  <div><dt>An explicit attestation</dt><dd>The reviewer states that the financial inputs were verified. This is a named, recorded human act, not a claim the system makes on their behalf.</dd></div>
+  <div><dt>The reviewed configuration revision</dt><dd>The exact version of policy and pricing the reviewer looked at. If the client published a change in the meantime, completion is refused with a conflict and the reviewer must project again. It is never silently rebased.</dd></div>
+  <div><dt>Approved thresholds</dt><dd>If the client has not published thresholds, the outcome is unconfigured and the qualification cannot be saved. The projection remains readable.</dd></div>
+</div>
+
+What is stored is a complete snapshot: the household as entered, the policy and pricing as
+they were, any unit quote with its provenance, the full monthly result, the calculation
+version and who attested. It is encrypted, immutable and replayable. Completing a
+qualification records a financial calculation and a human verification. It is **not** an
+admission decision and does not change the resident's pipeline stage.
+
+## After completion
+
+<div class="grid-cards not-content">
+  <a class="card-x" href="/flows/decision/"><span class="card-x__eyebrow">Next</span><span class="card-x__title">Review, sign-off and decision</span><span class="card-x__body">The approval chain that turns a qualification into a recorded decision.</span></a>
+  <a class="card-x" href="/screens/summary/"><span class="card-x__eyebrow">Output</span><span class="card-x__title">The prospect summary</span><span class="card-x__body">The one document a family may take home.</span></a>
+  <a class="card-x" href="/flows/observations/"><span class="card-x__eyebrow">Later</span><span class="card-x__title">Observations</span><span class="card-x__body">Comparing what happened against this forecast.</span></a>
+  <a class="card-x" href="/model/life-plan/"><span class="card-x__eyebrow">Under the hood</span><span class="card-x__title">The life-plan model</span><span class="card-x__body">Exactly how each month is calculated.</span></a>
+</div>

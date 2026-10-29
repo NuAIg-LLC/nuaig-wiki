@@ -1,0 +1,122 @@
+---
+/**
+ * Behaviours that belong to every page and must survive in-place navigation:
+ *  1. Click any diagram or screenshot to open it large, over a blurred page.
+ *  2. Keep the current page centred in the page list, without it jumping.
+ */
+---
+
+<script>
+  // ---- 1. Expandable diagrams and screenshots -------------------------------
+  let opener: HTMLElement | null = null;
+
+  const overlay = (): HTMLElement => {
+    let ov = document.querySelector<HTMLElement>('.lb');
+    if (ov) return ov;
+    ov = document.createElement('div');
+    ov.className = 'lb';
+    ov.hidden = true;
+    ov.innerHTML = `
+      <div class="lb__backdrop"></div>
+      <div class="lb__panel" role="dialog" aria-modal="true" aria-label="Expanded view">
+        <button class="lb__close" type="button" aria-label="Close expanded view">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>
+        </button>
+        <div class="lb__body"></div>
+        <div class="lb__cap"></div>
+      </div>`;
+    document.body.appendChild(ov);
+    return ov;
+  };
+
+  const open = (node: Element, caption: string, from: HTMLElement) => {
+    const ov = overlay();
+    opener = from;
+    ov.querySelector<HTMLElement>('.lb__body')!.replaceChildren(node);
+    const cap = ov.querySelector<HTMLElement>('.lb__cap')!;
+    cap.innerHTML = caption;
+    cap.hidden = !caption;
+    ov.hidden = false;
+    requestAnimationFrame(() => ov.classList.add('is-open'));
+    document.documentElement.classList.add('lb-lock');
+    ov.querySelector<HTMLButtonElement>('.lb__close')!.focus();
+  };
+
+  const close = () => {
+    const ov = document.querySelector<HTMLElement>('.lb');
+    if (!ov || ov.hidden) return;
+    ov.classList.remove('is-open');
+    document.documentElement.classList.remove('lb-lock');
+    window.setTimeout(() => {
+      ov.hidden = true;
+      ov.querySelector<HTMLElement>('.lb__body')?.replaceChildren();
+    }, 180);
+    opener?.focus?.();
+  };
+
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    const ov = document.querySelector<HTMLElement>('.lb');
+    if (ov && !ov.hidden && ov.contains(target)) {
+      if (target.closest('.lb__panel') && !target.closest('.lb__close')) return;
+      close();
+      return;
+    }
+    const diagram = target.closest<HTMLElement>('.diagram');
+    if (diagram && !target.closest('a')) {
+      const svg = diagram.querySelector('svg');
+      if (!svg) return;
+      const copy = svg.cloneNode(true) as SVGElement;
+      copy.removeAttribute('width');
+      copy.removeAttribute('height');
+      open(copy, diagram.querySelector('.diagram__cap')?.innerHTML ?? '', diagram);
+      return;
+    }
+    const img = target.closest<HTMLImageElement>('.shot img');
+    if (img) {
+      e.preventDefault();
+      const big = new Image();
+      big.src = img.currentSrc || img.src;
+      big.alt = img.alt;
+      open(big, img.closest('.shot')?.querySelector('.shot__caption')?.innerHTML ?? '', img);
+    }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') close();
+  });
+
+  // ---- 2. The page list: stay put, then glide to the current page ------------
+  const pane = () => document.querySelector<HTMLElement>('.sidebar-pane');
+  let saved = 0;
+
+  const centre = (smooth: boolean) => {
+    const p = pane();
+    const link = p?.querySelector<HTMLElement>('a[aria-current="page"]');
+    if (!p || !link) return;
+    const pr = p.getBoundingClientRect();
+    const lr = link.getBoundingClientRect();
+    const top = p.scrollTop + (lr.top - pr.top) - (pr.height / 2 - lr.height / 2);
+    p.scrollTo({ top, behavior: smooth ? 'smooth' : 'auto' });
+  };
+
+  // Before the swap, remember where the list was. After it, put it back at once
+  // so it does not flash to the top, then glide to the new current page.
+  document.addEventListener('astro:before-swap', () => {
+    saved = pane()?.scrollTop ?? 0;
+  });
+  document.addEventListener('astro:after-swap', () => {
+    const p = pane();
+    if (p) p.scrollTop = saved;
+  });
+
+  let first = true;
+  document.addEventListener('astro:page-load', () => {
+    const isFirst = first;
+    first = false;
+    // Starlight restores its own saved scroll a moment later; centre after it.
+    centre(!isFirst);
+    window.setTimeout(() => centre(!isFirst), 70);
+    // A new page starts at its top.
+    if (!isFirst) window.scrollTo({ top: 0 });
+  });
+</script>

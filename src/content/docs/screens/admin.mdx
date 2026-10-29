@@ -1,0 +1,86 @@
+---
+title: "Administration"
+description: "The client's console: staff, facilities, policy, portal branding, communications and access."
+tldr:
+  - "The administration console is for the client's administrator. It configures the product and reads no resident data."
+  - "An overview shows the shape of the organisation and what needs attention, such as an unpublished policy."
+  - "Each editor names its target in its address, so what you edit never depends on which building is selected in the top bar."
+  - "Publishing echoes the revision loaded, so two administrators cannot overwrite each other."
+---
+
+import Shot from '../../../components/Shot.astro';
+
+<div class="kv not-content">
+  <span><b>Route</b><code>/admin</code></span>
+  <span><b>Who</b>Client administrators</span>
+  <span><b>Reads</b>No resident data, by design</span>
+</div>
+
+<Shot
+  src="/img/shots/admin-home.webp"
+  route="/admin"
+  role="Client administrator"
+  caption="<b>Administration home.</b> The organisation's name and status, the shape of it, and a section that calls out what needs attention. The navigation on the left lists every area."
+/>
+
+## The areas
+
+<div class="defs not-content">
+  <div><dt>Overview</dt><dd>The organisation, its onboarding status, how many facilities and staff accounts it has, any facility with nobody holding active access, and a "needs attention" panel. For example, if no assessment policy has been published, it says every facility is scoring against the built-in defaults and links to the policy.</dd></div>
+  <div><dt>Profile</dt><dd>The organisation's name and address slug.</dd></div>
+  <div><dt>Facilities</dt><dd>Buildings, their status and who works in them. Adding one.</dd></div>
+  <div><dt>Staff</dt><dd>Accounts, roles and which facilities each person can access. Inviting a colleague.</dd></div>
+  <div><dt>Qualification report access</dt><dd>Explicit community grants for leadership reports.</dd></div>
+  <div><dt>Emergency access</dt><dd>Break-glass grants, who holds one and why.</dd></div>
+  <div><dt>Activity log</dt><dd>Who changed what, and when. See <a href="/screens/activity/">Activity log</a>.</dd></div>
+</div>
+
+### Configuration
+
+<div class="defs not-content">
+  <div><dt>Assessment policy</dt><dd>Risk thresholds, horizons, escalation and Medicaid rules centrally, and monthly pricing per facility.</dd></div>
+  <div><dt>Life-plan configuration</dt><dd>Contracts, duration profiles, thresholds and rates centrally, and prices per community.</dd></div>
+  <div><dt>Qualification review policy</dt><dd>Independent requirements, committee and exception approvers.</dd></div>
+  <div><dt>Unit inventory and prices</dt><dd>Selected-community units and dated price schedules.</dd></div>
+  <div><dt>Price reduction approvers</dt><dd>Named finance and director approval authority.</dd></div>
+  <div><dt>Family portal</dt><dd>Branding, welcome text, contact person and the sections and documents requested.</dd></div>
+  <div><dt>Communications</dt><dd>Whether outbound messages are sent, and the gateways for email and text.</dd></div>
+</div>
+
+<Shot
+  src="/img/shots/lp-config-org.webp"
+  route="/admin/life-plan/organization"
+  role="Client administrator"
+  caption="<b>Organisation life-plan policy.</b> A banner says no assumptions are supplied for you, then structured controls for the policy version, the approval of thresholds and the two floors. The editor says what it is writing to and whether changes are saved."
+/>
+
+## How the editors behave
+
+<div class="split not-content">
+  <div class="panel">
+    <h4>The address names the target</h4>
+    <p>An editor for a policy or a portal takes its target from its address, never from the building selected in the top bar. Two administrators following one link edit the same thing.</p>
+  </div>
+  <div class="panel">
+    <h4>Structured controls</h4>
+    <p>Editors are forms, not a box of raw settings. Blank financial fields stay blank, and nothing is supplied as an approved default.</p>
+  </div>
+  <div class="panel">
+    <h4>A draft is pinned</h4>
+    <p>The editor remembers the revision it loaded. A failed publish never quietly upgrades it to a newer one. Publishing a stale draft is a conflict the person reviews.</p>
+  </div>
+</div>
+
+<Shot
+  src="/img/shots/admin-policy.webp"
+  route="/admin/policy"
+  role="Client administrator"
+  caption="<b>Assessment policy.</b> A chooser lists the organisation default and each facility, showing which apply to which and when each was last published."
+/>
+
+<Shot
+  src="/img/shots/admin-notifications.webp"
+  route="/admin/notifications"
+  role="Client administrator"
+  caption="<b>Communications.</b> Whether outbound messages are enabled, and the email and text gateways, each with its status. A delivery log and a list of blocked destinations are one click away."
+/>

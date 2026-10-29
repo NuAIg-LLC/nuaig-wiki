@@ -1,0 +1,96 @@
+---
+title: "Document handling"
+description: "Ingestion as a gate: validation, scanning, storage, text recognition and retrieval."
+tldr:
+  - "A document passes a gate before it is believed: real file type, malware scan, encrypted storage and a checksum."
+  - "Files are stored under per-client keys, written once, and verified by checksum on every read."
+  - "Text recognition runs behind a provider boundary and fails closed if a live provider errors."
+  - "Who may read a document's content depends on its kind, and both the declared and inferred kind count."
+  - "Promotion copies documents to permanent keys and re-checks their checksums before committing."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+Documents are the most hostile input the product accepts. They come from people outside the
+organisation, they can be crafted, and they contain the most sensitive data it holds. They
+are handled accordingly.
+
+<Flow
+  uid="dh"
+  width={880}
+  height={300}
+  title="The life of a document"
+  nodes={[
+    { id: 'in', x: 10, y: 40, w: 130, h: 80, eyebrow: '1', title: 'Arrives', sub: 'Upload by a family or staff', align: 'center' },
+    { id: 'ty', x: 160, y: 40, w: 140, h: 80, eyebrow: '2', title: 'Type check', sub: 'From the file\'s own bytes', align: 'center' },
+    { id: 'sc', x: 320, y: 40, w: 130, h: 80, eyebrow: '3', title: 'Scan', sub: 'Quarantined until clean', kind: 'warn', align: 'center' },
+    { id: 'st', x: 470, y: 40, w: 150, h: 80, eyebrow: '4', title: 'Store', sub: 'Encrypted, checksummed', kind: 'accent', align: 'center' },
+    { id: 'tr', x: 640, y: 40, w: 130, h: 80, eyebrow: '5', title: 'Read text', sub: 'Local or provider', align: 'center' },
+    { id: 'ex', x: 790, y: 40, w: 80, h: 80, eyebrow: '6', title: 'Propose', kind: 'violet', align: 'center' },
+    { id: 'pr', x: 160, y: 180, w: 200, h: 80, eyebrow: 'ON PROMOTION', title: 'Copy to permanent key', sub: 'Source checksum re-verified', align: 'center' },
+    { id: 'rd', x: 400, y: 180, w: 220, h: 80, eyebrow: 'ON READ', title: 'Authorise, then verify', sub: 'Kind-gated, checksum checked', kind: 'ok', align: 'center' },
+  ]}
+  edges={[
+    { from: 'in.r', to: 'ty.l', kind: 'accent' },
+    { from: 'ty.r', to: 'sc.l', kind: 'accent' },
+    { from: 'sc.r', to: 'st.l', kind: 'accent' },
+    { from: 'st.r', to: 'tr.l', kind: 'accent' },
+    { from: 'tr.r', to: 'ex.l', kind: 'dash' },
+    { from: 'st.b', to: 'pr.t', kind: 'default' },
+    { from: 'pr.r', to: 'rd.l', kind: 'default' },
+  ]}
+  caption="<b>Four checks before a person ever sees it,</b> and two more every time it moves or is read."
+/>
+
+## Ingestion
+
+<div class="defs not-content">
+  <div><dt>The real type</dt><dd>The file's type is detected from its leading bytes. The label a person supplied, and any extension, are hints only. A document that is not what it claims to be is rejected.</dd></div>
+  <div><dt>Malware scanning</dt><dd>A document is held until scanned. An unscanned document cannot be accepted into the pipeline, and a rescan task exists for documents left pending.</dd></div>
+  <div><dt>Storage</dt><dd>The object is written under a key that includes the client, with encryption and a recorded checksum. Writes are conditional and immutable: an existing object is never overwritten.</dd></div>
+  <div><dt>Size and shape</dt><dd>Uploads are bounded, and content is checked rather than trusted.</dd></div>
+</div>
+
+## Text recognition
+
+Plain documents are read locally. Scanned pages and images can go to a recognition
+provider. The provider sits behind an interface, so it can be changed without touching the
+flow, and a failure of a live provider **fails closed** instead of silently falling back to
+guessing. Which formats the configured provider supports is checked up front, so an
+unsupported file is refused with a clear message.
+
+## Retrieval
+
+<div class="defs not-content">
+  <div><dt>Authorisation by kind</dt><dd>Reading content requires the scope the document's kind needs: financial, medical, or both for an unrecognised one. Both the declared kind and the inferred kind are considered, so relabelling cannot lower the protection.</dd></div>
+  <div><dt>Verification on read</dt><dd>The stored checksum is validated when the object is read, so silent corruption or substitution is detected.</dd></div>
+  <div><dt>Safe delivery</dt><dd>The file is served with a content disposition that prevents it being interpreted as something executable, and with headers that stop it being cached.</dd></div>
+  <div><dt>Every read is audited</dt><dd>With the document and the actor.</dd></div>
+</div>
+
+## Promotion
+
+When staff accept a family's submission, its documents move from staging to their
+permanent home.
+
+<ol class="steps not-content">
+  <li><h4>Copy to deterministic keys</h4><p>Each staged object is copied to a canonical key outside the database transaction, so the transaction stays short.</p></li>
+  <li><h4>Re-verify the source</h4><p>The source object's checksum is checked again against what was recorded at upload, so nothing swapped in the meantime is promoted.</p></li>
+  <li><h4>Commit the records</h4><p>Only then does the transaction create the resident's document records.</p></li>
+</ol>
+
+Only documents a person has verified are promoted, and "nothing is promoted unvalidated" is a
+rule of the flow, not a convention.
+
+## Keys that must keep working
+
+Documents and fields use versioned encryption identifiers. When keys are rotated, stored
+ciphertext remains readable by the retired key, and a maintenance task re-encrypts stale
+rows under the active one. See <a href="/operations/keys/">Keys and rotation</a>.
+
+## What is deliberately left to the client
+
+<div class="defs not-content">
+  <div><dt>How long documents are kept</dt><dd>Retention periods, legal holds and disposal are decisions for the client's legal advisers, not defaults in the product. See <a href="/operations/retention/">Retention and legal hold</a>.</dd></div>
+  <div><dt>Which scanner and which recognition provider</dt><dd>The product defines the boundary. The client's environment chooses what sits behind it.</dd></div>
+</div>

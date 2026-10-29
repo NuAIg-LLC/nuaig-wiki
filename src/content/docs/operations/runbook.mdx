@@ -1,0 +1,114 @@
+---
+title: "Support runbook"
+description: "The questions support is asked most often, what each one usually means, and where to look."
+tldr:
+  - "Most support questions are the product refusing to do something unsafe, not a fault."
+  - "Check the plain explanation first: a blocked step names its owner, a conflict names what changed, a refusal names the missing permission."
+  - "Family access problems are almost always a delivery or code issue, and the delivery log shows which."
+  - "Health, readiness and aggregate monitoring exist for infrastructure. None returns resident data."
+  - "When in doubt, the audit trail says who did what and when."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+Support is easiest when the answer to "is it broken?" is usually "no, it is doing its job".
+This page lists the questions that come up most, what each usually means, and where to look.
+
+<Flow
+  uid="rb"
+  width={880}
+  height={230}
+  title="A way to triage any report"
+  nodes={[
+    { id: 'a', x: 10, y: 50, w: 190, h: 80, eyebrow: '1', title: 'What did the screen say?', sub: 'Most refusals explain themselves', align: 'center' },
+    { id: 'b', x: 230, y: 50, w: 190, h: 80, eyebrow: '2', title: 'Whose step is it?', sub: 'Role, scope, membership', align: 'center' },
+    { id: 'c', x: 450, y: 50, w: 190, h: 80, eyebrow: '3', title: 'Did something change?', sub: 'Policy, quote, approval, record', kind: 'accent', align: 'center' },
+    { id: 'd', x: 670, y: 50, w: 190, h: 80, eyebrow: '4', title: 'What does the trail say?', sub: 'Who did what, when', kind: 'ok', align: 'center' },
+  ]}
+  edges={[
+    { from: 'a.r', to: 'b.l', kind: 'accent' },
+    { from: 'b.r', to: 'c.l', kind: 'accent' },
+    { from: 'c.r', to: 'd.l', kind: 'ok' },
+  ]}
+  caption="<b>Four questions resolve most reports</b> before anyone opens an engineering ticket."
+/>
+
+## People and access
+
+<div class="defs not-content">
+  <div><dt>"I can sign in but I see no residents."</dt><dd>They have a role but no <strong>membership</strong> in any community, or they are working in the wrong one. Membership opens resident data. Check the staff record, and the community selected in the top bar.</dd></div>
+  <div><dt>"I can see a resident but not the money."</dt><dd>Working as designed for roles without the financial scope. The step names the owner. A client that wants one person to see both assigns the sales financial reviewer role.</dd></div>
+  <div><dt>"Nobody at the client can sign in."</dt><dd>Almost always an unclosed onboarding gate, or the organisation is suspended. The control plane shows which gate is open.</dd></div>
+  <div><dt>"An administrator is locked out."</dt><dd>A platform administrator can repair the administrator account. It is recorded in the client's own audit trail.</dd></div>
+  <div><dt>"I need to see something urgently that I am not allowed to."</dt><dd>That is what emergency access is for. It is read-only, short, justified and audited.</dd></div>
+</div>
+
+## Families
+
+<div class="defs not-content">
+  <div><dt>"The family never got the code."</dt><dd>Check the delivery log. Is the message pending, retrying, failed or suppressed? If the gateway is not configured or outbound messages are off, nothing is sent. If the destination was suppressed after a bounce or opt-out, an administrator can release it, which is audited.</dd></div>
+  <div><dt>"The code is rejected."</dt><dd>Codes last ten minutes by default and lock after five wrong tries. Ask the family to request a new one, or have a counselor reissue the invitation.</dd></div>
+  <div><dt>"The link says it is not active."</dt><dd>The invitation expired or was revoked. A counselor reissues it from the submission.</dd></div>
+  <div><dt>"A helper cannot see a section."</dt><dd>Working as designed. A helper only has what the owner granted. The owner can change the grant.</dd></div>
+  <div><dt>"The family submitted but I see nothing in the pipeline."</dt><dd>It is in the submissions queue, not the pipeline, until staff promote it.</dd></div>
+</div>
+
+## Documents
+
+<div class="defs not-content">
+  <div><dt>"I cannot accept the submission."</dt><dd>A requested document is missing, unscanned or unreviewed, or the financial figures have not been validated by someone who may.</dd></div>
+  <div><dt>"A document has been pending for a long time."</dt><dd>It may be awaiting a malware scan. A rescan task exists for documents left pending.</dd></div>
+  <div><dt>"The extraction looks wrong."</dt><dd>That is what the review is for. Correct it or reject it. The assistant never fills the record on its own.</dd></div>
+  <div><dt>"Text recognition is failing."</dt><dd>A failing live provider fails closed. The document stays unprocessed and visible until the provider recovers.</dd></div>
+</div>
+
+## Qualifications and decisions
+
+<div class="defs not-content">
+  <div><dt>"The outcome says unconfigured."</dt><dd>The client has not published approved thresholds. The projection is still valid. Finance leadership must approve and an administrator publish them.</dd></div>
+  <div><dt>"I cannot complete the qualification: conflict."</dt><dd>The configuration changed after the projection. Project again, then complete.</dd></div>
+  <div><dt>"The outcome is not qualified but the estate is large."</dt><dd>Some month had a negative balance. A shortfall cannot be outweighed by a later sale or a refund. The first shortfall month is shown.</dd></div>
+  <div><dt>"The decision was refused."</dt><dd>Read the message. Typical causes: a prerequisite incomplete or not waived, a committee slot missing or filled by the same person as the signer, an unresolved escalation, a reviewer no longer eligible, a review that aged out, or a policy, price or quote that changed since the qualification.</dd></div>
+  <div><dt>"A quote is refused."</dt><dd>It went stale: the schedule, the inventory, the configuration or the approval changed. Create a new one.</dd></div>
+  <div><dt>"A price reduction cannot be approved."</dt><dd>The approver list is empty, the approver lacks a live finance or director membership in that community, or the requester tried to approve their own.</dd></div>
+</div>
+
+## Reports
+
+<div class="defs not-content">
+  <div><dt>"The report is empty or refused."</dt><dd>The person needs both an explicit grant for each selected community and a live membership with the financial, health and assessment read scopes. Any one missing refuses the whole request.</dd></div>
+  <div><dt>"The totals do not match the number of residents."</dt><dd>The counts describe the page shown, not the whole range.</dd></div>
+</div>
+
+## Changes that fail
+
+<div class="defs not-content">
+  <div><dt>"I got a conflict saving settings."</dt><dd>Someone published first. Reload and review what changed. Do not retry blindly.</dd></div>
+  <div><dt>"It said a key is required."</dt><dd>An integration is calling a change without an idempotency key.</dd></div>
+  <div><dt>"The request timed out."</dt><dd>Repeat the identical request with the identical key. It is safe.</dd></div>
+</div>
+
+## Infrastructure signals
+
+| Signal | What it tells you | Contains resident data? |
+| --- | --- | --- |
+| Health check | The process is running | No |
+| Readiness check | Its dependencies are reachable | No |
+| Aggregate monitoring | Message counts by state, oldest pending age, dead letters, suppressions, worker heartbeat | No |
+| The delivery log | Each message and its state | A masked destination only |
+| The audit trail | Who did what, when | Field names, never values |
+
+A dead letter or a stale worker heartbeat means the delivery worker has stopped or is
+failing. Messages are not lost, since they are queued with the change that caused them.
+
+## Using the audit trail
+
+When a question is "who did this" or "when did it change", the activity log answers it:
+filter by person, action, resource type and time. It records reads as well as writes, so it
+also answers "who looked at this".
+
+## Escalating
+
+Escalate to engineering when a behaviour contradicts these pages, an internal error recurs,
+the delivery worker stalls, or the audit chain fails verification. Include the time, the
+person, the community and the exact message. Never include resident data in a ticket.

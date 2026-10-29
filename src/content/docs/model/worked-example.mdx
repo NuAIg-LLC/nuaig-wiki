@@ -1,0 +1,146 @@
+---
+title: "A worked example"
+description: "One household, month by month, with every figure traced and three variations that change the answer."
+tldr:
+  - "A one-resident household with a $320,000 balance and a $200,000 entrance fee, projected over four months for readability."
+  - "The ending balance is $110,300 and the refund adds $100,000, so the estate is $210,300 and the outcome is a definite fit."
+  - "If the client excludes the refund from the threshold, the same household becomes consider another unit."
+  - "A household that goes short in month three is not qualified even though a later house sale makes the estate large."
+  - "Every figure on this page was produced by running the real model."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+Numbers make the model easier to trust than prose does. This household is deliberately
+tiny, a four-month residency, so every line can be checked by hand. The figures were
+produced by running the real calculation, and each is reproduced below.
+
+<div class="kv not-content">
+  <span><b>Illustration only</b>Not a recommended policy, price or threshold</span>
+</div>
+
+## The setup
+
+<div class="split not-content">
+  <div class="panel">
+    <h4>Policy</h4>
+    <ul>
+      <li>Marginal floor $50,000, definite-fit floor $150,000</li>
+      <li>One refundable contract at a 50 percent refund</li>
+      <li>One profile: 2 months independent, 1 assisted, 0 memory, 1 skilled nursing</li>
+      <li>Rates all zero here, so the arithmetic is easy to follow</li>
+      <li>Insurance weighted at 50 percent</li>
+    </ul>
+  </div>
+  <div class="panel">
+    <h4>Pricing and household</h4>
+    <ul>
+      <li>Entrance fee $200,000</li>
+      <li>Monthly fees: $4,000 independent, $6,500 assisted, $9,000 skilled nursing</li>
+      <li>One resident, savings $320,000 at month zero</li>
+      <li>Income $1,500 adjustable plus $2,000 fixed</li>
+      <li>Other expenses $800 a month</li>
+      <li>Insurance $3,000 a month for assisted and skilled nursing</li>
+    </ul>
+  </div>
+</div>
+
+## Month by month
+
+**Month zero.** $320,000 of savings, minus the $200,000 entrance fee, leaves **$120,000**.
+
+| Month | Care level | Income | Insurance recognised | Care fee | Other | Closing balance |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | Independent living | $3,500 | $0 | $4,000 | $800 | **$118,700** |
+| 2 | Independent living | $3,500 | $0 | $4,000 | $800 | **$117,400** |
+| 3 | Assisted living | $3,500 | $1,500 | $6,500 | $800 | **$115,100** |
+| 4 | Skilled nursing | $3,500 | $1,500 | $9,000 | $800 | **$110,300** |
+
+Two things are worth noticing. **Insurance is recognised at $1,500, not $3,000**, because
+the central weight is 50 percent. And it only appears in months three and four, because
+those are the only months at the covered levels of care.
+
+## From the balance to an outcome
+
+<Flow
+  uid="we"
+  width={880}
+  height={210}
+  title="From the ending balance to the outcome"
+  nodes={[
+    { id: 'end', x: 10, y: 50, w: 190, h: 84, eyebrow: 'AFTER MONTH 4', title: 'Ending balance', sub: '$110,300', align: 'center' },
+    { id: 'ref', x: 230, y: 50, w: 190, h: 84, eyebrow: '50% OF $200,000', title: 'Contingent refund', sub: '$100,000', kind: 'warn', align: 'center' },
+    { id: 'est', x: 450, y: 50, w: 190, h: 84, eyebrow: 'BALANCE + REFUND', title: 'Estate value', sub: '$210,300', kind: 'accent', align: 'center' },
+    { id: 'out', x: 670, y: 50, w: 190, h: 84, eyebrow: 'AGAINST $150,000', title: 'Definite fit', sub: 'All months funded', kind: 'ok', align: 'center' },
+  ]}
+  edges={[
+    { from: 'end.r', to: 'ref.l', kind: 'accent' },
+    { from: 'ref.r', to: 'est.l', kind: 'accent' },
+    { from: 'est.r', to: 'out.l', kind: 'ok' },
+  ]}
+  caption="<b>Every month closed positive, and the estate clears the definite-fit floor.</b> So the outcome is a definite fit."
+/>
+
+## Variation one: leave the refund out
+
+The refund only pays out when both residents have left and the unit has been resold. Some
+clients choose not to count it towards the threshold.
+
+With that one setting changed, the thresholds are measured against the ending balance of
+**$110,300** instead of the estate value. That is above the $50,000 marginal floor and below
+the $150,000 definite-fit floor, so the outcome becomes **consider another unit**. The
+projected figures are identical. Only the classification differs.
+
+## Variation two: add growth
+
+Now assume 4.5 percent investment return, fees rising 5 percent, 6 percent, 6.5 percent and
+6.5 percent a year for the four levels, adjustable income rising 2 percent, and expenses
+rising 3 percent. Returns are earned each month on the positive balance.
+
+| Month | Return earned | Care fee | Closing balance |
+| --- | --- | --- | --- |
+| 1 | $440.98 | $4,000.00 | $119,140.98 |
+| 2 | $437.82 | $4,016.30 | $118,263.01 |
+| 3 | $434.59 | $6,563.43 | $116,335.18 |
+| 4 | $427.51 | $9,142.81 | $111,821.39 |
+
+Total investment return across the four months is **$1,740.90**, and the ending balance
+rises to **$111,821.39**. Notice that the first month's fee is unchanged, because the
+first planning month always uses current prices, and that each level's fee has grown by
+its own rate by the time it applies.
+
+## Variation three: a shortfall that a later sale cannot erase
+
+Change the household so it starts with $203,000 of savings, and add a house whose net
+proceeds of $300,000 arrive in month four.
+
+| Month | Closing balance |
+| --- | --- |
+| 0 | $3,000 |
+| 1 | $1,700 |
+| 2 | $400 |
+| 3 | **-$1,900** |
+| 4 | $293,300 |
+
+In month three the household cannot pay. The balance is negative: **a funding shortfall**.
+When the house sale lands in month four the balance recovers, and the estate value,
+including the refund, is **$393,300**, far above every threshold.
+
+The outcome is nevertheless **not qualified**. A positive estate cannot hide a month in
+which care could not be paid for. The model keeps the first shortfall month on the record,
+and its warning says that later proceeds or a refund do not erase it.
+
+## Variation four: no approved thresholds
+
+Run the original household against a policy where the client has not yet approved
+thresholds. Every figure above is calculated, but the outcome is **unconfigured**. The
+projection can be read and discussed. It cannot be completed as a qualification until the
+client publishes approved thresholds.
+
+## What to take from it
+
+<div class="defs not-content">
+  <div><dt>The calculation is simple, and that is the point</dt><dd>Every figure is a sum a person can check. There is no hidden step.</dd></div>
+  <div><dt>Conventions matter more than arithmetic</dt><dd>Whether the refund counts, and whether returns are credited monthly or annually, change the classification of a marginal household. That is why they are settings the client chooses and documents.</dd></div>
+  <div><dt>A shortfall is a fact about a month</dt><dd>Not about the ending balance. That is why a refund or a later sale can never rescue it.</dd></div>
+</div>

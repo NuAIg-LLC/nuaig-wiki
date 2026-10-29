@@ -1,0 +1,27 @@
+---
+/**
+ * <Shot> frames a real screenshot like a browser window, with the route it
+ * lives at and the role it was captured as. Every screenshot in the wiki
+ * comes from synthetic data.
+ */
+interface Props {
+  src: string;
+  route: string;
+  role: string;
+  caption?: string;
+  alt?: string;
+}
+const { src, route, role, caption, alt } = Astro.props as Props;
+---
+
+<figure class="shot not-content">
+  <div class="shot__bar">
+    <span class="shot__dots"><i></i><i></i><i></i></span>
+    <span class="shot__path">{route}</span>
+    <span class="shot__role">{role}</span>
+  </div>
+  <a href={src} target="_blank" rel="noopener">
+    <img src={src} alt={alt ?? caption ?? route} loading="lazy" />
+  </a>
+  {caption && <figcaption class="shot__caption" set:html={caption} />}
+</figure>

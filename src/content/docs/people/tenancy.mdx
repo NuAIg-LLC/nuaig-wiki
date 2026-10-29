@@ -1,0 +1,116 @@
+---
+title: "Tenancy model"
+description: "Client organisation, community and membership: three ideas that are deliberately kept separate."
+tldr:
+  - "Three separate ideas: client organisation, community and membership."
+  - "Membership opens resident data. Administration does not."
+  - "Settings resolve in four layers, and the last one, a pinned snapshot, protects history."
+  - "Isolation is checked on two axes and fails closed on both."
+---
+
+import Flow from '../../../components/Flow.astro';
+import Shot from '../../../components/Shot.astro';
+
+Almost every access question in the product reduces to three separate ideas. They are
+easy to blur together, and blurring them is the usual source of a security mistake.
+
+<Flow
+  uid="ten"
+  width={860}
+  height={410}
+  title="Client organisation, community and membership"
+  lanes={[
+    { x: 10, y: 10, w: 840, h: 282, label: 'CLIENT ORGANISATION (the tenant)' },
+  ]}
+  nodes={[
+    { id: 'c1', x: 40, y: 48, w: 230, h: 76, eyebrow: 'COMMUNITY', title: 'North building', sub: ['Its own residents', 'and its own pricing'], kind: 'accent' },
+    { id: 'c2', x: 315, y: 48, w: 230, h: 76, eyebrow: 'COMMUNITY', title: 'South building', sub: ['Its own residents', 'and its own pricing'], kind: 'accent' },
+    { id: 'c3', x: 590, y: 48, w: 230, h: 76, eyebrow: 'COMMUNITY', title: 'Another building', sub: ['Its own residents', 'and its own pricing'], kind: 'accent' },
+    { id: 's1', x: 40, y: 208, w: 230, h: 70, eyebrow: 'STAFF MEMBER', title: 'Finance reviewer', sub: 'Member of North and South' },
+    { id: 'adm', x: 330, y: 208, w: 200, h: 70, eyebrow: 'CONFIGURES', title: 'Every building', sub: 'But sees no resident in any' },
+    { id: 's2', x: 620, y: 208, w: 200, h: 70, eyebrow: 'STAFF MEMBER', title: 'Client administrator', sub: 'No membership anywhere', kind: 'warn' },
+    { id: 'plat', x: 330, y: 338, w: 200, h: 54, title: 'Platform operator', sub: 'No resident data at all', kind: 'violet', align: 'center' },
+  ]}
+  edges={[
+    { from: 's1.t:0.25', to: 'c1.b:0.25', kind: 'accent', label: 'member' },
+    { from: 's1.t:0.8', to: 'c2.b:0.15', kind: 'accent' },
+    { from: 's2.l', to: 'adm.r', kind: 'dash', label: 'configures' },
+    { from: 'adm.t', to: 'c2.b:0.75', kind: 'dash' },
+    { from: 'plat.t', to: 'adm.b', kind: 'dash', label: 'provisions' },
+  ]}
+  caption="<b>Membership opens resident data. Administration does not.</b> The finance reviewer sees residents in two buildings. The administrator configures all of them and sees nobody."
+/>
+
+## The three ideas
+
+<div class="defs not-content">
+  <div><dt>Client organisation</dt><dd>The customer. The hard boundary of the product: nothing in one organisation is ever visible from another, and no role, including the platform operator, can reach across it to read residents. The boundary is enforced by the data store itself.</dd></div>
+  <div><dt>Community</dt><dd>A single building within an organisation. Residents, applications, qualifications and unit pricing belong to a community. A second, independent boundary sits here: a person can be inside the organisation and still not see a particular building's residents.</dd></div>
+  <div><dt>Membership</dt><dd>A person's link to one community, with a role in it. A person can hold different roles in different communities, so the same person may be a finance reviewer in one building and a counselor in another. Membership is what grants access to that building's residents.</dd></div>
+</div>
+
+## The rule that surprises people
+
+**Administering a community does not require belonging to it, and does not grant access to its residents.**
+
+A client administrator manages staff, buildings, policy, portal branding and notification
+settings across the whole organisation. They name the building they want to configure in
+the address of the page they are editing, and they never have to join it. Nothing they do
+gives them a view of any resident.
+
+This is deliberate. The person who sets up the product for an organisation is usually not
+the person who should read a family's finances.
+
+<Shot
+  src="/img/shots/admin-facilities.webp"
+  route="/admin/facilities"
+  role="Client administrator"
+  caption="<b>Facilities.</b> The administrator sees every building in the organisation, its status and its assessment policy, and can add one. None of this is resident data."
+/>
+
+## What is shared, and what is local
+
+Settings resolve in layers, each narrowing the one above. A layer may only change what the
+layer above has explicitly opened to it.
+
+<Flow
+  uid="layers"
+  width={860}
+  height={150}
+  title="Settings resolve in four layers"
+  nodes={[
+    { id: 'p', x: 10, y: 28, w: 190, h: 90, eyebrow: '1 PLATFORM', title: 'Defaults', sub: ['Set by the maker', 'Preserve current behaviour'], align: 'center' },
+    { id: 'o', x: 232, y: 28, w: 190, h: 90, eyebrow: '2 ORGANISATION', title: 'Master settings', sub: ['Set by the client', 'Apply to every building'], kind: 'accent', align: 'center' },
+    { id: 'c', x: 454, y: 28, w: 190, h: 90, eyebrow: '3 COMMUNITY', title: 'Local overrides', sub: ['Only fields the client', 'has unlocked'], align: 'center' },
+    { id: 'q', x: 676, y: 28, w: 174, h: 90, eyebrow: '4 THE RECORD', title: 'Pinned snapshot', sub: ['Immutable once a', 'qualification exists'], kind: 'ok', align: 'center' },
+  ]}
+  edges={[
+    { from: 'p.r', to: 'o.l', kind: 'accent' },
+    { from: 'o.r', to: 'c.l', kind: 'accent' },
+    { from: 'c.r', to: 'q.l', kind: 'accent' },
+  ]}
+  caption="<b>Layer four is the one that protects history.</b> A qualification pins the exact policy and pricing it was made under, so changing a setting later never changes an old answer."
+/>
+
+In practice a community's local layer is narrow. Central assumptions, such as growth rates,
+care durations, thresholds and the contract catalogue, are set once for the organisation.
+A community supplies only its own prices and which central contracts it offers. See
+<a href="/model/configuration/">Configuration and settings</a>.
+
+<Shot
+  src="/img/shots/admin-organization.webp"
+  route="/admin/organization"
+  role="Client administrator"
+  caption="<b>Organisation profile.</b> The name shown to staff and families, the address slug, and the status set by the platform operator."
+/>
+
+## Why isolation is checked twice
+
+Isolation has two independent axes, and every resident record is checked against both:
+
+1. **The organisation boundary.** A request carries the organisation it belongs to. Records in any other organisation are invisible, not forbidden. Asking for one returns "not found", which reveals nothing, not even that it exists.
+2. **The community boundary.** For resident data the request also carries the community it is acting in. Staff may only act in a community they hold a membership for, and records in other communities are invisible in the same way.
+
+Both axes **fail closed**: if the request carries no organisation, or no community, the
+store returns no rows at all rather than all of them. See
+<a href="/architecture/isolation/">Isolation and tenancy</a> for how this is enforced.

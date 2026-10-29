@@ -1,0 +1,147 @@
+---
+title: "Intake and the family application"
+description: "Two ways a case starts, and how a family is let in safely."
+tldr:
+  - "A case starts in one of two ways: a counselor creates the record, or invites the family to apply."
+  - "A family needs the link plus a one-time code sent to the contact the invite was bound to."
+  - "Codes are hashed, expire after ten minutes by default, and lock after five wrong tries."
+  - "Family answers and uploads land in a holding area. They never touch the resident record."
+  - "A family can invite a helper, but only with an explicit, narrow grant: certain sections and document types, nothing more."
+---
+
+import Flow from '../../../components/Flow.astro';
+import Shot from '../../../components/Shot.astro';
+
+## Two ways a case starts
+
+<Flow
+  uid="in"
+  width={860}
+  height={230}
+  title="Two entry paths into the same pipeline"
+  nodes={[
+    { id: 'a', x: 10, y: 20, w: 220, h: 74, eyebrow: 'PATH A', title: 'Direct entry', sub: ['The counselor creates the', 'resident record themselves'], align: 'center' },
+    { id: 'b', x: 10, y: 134, w: 220, h: 74, eyebrow: 'PATH B', title: 'Family application', sub: ['The counselor sends an', 'invitation to a contact'], kind: 'violet', align: 'center' },
+    { id: 'hold', x: 300, y: 134, w: 220, h: 74, eyebrow: 'HOLDING AREA', title: 'Staged application', sub: ['Answers and uploads, kept', 'apart from the record'], kind: 'warn', align: 'center' },
+    { id: 'rev', x: 580, y: 134, w: 130, h: 74, eyebrow: 'STAFF', title: 'Review', sub: ['Verify, validate'], align: 'center' },
+    { id: 'pro', x: 740, y: 134, w: 110, h: 74, eyebrow: 'STAFF', title: 'Promote', sub: 'One step', kind: 'accent', align: 'center' },
+    { id: 'res', x: 580, y: 20, w: 270, h: 74, eyebrow: 'THE SAME DESTINATION', title: 'Resident record in the pipeline', sub: ['From here it is the ordinary flow'], kind: 'ok', align: 'center' },
+  ]}
+  edges={[
+    { from: 'a.r', to: 'res.l', kind: 'accent' },
+    { from: 'b.r', to: 'hold.l', kind: 'dash', label: 'family fills in' },
+    { from: 'hold.r', to: 'rev.l', kind: 'accent' },
+    { from: 'rev.r', to: 'pro.l', kind: 'accent' },
+    { from: 'pro.t', to: 'res.b:0.9', kind: 'ok' },
+  ]}
+  caption="<b>The holding area is the boundary.</b> What a family writes is never part of the resident's record until staff accept it."
+/>
+
+## Starting an application
+
+A counselor creates an application for a named primary contact and chooses how to reach
+them, by email or by text message. The product does three things in one step:
+
+- Creates the application, optionally attached to an existing resident record
+- Issues a secure invitation bound to that contact and that channel
+- Queues the message that carries the invitation link
+
+The message itself is sent by a separate delivery process, after the change is safely
+recorded. See <a href="/interfaces/notifications/">Notifications</a> for why.
+
+<Shot
+  src="/img/shots/submissions.webp"
+  route="/submissions"
+  role="Admissions counselor"
+  caption="<b>Family submissions.</b> Every application with its state (invited, in progress, ready to review, accepted), its primary contact and its last activity. The counselor creates applications and reissues invitations here."
+/>
+
+## Letting the family in
+
+The link alone is deliberately not enough. It is easy to forward, so it only identifies the
+application. Proof of who is holding it is a one-time code.
+
+<Flow
+  uid="otp"
+  width={860}
+  height={200}
+  title="How a family member proves who they are"
+  nodes={[
+    { id: 'l', x: 10, y: 52, w: 150, h: 80, eyebrow: '1', title: 'Opens the link', sub: ['Sees who the invite', 'is for, masked'], align: 'center' },
+    { id: 'c', x: 190, y: 52, w: 150, h: 80, eyebrow: '2', title: 'Asks for a code', sub: ['Sent only to the', 'bound contact'], kind: 'accent', align: 'center' },
+    { id: 'o', x: 370, y: 52, w: 150, h: 80, eyebrow: '3', title: 'Enters the code', sub: ['Six digits, short', 'lived, limited tries'], align: 'center' },
+    { id: 's', x: 550, y: 52, w: 150, h: 80, eyebrow: '4', title: 'A session starts', sub: ['Scoped to this one', 'application'], kind: 'ok', align: 'center' },
+    { id: 'n', x: 730, y: 52, w: 120, h: 80, eyebrow: 'EVERY TIME', title: 'Re-claimed', sub: ['A shared tablet', 'cannot leak'], kind: 'warn', align: 'center' },
+  ]}
+  edges={[
+    { from: 'l.r', to: 'c.l', kind: 'accent' },
+    { from: 'c.r', to: 'o.l', kind: 'accent' },
+    { from: 'o.r', to: 's.l', kind: 'accent' },
+    { from: 's.r', to: 'n.l', kind: 'dash' },
+  ]}
+  caption="<b>Easy to share, hard to misuse.</b> The code goes only to the contact the invitation was bound to, never to whoever holds the link."
+/>
+
+<div class="defs not-content">
+  <div><dt>The code</dt><dd>Six digits, stored only as a hash, valid for ten minutes by default, with a cooldown between requests and a lock after five wrong attempts. Each of these is a deployment setting.</dd></div>
+  <div><dt>The invitation</dt><dd>Valid for fourteen days by default. It can be revoked at any time, and an expired invitation has its code cleared.</dd></div>
+  <div><dt>The session</dt><dd>Short, with an absolute maximum lifetime. It is scoped to the single application the invitation was for, and it is created fresh each time a live link is opened, so a device left open cannot carry over to the next family.</dd></div>
+  <div><dt>Enumeration safety</dt><dd>Asking for a code gives the same answer whether or not the invitation is valid, so the form cannot be used to discover which links exist.</dd></div>
+</div>
+
+## What the family does
+
+The guided application is made of up to four sections, each of which the client can switch
+on or off, plus a document step.
+
+<div class="defs not-content">
+  <div><dt>About your loved one</dt><dd>Name, date of birth, state, and the level of care they need. A national identity number is optional and only requested if the family has it to hand.</dd></div>
+  <div><dt>Financial picture</dt><dd>Monthly income, liquid assets, and any long-term care benefit. Entered in everyday dollars and converted to whole cents only when staff promote the application.</dd></div>
+  <div><dt>Care needs</dt><dd>The diagnosis, the planned length of stay, and any health flags.</dd></div>
+  <div><dt>Who is helping</dt><dd>The responsible party, their relationship, any monthly contribution, and their explicit consent.</dd></div>
+  <div><dt>Documents</dt><dd>Uploaded in bulk and tagged by the family with a document type. Nothing is read or interpreted until staff promote.</dd></div>
+</div>
+
+Progress saves section by section, so a family can stop and return. Everything a family
+types is treated as **staged and unverified**. It never reaches a calculation until a
+person has confirmed it.
+
+## Helpers get a narrow grant, never the whole application
+
+Families rely on other people: a physician to describe care needs, a power of attorney who
+signs, an adviser who holds the statements. Each of them has a narrow, legitimate reason to
+touch one part of an application, and no reason to see the rest.
+
+<div class="split not-content">
+  <div class="panel panel--ok">
+    <h4>A helper grant is an allowlist</h4>
+    <ul>
+      <li>Which sections they may see and edit</li>
+      <li>Which document types they may upload</li>
+      <li>Whether they may submit</li>
+      <li>A note explaining what is being asked</li>
+    </ul>
+  </div>
+  <div class="panel panel--stop">
+    <h4>Everything else is refused</h4>
+    <ul>
+      <li>A grant that permits nothing is rejected as a dead invite</li>
+      <li>Anything added to the application later is invisible to existing helpers until the owner grants it</li>
+      <li>Only the owner always holds the whole application</li>
+    </ul>
+  </div>
+</div>
+
+The kinds of helper offered are family, clinician, power of attorney, financial adviser and
+other. Each starts from the narrowest preset that kind of person plausibly needs.
+
+<Shot
+  src="/img/shots/portal-front-door.webp"
+  route="/apply/{invitation}"
+  role="Family member"
+  caption="<b>The front door.</b> The family sees who the invitation is for, the community's name, and a plain explanation of what happens next. The contact is masked and the code is sent only there."
+/>
+
+See <a href="/screens/portal/">Family portal</a> for the remaining screens, and
+<a href="/architecture/isolation/">Isolation and tenancy</a> for how the portal is kept apart
+from everything else.

@@ -1,0 +1,99 @@
+---
+title: "Role capability matrix"
+description: "One table: every role against every capability in the product."
+tldr:
+  - "One table puts seven roles against about thirty capabilities."
+  - "Cells marked Partly carry a condition, explained under the table."
+  - "Only the executive director records decisions."
+  - "Only finance reviewers can override an assessment result."
+---
+
+export const roles = ['Counselor', 'Sales reviewer', 'Finance reviewer', 'Exec director', 'Auditor', 'Client admin', 'Platform admin'];
+
+export const groups = [
+  { name: 'Resident records', rows: [
+    ['See a resident\'s identity and pipeline state', 'y', 'y', 'y', 'y', 'y', 'n', 'n'],
+    ['Create and edit resident records', 'y', 'y', 'n', 'n', 'n', 'n', 'n'],
+    ['See care level and health detail', 'y', 'y', 'y', 'y', 'n', 'n', 'n'],
+    ['See raw financial figures', 'n', 'y', 'y', 'y', 'n', 'n', 'n'],
+  ]},
+  { name: 'Documents and intake', rows: [
+    ['Open uploaded documents', 'p', 'y', 'y', 'y', 'n', 'n', 'n'],
+    ['Upload, review and verify documents', 'y', 'y', 'y', 'n', 'n', 'n', 'n'],
+    ['Invite families and review submissions', 'y', 'y', 'y', 'y', 'n', 'n', 'n'],
+    ['Accept a submission as a resident', 'y', 'y', 'y', 'y', 'n', 'n', 'n'],
+  ]},
+  { name: 'Assessment and qualification', rows: [
+    ['See the derived result of an assessment', 'p', 'y', 'y', 'y', 'p', 'n', 'n'],
+    ['Run an assessment', 'n', 'y', 'y', 'n', 'n', 'n', 'n'],
+    ['Override an assessment result', 'n', 'n', 'y', 'n', 'n', 'n', 'n'],
+    ['Read and project life-plan scenarios', 'n', 'y', 'y', 'y', 'n', 'n', 'n'],
+    ['Complete a life-plan qualification', 'n', 'y', 'y', 'n', 'n', 'n', 'n'],
+    ['Create and read unit quotes', 'n', 'y', 'y', 'p', 'n', 'n', 'n'],
+    ['Run advanced analysis on a qualification', 'n', 'y', 'y', 'n', 'n', 'n', 'n'],
+  ]},
+  { name: 'Review and decision', rows: [
+    ['Complete a review prerequisite', 'n', 'p', 'p', 'n', 'n', 'n', 'n'],
+    ['Record a sales recommendation', 'n', 'y', 'n', 'n', 'n', 'n', 'n'],
+    ['Answer a waiver or escalation', 'n', 'n', 'p', 'p', 'n', 'n', 'n'],
+    ['Record the final decision', 'n', 'n', 'n', 'y', 'n', 'n', 'n'],
+    ['Read recorded decisions', 'n', 'y', 'y', 'y', 'y', 'n', 'n'],
+  ]},
+  { name: 'Reporting and oversight', rows: [
+    ['Run cross-community reports', 'n', 'p', 'p', 'p', 'n', 'n', 'n'],
+    ['Read the audit trail', 'n', 'n', 'n', 'y', 'y', 'p', 'n'],
+  ]},
+  { name: 'Administration', rows: [
+    ['Manage staff, roles and memberships', 'n', 'n', 'n', 'n', 'n', 'y', 'n'],
+    ['Publish policy, pricing and approval chains', 'n', 'n', 'n', 'n', 'n', 'y', 'n'],
+    ['Manage inventory, price schedules and approvers', 'n', 'n', 'n', 'n', 'n', 'y', 'n'],
+    ['Grant report access and emergency access', 'n', 'n', 'n', 'n', 'n', 'y', 'n'],
+    ['Provision and suspend client organisations', 'n', 'n', 'n', 'n', 'n', 'n', 'y'],
+  ]},
+];
+
+export const glyph = { y: 'Yes', p: 'Partly', n: '' };
+
+Read across to see what one role can do, and down to see who can do one thing. The
+matrix is derived directly from the role-to-scope assignments. Where a cell says **Partly**,
+the exact condition is in the notes below the table.
+
+<div class="matrix not-content">
+  <table>
+    <thead>
+      <tr>
+        <th>Capability</th>
+        {roles.map((r) => <th>{r}</th>)}
+      </tr>
+    </thead>
+    {groups.map((g) => (
+      <tbody>
+        <tr class="matrix__group"><td colspan={roles.length + 1}>{g.name}</td></tr>
+        {g.rows.map((row) => (
+          <tr>
+            <td>{row[0]}</td>
+            {row.slice(1).map((c) => <td class={'m m--' + c}>{glyph[c]}</td>)}
+          </tr>
+        ))}
+      </tbody>
+    ))}
+  </table>
+</div>
+
+## What "Partly" means
+
+<div class="defs not-content">
+  <div><dt>Open uploaded documents (counselor)</dt><dd>The counselor can open a document and see that it exists, what kind it is and when it arrived. The content of a financial document, its extracted text and its figures require the financial scope. Medical documents require the health scope.</dd></div>
+  <div><dt>Derived assessment result (counselor, auditor)</dt><dd>The tier, the runway in months and the fired rules are visible. Dollar figures are replaced with a withheld marker, and factors built from health detail are removed for anyone without the health scope.</dd></div>
+  <div><dt>Unit quotes (executive director)</dt><dd>Can read quotes and prior-sale history, since they hold all three read scopes. Creating a quote also needs permission to run assessments, which the executive director does not hold.</dd></div>
+  <div><dt>Review prerequisites</dt><dd>Which roles may complete each prerequisite is configured per organisation. The matrix shows the two roles that are eligible; a given client may allow only one.</dd></div>
+  <div><dt>Waivers and escalations</dt><dd>Only a finance reviewer or executive director who is also on the organisation's named approver list. Holding the role is not enough, and nobody may answer their own request.</dd></div>
+  <div><dt>Cross-community reports</dt><dd>Requires an explicit grant per community from a client administrator, plus a live membership in that community with the financial, health and assessment read scopes. The grant alone creates no access.</dd></div>
+  <div><dt>Audit trail (client administrator)</dt><dd>Can read the organisation's activity feed. Reading the trail of one particular resident additionally requires resident read access, which an administrator does not have, so that request is refused.</dd></div>
+</div>
+
+## Emergency access
+
+The break-glass role is not shown, because it grants nothing by itself. While a time-boxed
+grant is active, a person gains the **read** half of every scope and none of the write half.
+See <a href="/people/emergency-access/">Emergency access</a>.

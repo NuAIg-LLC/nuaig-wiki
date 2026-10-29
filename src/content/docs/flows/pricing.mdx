@@ -1,0 +1,115 @@
+---
+title: "Units, pricing and quotes"
+description: "Inventory, dated price schedules, prior sales, and a quote that can never silently re-price."
+tldr:
+  - "Units carry dated price schedules with a stated source. Prices are never remembered, they are looked up by date."
+  - "A quote pins the unit, the contract, the pricing date and the exact schedule and configuration it was priced from."
+  - "A price reduction needs an independent approver. Whoever quotes cannot approve their own discount."
+  - "A quote goes stale if the schedule, the inventory or the configuration changes, and a stale quote is refused rather than repriced."
+  - "Prior sales and outstanding refund obligations stay with the unit, so a new fee can be compared with what is owed."
+---
+
+import Flow from '../../../components/Flow.astro';
+import Shot from '../../../components/Shot.astro';
+
+Price is the largest single number in a qualification, and a family is shown it. So the
+product treats a price as a **record with provenance**, not as a field somebody typed.
+
+## The pieces
+
+<Flow
+  uid="pr"
+  width={880}
+  height={300}
+  title="From inventory to a quote bound into a qualification"
+  nodes={[
+    { id: 'unit', x: 10, y: 36, w: 170, h: 84, eyebrow: 'ADMINISTRATOR', title: 'Unit inventory', sub: ['Code, type, availability,', 'where we learned it'], align: 'center' },
+    { id: 'sched', x: 210, y: 36, w: 180, h: 84, eyebrow: 'ADMINISTRATOR', title: 'Price schedule', sub: ['Dated, per contract,', 'with a source reference'], kind: 'accent', align: 'center' },
+    { id: 'sale', x: 210, y: 176, w: 180, h: 84, eyebrow: 'ADMINISTRATOR', title: 'Prior sales', sub: ['Price, contract, refund', 'owed, revision history'], align: 'center' },
+    { id: 'quote', x: 430, y: 36, w: 190, h: 84, eyebrow: 'SALES REVIEWER', title: 'Quote', sub: ['Pinned to one unit, one', 'date, one schedule'], kind: 'violet', align: 'center' },
+    { id: 'appr', x: 430, y: 176, w: 190, h: 84, eyebrow: 'IF A PRICE FALLS', title: 'Independent approval', sub: ['A named approver,', 'never the requester'], kind: 'warn', align: 'center' },
+    { id: 'qual', x: 660, y: 36, w: 200, h: 84, eyebrow: 'QUALIFICATION', title: 'Priced from the quote', sub: ['The number the family saw', 'is the number modelled'], kind: 'ok', align: 'center' },
+  ]}
+  edges={[
+    { from: 'unit.r', to: 'sched.l', kind: 'accent' },
+    { from: 'sched.r', to: 'quote.l', kind: 'accent' },
+    { from: 'sale.r', to: 'quote.b:0.15', kind: 'dash', label: 'compared with' },
+    { from: 'quote.b:0.7', to: 'appr.t:0.7', kind: 'warn' },
+    { from: 'quote.r', to: 'qual.l', kind: 'ok' },
+    { from: 'appr.r', to: 'qual.b:0.2', kind: 'ok', label: 'approved' },
+  ]}
+  caption="<b>Every arrow is a record.</b> Nothing in the chain is a figure someone remembered."
+/>
+
+## Inventory and schedules
+
+<div class="defs not-content">
+  <div><dt>A unit</dt><dd>A code that is unique within the community, a label, a type and an availability. It also records where the information came from and when it was last checked. The only mutable record in this area, and changing it needs the reviewed revision.</dd></div>
+  <div><dt>A price schedule</dt><dd>A complete set of prices effective from a date, with an entrance fee and a monthly independent-living fee for each contract. Each contract and refund percentage must match the client's central catalogue and the community's assignment. A schedule is appended, never edited.</dd></div>
+  <div><dt>Which schedule applies</dt><dd>For a given pricing date, the schedule with the latest effective date at or before it, and within that date the highest revision.</dd></div>
+  <div><dt>Prior sales</dt><dd>The actual historical contract, refund rate, entrance price and outstanding refund obligation, with a source. A correction is a new revision of the same sale, so the earlier one stays readable.</dd></div>
+</div>
+
+<Shot
+  src="/img/shots/unit-detail.webp"
+  route="/admin/units/{id}"
+  role="Client administrator"
+  caption="<b>A unit.</b> The inventory record with where the information came from, followed by the unit's dated price schedules and its prior-sale history."
+/>
+
+## Quoting
+
+A sales reviewer picks a unit and a pricing date, reviews the schedule and the unit's prior
+sales, and creates a quote.
+
+<Shot
+  src="/img/shots/unit-quote-detail.webp"
+  route="/prospects/{id}/unit-quotes/{quoteId}"
+  role="Sales financial reviewer"
+  caption="<b>An approved quote.</b> The source and quoted prices side by side, who asked and why, and a link that opens the life-plan workspace priced from this quote."
+/>
+
+<div class="defs not-content">
+  <div><dt>Immutable</dt><dd>A quote pins the unit, the contract, the pricing date and the exact schedule and configuration revisions it was priced from. Changing the schedule afterwards never re-prices an existing quote.</dd></div>
+  <div><dt>Prices come from the schedule</dt><dd>The reviewer states the prices they want, but the baseline always comes from the server's effective schedule. A caller cannot supply their own baseline.</dd></div>
+  <div><dt>Does not reserve a unit</dt><dd>A quote is a price, not a hold. An unavailable unit cannot receive a new quote.</dd></div>
+</div>
+
+## Reductions need an independent approver
+
+<div class="split not-content">
+  <div class="panel panel--ok">
+    <h4>Usable immediately</h4>
+    <p>A quote with no price reduction. Increases need no approval.</p>
+  </div>
+  <div class="panel panel--warn">
+    <h4>Pending approval</h4>
+    <p>A decrease in <em>either</em> the entrance fee or the monthly fee, even if the other price rises.</p>
+  </div>
+</div>
+
+Who may approve is decided centrally. A client administrator names the approvers, who must
+hold a live finance reviewer or executive director membership in the quote's community.
+The requester can never decide their own quote. The default list is empty, so until it is
+filled no reduction can be approved.
+
+<Shot
+  src="/img/shots/unit-approvers.webp"
+  route="/admin/unit-approvers"
+  role="Client administrator"
+  caption="<b>Designated approvers.</b> Only staff with an eligible finance or director role can be named. Selecting the sales role never makes someone an approver."
+/>
+
+## When a quote goes stale
+
+A quote is refused rather than repriced if anything it depended on has changed:
+
+<div class="defs not-content">
+  <div><dt>The configuration</dt><dd>The client published new policy or community pricing.</dd></div>
+  <div><dt>The inventory</dt><dd>The unit record was revised.</dd></div>
+  <div><dt>The schedule</dt><dd>The effective schedule for the quote's pricing date changed.</dd></div>
+  <div><dt>The approval</dt><dd>The approver list changed, the approver's membership lapsed, or their account was changed after the decision. Reactivating an account or restoring a role does not revive an old approval.</dd></div>
+</div>
+
+Completed qualifications are not affected. Their snapshot already holds the price and its
+provenance, and is historical evidence.

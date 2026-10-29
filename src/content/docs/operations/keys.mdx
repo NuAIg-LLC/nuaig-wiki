@@ -1,0 +1,105 @@
+---
+title: "Keys and rotation"
+description: "The kinds of secret the platform uses, how rotation works, and the properties rotation must preserve."
+tldr:
+  - "Different kinds of data are encrypted under different keys, so exposure of one does not become a master key."
+  - "Stored ciphertext names the key that produced it, so a new key can be introduced while old data stays readable."
+  - "A maintenance task re-encrypts stale rows under the active key. Retired keys are kept decrypt-only until nothing needs them."
+  - "In production the platform refuses to start with a development secret or a secret that is too short."
+  - "Rotation must preserve each field's encryption purpose, and the task is built to."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+Encryption is only as good as the handling of the keys. This page describes the kinds of
+secret the platform holds and how they are rotated without taking the product down or losing
+data.
+
+## The kinds of secret
+
+<div class="defs not-content">
+  <div><dt>Field encryption key</dt><dd>Protects sensitive fields in resident, financial, care, document, qualification and workflow records.</dd></div>
+  <div><dt>Identity-number vault key</dt><dd>Protects the separate store of identity numbers. Kept distinct from the field key so the blast radius of each is smaller.</dd></div>
+  <div><dt>Portal token and session keys</dt><dd>Protect family invitations and sessions.</dd></div>
+  <div><dt>Staff session key</dt><dd>Protects the encrypted server-side session cookie.</dd></div>
+  <div><dt>Notification data key and destination hash key</dt><dd>Encrypt queued messages, and hash destinations for suppression matching without storing them in the clear.</dd></div>
+  <div><dt>Audit-chain seed</dt><dd>The starting value of each organisation's hash chain. It is independent of every other secret.</dd></div>
+</div>
+
+Different families of stored data also use different **encryption purposes**. Unit pricing
+payloads, for example, have a purpose of their own, so a flaw or a leak affecting one family
+does not decrypt another.
+
+## How rotation works
+
+<Flow
+  uid="rot"
+  width={880}
+  height={300}
+  title="Rotating the field encryption key"
+  nodes={[
+    { id: 's1', x: 10, y: 36, w: 190, h: 90, eyebrow: '1', title: 'Introduce a new key', sub: ['It becomes the active key.', 'New writes use it.'], kind: 'accent', align: 'center' },
+    { id: 's2', x: 230, y: 36, w: 190, h: 90, eyebrow: '2', title: 'Keep the old key', sub: ['Retired, decrypt-only.', 'Old rows still readable.'], align: 'center' },
+    { id: 's3', x: 450, y: 36, w: 190, h: 90, eyebrow: '3', title: 'Re-encrypt', sub: ['A maintenance task rewrites', 'stale rows under the active key.'], kind: 'warn', align: 'center' },
+    { id: 's4', x: 670, y: 36, w: 190, h: 90, eyebrow: '4', title: 'Verify and retire', sub: ['Confirm no row needs the', 'old key, then remove it.'], kind: 'ok', align: 'center' },
+    { id: 'env', x: 230, y: 180, w: 410, h: 76, eyebrow: 'WHY IT WORKS', title: 'Ciphertext names its key', sub: 'Each stored value carries the identifier of the key that made it, so the right key is always found', kind: 'ghost' },
+  ]}
+  edges={[
+    { from: 's1.r', to: 's2.l', kind: 'accent' },
+    { from: 's2.r', to: 's3.l', kind: 'accent' },
+    { from: 's3.r', to: 's4.l', kind: 'ok' },
+  ]}
+  caption="<b>No downtime and no flag day.</b> New and old keys coexist until the last old row has been rewritten."
+/>
+
+<div class="defs not-content">
+  <div><dt>Versioned envelopes</dt><dd>Stored ciphertext carries a version and a key identifier. The active key identifier is a setting, and retired keys sit in a decrypt-only set. A retired key cannot also be the active one.</dd></div>
+  <div><dt>The re-encryption task</dt><dd>A maintenance task finds rows still under an old key and rewrites them under the active one. It covers every encrypted column, including those added by later features.</dd></div>
+  <div><dt>Authenticated encryption</dt><dd>Because ciphertext is authenticated, a truncated or tampered value is rejected rather than decrypted into garbage. A non-canonical envelope is refused as well.</dd></div>
+</div>
+
+## Properties rotation must preserve
+
+<div class="split not-content">
+  <div class="panel">
+    <h4>Purpose</h4>
+    <p>Every column keeps its encryption purpose. A rewrite that moved a value to a different purpose would silently change what can decrypt it. The registry of purposes is the source of truth.</p>
+  </div>
+  <div class="panel">
+    <h4>Completeness</h4>
+    <p>Any newly introduced encrypted column must be added to the rotation task, or it will be stranded on a key nobody is rotating.</p>
+  </div>
+  <div class="panel">
+    <h4>Readability throughout</h4>
+    <p>At no point may a stored value be undecryptable by the keys currently configured.</p>
+  </div>
+</div>
+
+## What is not covered by the task
+
+Rotating the identity-number vault key is a distinct procedure from rotating the field key,
+because that store has a different structure. Treat it as its own change with its own
+plan. Custody of keys in dedicated hardware or a managed service is an infrastructure
+decision that the platform supports through how secrets are supplied, and does not itself
+provide.
+
+## Starting safely
+
+In a production setting the platform **refuses to start** if any of these hold:
+
+<div class="defs not-content">
+  <div><dt>A development default</dt><dd>Any key or seed that still equals its development value.</dd></div>
+  <div><dt>A weak secret</dt><dd>A secret shorter than the minimum.</dd></div>
+  <div><dt>A legacy key that is also active</dt><dd>The retired set may not contain the active key.</dd></div>
+  <div><dt>Development sign-in enabled</dt><dd>The stand-in identity mechanism is on.</dd></div>
+</div>
+
+## Operational guidance
+
+<ol class="steps not-content">
+  <li><h4>Rotate on a schedule and on suspicion</h4><p>Set a regular cadence, and rotate immediately if exposure is suspected.</p></li>
+  <li><h4>Rotate one kind at a time</h4><p>Combining changes makes a failure hard to attribute.</p></li>
+  <li><h4>Verify before retiring</h4><p>Confirm no row remains under the old key before removing it from the decrypt-only set.</p></li>
+  <li><h4>Keep the previous secrets until verified</h4><p>You may need to roll back.</p></li>
+  <li><h4>Record each rotation</h4><p>Who, when, which key, and the verification result.</p></li>
+</ol>

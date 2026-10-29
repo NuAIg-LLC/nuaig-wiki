@@ -1,0 +1,147 @@
+---
+title: "Advanced analysis"
+description: "A seeded probability simulation that advises beside a recorded qualification and is structurally unable to decide."
+tldr:
+  - "Advanced analysis reports how a household behaves across many possible lengths of stay and investment outcomes."
+  - "It reads a frozen copy of a completed qualification and stores its result as a separate, versioned artifact beside it."
+  - "It is seeded, so the same seed on the same qualification reproduces the same figures forever."
+  - "It samples length of stay and investment return only. It never samples or receives age, sex, diagnosis or any health information."
+  - "It cannot set or influence an outcome, and three independent controls enforce that."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+The deterministic model returns **one** answer from **one** projection. That answer does not
+say how fragile it is. A household that clears a threshold by a dollar looks identical to one
+that clears it by a million. Advanced analysis exists to show the difference.
+
+In the interface the feature carries a plain name on purpose. Staff explaining a figure to a
+family should not have to explain a method. Underneath it is a seeded Monte Carlo
+simulation.
+
+## What decides, and what advises
+
+<Flow
+  uid="sim"
+  width={880}
+  height={340}
+  title="The deterministic result decides; the simulation advises beside it"
+  lanes={[
+    { x: 8, y: 8, w: 430, h: 324, label: 'THE RECORD (decides)' },
+    { x: 452, y: 8, w: 420, h: 324, label: 'THE COMMENTARY (advises)' },
+  ]}
+  nodes={[
+    { id: 'q', x: 28, y: 46, w: 390, h: 66, eyebrow: 'FROZEN', title: 'A completed qualification', sub: 'Household, policy, pricing, result' , kind: 'accent'},
+    { id: 'ch', x: 28, y: 130, w: 390, h: 66, eyebrow: 'THE CHAIN', title: 'Approval workflow and decision', sub: 'Uses the deterministic outcome only' },
+    { id: 'rec', x: 28, y: 214, w: 390, h: 66, eyebrow: 'RECORDED', title: 'The outcome', sub: 'Set by the deterministic model, nothing else', kind: 'ok' },
+    { id: 'svc', x: 472, y: 46, w: 380, h: 80, eyebrow: 'NO DATABASE ACCESS', title: 'Analytics service', sub: ['Handed a household, returns a', 'distribution, keeps nothing'], kind: 'violet' },
+    { id: 'art', x: 472, y: 150, w: 380, h: 80, eyebrow: 'INSERT ONLY', title: 'A separate artifact', sub: ['Own table, no update or delete.', 'Re-running adds a new row'], kind: 'violet' },
+    { id: 'no', x: 472, y: 252, w: 380, h: 52, title: 'No field for an outcome, anywhere', kind: 'stop', align: 'center' },
+  ]}
+  edges={[
+    { from: 'q.b', to: 'ch.t', kind: 'accent' },
+    { from: 'ch.b', to: 'rec.t', kind: 'ok' },
+    { from: 'q.r', to: 'svc.l', kind: 'dash', label: 'copy' },
+    { from: 'svc.b', to: 'art.t', kind: 'dash' },
+    { from: 'art.b', to: 'no.t', kind: 'stop' },
+  ]}
+  caption="<b>Two parallel tracks that never join.</b> The simulation is never consulted when the outcome is produced, and nothing it returns can be recorded as one."
+/>
+
+The boundary is enforced in **three independent places**, so that losing one does not lose
+the guarantee:
+
+<div class="defs not-content">
+  <div><dt>No credential</dt><dd>The analytics service holds no database credential. It cannot write anything, anywhere. It receives a household and returns a distribution.</dd></div>
+  <div><dt>No field for an outcome</dt><dd>The stored artifact is validated against a strict shape with no field for an outcome, a recommendation or a qualified flag. A service that started returning one would fail to store.</dd></div>
+  <div><dt>Insert-only storage</dt><dd>Simulations live in their own table with no update or delete permission. Running again produces a new row, so figures somebody was shown stay recoverable.</dd></div>
+</div>
+
+## What is sampled
+
+Two things, both of which the client already configures:
+
+<div class="defs not-content">
+  <div><dt>Length of stay at each level of care</dt><dd>Drawn around the duration profile in the client's own policy. The distribution is lognormal, because a stay cannot be shorter than no time at all but can be much longer than expected, and its median is the configured figure so it is centred on what the policy says. The spread is a setting, and so are its floor and ceiling as fractions of the configured duration (by default a quarter to double).</dd></div>
+  <div><dt>Investment return</dt><dd>Drawn once a year around the rate in the policy, at a volatility that is a setting. A total loss is possible in a draw. More than a total loss is not.</dd></div>
+</div>
+
+## What is never sampled
+
+**No age. No sex. No diagnosis. No health information of any kind.**
+
+The deterministic model takes no demographic input and neither does this. Selecting a
+resident's projected stay from who they are is a decision about how a protected
+characteristic may price a service, and that belongs to the client's counsel, not to a
+sampler. If it is ever approved, it arrives as a configured duration source in policy, with
+its own review. It never arrives as a quiet change inside a simulator. The household shape
+has no demographic field to pass, and a test asserts that, so this is a property of the
+code and not a policy anyone has to remember.
+
+## Reproducibility
+
+Every run carries an **explicit integer seed**, the number of draws, the simulation
+version, the calculation version it was verified against, and the policy and pricing
+versions. The household, policy and fee schedule come from the parent qualification's own
+frozen snapshot, never from current configuration.
+
+The same seed on the same qualification reproduces the same figures, forever. Nothing is
+ever silently reseeded. A caller who wants a fresh view supplies a new seed and gets a new
+artifact beside the old one.
+
+| Setting | Meaning | Default |
+| --- | --- | --- |
+| Seed | A whole number that fixes every random draw | Required |
+| Draws | How many futures to simulate | 10,000, between 100 and 50,000 |
+| Spread of stay | How far a sampled stay may stray from the configured one | 20 percent |
+| Return volatility | Annual standard deviation of investment return | 300 basis points |
+
+## How we know it agrees with the model
+
+The simulation is a **second implementation** of the same month-by-month model, vectorised
+so that ten thousand paths run at once. Two implementations of a money path is a risk, and
+it is managed by one test rather than by review.
+
+With variance set to zero, every simulated path must reproduce the deterministic model
+**to the integer cent**. The test corpus is generated from the model itself, so the
+expected figures are the model's own answers rather than numbers anyone typed. It covers
+each branch either side could get wrong:
+
+<div class="grid-cards not-content">
+  <div class="panel"><h4>Households</h4><p>A single resident, a couple with the second-person surcharge, a couple aligned out of independent living, a second resident who is the primary, and a rental with no fee.</p></div>
+  <div class="panel"><h4>Cash flows</h4><p>A deferred home sale, a household overdrawn by the entrance fee, a capped insurance benefit, an extra cost with a window, an estate transfer at exit, and zero income with full drawdown.</p></div>
+  <div class="panel"><h4>Conventions</h4><p>The annual-opening return convention, a refund excluded from the threshold, and negative rates.</p></div>
+</div>
+
+Fourteen such cases are held. If the model changes and the simulation is not re-verified
+against it, the check fails on the version comparison rather than drifting silently.
+
+## What it reports
+
+<div class="defs not-content">
+  <div><dt>Distributions</dt><dd>The ending balance and the estate value at the 5th, 25th, 50th, 75th and 95th percentiles.</dd></div>
+  <div><dt>Probability of running out</dt><dd>How often the balance goes negative at all, and the distribution of the month it happens in across the paths where it does.</dd></div>
+  <div><dt>Probability of clearing each approved threshold</dt><dd>Measured on the same basis the model uses, including whether the contingent refund counts. Where the client has no approved thresholds, no threshold probability is reported at all.</dd></div>
+  <div><dt>A balance band</dt><dd>The distribution month by month, for drawing a band across the residency.</dd></div>
+  <div><dt>Sensitivity</dt><dd>Which assumption the answer moves with most, ranked. Reported as a correlation, because the question a reviewer has is "which assumption is this answer hostage to", and a correlation answers it without implying a model nobody fitted.</dd></div>
+  <div><dt>Notes</dt><dd>On every result: the advisory boundary and the absence of demographic input, so a figure cannot be quoted without them.</dd></div>
+</div>
+
+## Where it earns its keep
+
+A household at four times the definite-fit floor does not need a distribution. The
+simulation is worth running in the **marginal band**, where a plausible change in length of
+stay could change the answer and where the person at the table deserves to know that.
+
+Running one needs the same read scopes as the qualification itself, plus permission to run
+assessments. It is an audited, idempotent mutation like any other, and replaying a request
+returns the stored artifact instead of spending another run.
+
+## What it does not model
+
+<div class="defs not-content">
+  <div><dt>Correlation between the two sampled quantities</dt><dd>A long stay and poor returns are drawn independently. If they are in fact correlated, the tails here are narrower than reality.</dd></div>
+  <div><dt>Fee inflation risk</dt><dd>Fee growth follows the policy's configured rates in every path. Only investment return is volatile.</dd></div>
+  <div><dt>Care-path transitions</dt><dd>A resident moves through the four levels in order for a sampled number of months at each. Returning to a lower level or skipping one is not modelled.</dd></div>
+  <div><dt>Behaviour</dt><dd>No household changes its spending in response to a falling balance.</dd></div>
+</div>

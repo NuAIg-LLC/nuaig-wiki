@@ -1,0 +1,112 @@
+---
+title: "The audit ledger"
+description: "Hash-chained, append-only, per client, and independently verifiable."
+tldr:
+  - "Every read and write of regulated data appends one event: who, what, which record, which fields, when and from where."
+  - "Each event contains the hash of the one before it, so an edited or deleted event breaks the chain and is detectable."
+  - "There is one chain per organisation, and the chain can be verified on demand."
+  - "Reads are logged as carefully as writes, and the fields named are the classified ones."
+  - "The ledger is both a product feature for client auditors and a basis for accounting of disclosures."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+The audit trail is three things at once. It is a **product feature**, because client
+auditors will ask for it. It is a **legal requirement**, because organisations must be able
+to account for who disclosed what. And it is a **financial control**. A plain log table
+satisfies none of them well, because anyone with write access can alter it.
+
+## A chain, not a list
+
+<Flow
+  uid="ch2"
+  width={880}
+  height={230}
+  title="Each event contains the hash of the one before it"
+  nodes={[
+    { id: 'e1', x: 10, y: 50, w: 190, h: 100, eyebrow: 'EVENT 1', title: 'Hash H1', sub: ['Who, what, record,', 'fields, when, where', 'Previous: genesis'], align: 'center' },
+    { id: 'e2', x: 245, y: 50, w: 190, h: 100, eyebrow: 'EVENT 2', title: 'Hash H2', sub: ['Who, what, record,', 'fields, when, where', 'Previous: H1'], kind: 'accent', align: 'center' },
+    { id: 'e3', x: 480, y: 50, w: 190, h: 100, eyebrow: 'EVENT 3', title: 'Hash H3', sub: ['Who, what, record,', 'fields, when, where', 'Previous: H2'], kind: 'accent', align: 'center' },
+    { id: 'ver', x: 715, y: 50, w: 145, h: 100, eyebrow: 'ON DEMAND', title: 'Verify', sub: ['Recompute every', 'link in order'], kind: 'ok', align: 'center' },
+  ]}
+  edges={[
+    { from: 'e1.r', to: 'e2.l', kind: 'accent', label: 'H1' },
+    { from: 'e2.r', to: 'e3.l', kind: 'accent', label: 'H2' },
+    { from: 'e3.r', to: 'ver.l', kind: 'ok' },
+  ]}
+  notes={[
+    { x: 440, y: 200, text: 'Change or remove any event and every later hash stops matching.', align: 'middle' },
+  ]}
+  caption="<b>Tampering is detectable even by someone with write access.</b> They cannot rewrite history without breaking every link after the change."
+/>
+
+## What is recorded
+
+<div class="defs not-content">
+  <div><dt>Who</dt><dd>The person, and the role they held at the time.</dd></div>
+  <div><dt>What</dt><dd>The action: read, create, update, delete, assess, decide, and so on.</dd></div>
+  <div><dt>Which record</dt><dd>The resource type and identifier, and the resident it concerns.</dd></div>
+  <div><dt>Which fields</dt><dd>The exact classified fields that were touched, such as a financial amount. This is what makes the ledger answer a question about disclosure.</dd></div>
+  <div><dt>When and where from</dt><dd>The time, and the origin of the request.</dd></div>
+  <div><dt>The chain links</dt><dd>The previous event's hash, and this event's own hash computed over a fixed canonical form.</dd></div>
+</div>
+
+Reads are logged as explicitly as writes. The assessment screen records the read of financial
+fields **before** it computes. Audit text never contains financial values, only field names.
+
+## How it stays consistent
+
+<div class="defs not-content">
+  <div><dt>One chain per organisation</dt><dd>Each client has its own chain, so one client's activity can neither slow nor interleave with another's, and each can be verified on its own.</dd></div>
+  <div><dt>Serialised appends</dt><dd>Appending takes a per-organisation lock, reads the head of the chain, builds the next event and inserts it, all in the caller's transaction. Two simultaneous events cannot both claim the same predecessor.</dd></div>
+  <div><dt>Atomic with the change</dt><dd>The event is written in the same transaction as the data operation it describes. A change cannot commit without its audit event, and an audit event cannot exist for a change that rolled back.</dd></div>
+  <div><dt>Append-only by permission</dt><dd>The runtime identity cannot update or delete events. The chain head is the only mutable part, and it can be updated but never deleted.</dd></div>
+</div>
+
+## Verifying
+
+<Flow
+  uid="vf"
+  width={880}
+  height={170}
+  title="Verifying the ledger"
+  nodes={[
+    { id: 'a', x: 10, y: 36, w: 190, h: 80, eyebrow: '1', title: 'Read the chain', sub: 'In order, for one organisation', align: 'center' },
+    { id: 'b', x: 240, y: 36, w: 190, h: 80, eyebrow: '2', title: 'Recompute each hash', sub: 'From its own content', align: 'center' },
+    { id: 'c', x: 470, y: 36, w: 190, h: 80, eyebrow: '3', title: 'Compare each link', sub: 'Does it name the previous hash?', align: 'center' },
+    { id: 'd', x: 700, y: 36, w: 160, h: 80, eyebrow: 'RESULT', title: 'Intact or broken', sub: 'And where', kind: 'ok', align: 'center' },
+  ]}
+  edges={[
+    { from: 'a.r', to: 'b.l', kind: 'accent' },
+    { from: 'b.r', to: 'c.l', kind: 'accent' },
+    { from: 'c.r', to: 'd.l', kind: 'ok' },
+  ]}
+  caption="<b>Verification is a function of the data alone.</b> It needs no trust in the system that wrote the chain."
+/>
+
+The chain can be verified on demand by someone holding audit access. A silently edited or
+deleted event is detectable, including by a client's auditors acting independently.
+
+## Who can read it
+
+<div class="split not-content">
+  <div class="panel">
+    <h4>The activity feed</h4>
+    <p>Executive directors, auditors and client administrators can read the organisation's feed. Resident-linked events appear only for people who hold resident access, and the page says what it leaves out.</p>
+  </div>
+  <div class="panel">
+    <h4>A resident's trail</h4>
+    <p>Needs both audit access and resident access. A client administrator holds only the first and is refused.</p>
+  </div>
+  <div class="panel">
+    <h4>The platform operator</h4>
+    <p>Every action the operator takes on a client is recorded in <em>that client's</em> own ledger, so a client can see what was done to it.</p>
+  </div>
+</div>
+
+## Limits to be honest about
+
+<div class="defs not-content">
+  <div><dt>Tamper-evident, not tamper-proof</dt><dd>The chain proves a change happened. It does not prevent someone with full control of the store from rewriting every later hash. Anchoring the head of the chain outside the platform closes that gap, and is an operational choice a client can make.</dd></div>
+  <div><dt>Disclosures, not intent</dt><dd>The ledger records that a field was read. It cannot say why. The reason for emergency access is recorded separately.</dd></div>
+</div>

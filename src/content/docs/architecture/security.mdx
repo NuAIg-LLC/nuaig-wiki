@@ -1,0 +1,112 @@
+---
+title: "Security and privacy"
+description: "What the platform protects, the controls around it, and the blast radius of each failure."
+tldr:
+  - "One resident record concentrates identity, health and financial data, so the platform treats it as its main liability and minimises, encrypts and records access to it."
+  - "Controls are layered so that no single mistake is sufficient for a breach: isolation, least privilege, masking, encryption and audit."
+  - "Identity numbers are tokenised and held apart. Sensitive fields are stored as ciphertext."
+  - "Sessions live on the server, the browser holds no access token, and every cross-site change is origin-checked."
+  - "Controls that depend on a hosting arrangement are stated as such, not claimed by the product."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+A single resident record holds personal identity, health information and non-public
+financial information at once. A breach would be a notification event under several regimes
+simultaneously. The platform's stance follows from that: **treat the data as the main
+liability, collect the minimum, protect the rest in layers, and record every access.**
+
+## Layers, so that one mistake is not enough
+
+<Flow
+  uid="sec"
+  width={880}
+  height={380}
+  title="Layered controls around a resident's data"
+  nodes={[
+    { id: 'l1', x: 20, y: 16, w: 840, h: 52, eyebrow: 'LAYER 1', title: 'Who you are: identity from the client\'s own system, sessions held on the server', kind: 'ghost' },
+    { id: 'l2', x: 40, y: 80, w: 800, h: 52, eyebrow: 'LAYER 2', title: 'What you may do: scopes re-read from the store on every request', kind: 'ghost' },
+    { id: 'l3', x: 60, y: 144, w: 760, h: 52, eyebrow: 'LAYER 3', title: 'Whose data you may reach: organisation and community isolation in the store', kind: 'ghost' },
+    { id: 'l4', x: 80, y: 208, w: 720, h: 52, eyebrow: 'LAYER 4', title: 'What you are shown: minimum-necessary masking when the response is built', kind: 'ghost' },
+    { id: 'l5', x: 100, y: 272, w: 680, h: 52, eyebrow: 'LAYER 5', title: 'What is stored: field encryption, tokenised identity numbers', kind: 'ghost' },
+    { id: 'l6', x: 120, y: 336, w: 640, h: 36, title: 'And always: a tamper-evident record of every access', kind: 'ok', align: 'center' },
+  ]}
+  caption="<b>Each layer assumes the one outside it has failed.</b> A resident's data is reached only after passing all of them."
+/>
+
+## Protecting the data itself
+
+<div class="defs not-content">
+  <div><dt>Field encryption</dt><dd>Sensitive fields are stored as authenticated ciphertext, so a copy of the database alone does not disclose them, and tampering with a stored value is detected rather than read as garbage. Ciphertext carries the identifier of the key that produced it, so keys can be rotated.</dd></div>
+  <div><dt>Identity numbers</dt><dd>Replaced by a token at the boundary. The full number lives in a separate store, never on the resident record, and is never returned to any role. Only the last four digits can be shown.</dd></div>
+  <div><dt>Data classes</dt><dd>Every sensitive field is classified on intake: identity, high-sensitivity identity, health, financial, third-party financial, derived and document. The class decides storage, who may read it and whether it may appear in a log.</dd></div>
+  <div><dt>Minimisation</dt><dd>The calculation's input excludes anything that identifies or describes the person. Messages and logs carry masked destinations, never addresses or content.</dd></div>
+  <div><dt>Documents</dt><dd>Stored encrypted under per-client keys with checksums. See <a href="/architecture/documents/">Document handling</a>.</dd></div>
+</div>
+
+## Protecting access
+
+<div class="defs not-content">
+  <div><dt>Staff sign-in</dt><dd>Through the client's own identity system, so their multi-factor and lifecycle policies apply. The platform validates the issuer and audience of every credential exactly.</dd></div>
+  <div><dt>Server-side sessions</dt><dd>Tokens live in an encrypted, HTTP-only cookie read only by the server. A script on the page cannot read them. Near expiry they refresh quietly.</dd></div>
+  <div><dt>Origin checks</dt><dd>A change from a page must come from the same origin, so another site cannot make a staff member's browser change something.</dd></div>
+  <div><dt>No store on the client</dt><dd>Sensitive drafts, comparisons and notes are kept in the page only. They are not written to browser storage, a cookie or an address, and responses are marked not to be cached.</dd></div>
+  <div><dt>Family access</dt><dd>One-time codes are hashed, short-lived, limited in attempts and rate-limited. Sessions are scoped to a single application. See <a href="/flows/intake/">Intake and the family application</a>.</dd></div>
+  <div><dt>Rate limiting</dt><dd>Attempts against sensitive surfaces are counted and limited, with the counters held in the store so they hold across instances.</dd></div>
+  <div><dt>Emergency access</dt><dd>Read-only, short, justified, audited. See <a href="/people/emergency-access/">Emergency access</a>.</dd></div>
+</div>
+
+## Protecting integrity
+
+<div class="defs not-content">
+  <div><dt>Immutable evidence</dt><dd>Qualifications, reviews, decisions, observations and the audit ledger can be neither updated nor deleted, by permission.</dd></div>
+  <div><dt>Safe repetition</dt><dd>Idempotency keys and revisions prevent a retry or a race from producing a second or a mixed change. See <a href="/interfaces/concurrency/">Revisions and idempotency</a>.</dd></div>
+  <div><dt>Serialised decisions</dt><dd>The final decision takes locks in a fixed order, so concurrent attempts produce one decision and cannot deadlock with publication of policy.</dd></div>
+  <div><dt>Deterministic calculation</dt><dd>Reproducible results mean a figure can be re-derived and checked at any time.</dd></div>
+</div>
+
+## The boundaries around the model
+
+The assistant is a source of risk of its own, so it is contained:
+
+<div class="split not-content">
+  <div class="panel">
+    <h4>It cannot decide</h4>
+    <p>It has no path to set a number, a tier or an outcome. See <a href="/model/ai-boundary/">Where AI starts and stops</a>.</p>
+  </div>
+  <div class="panel">
+    <h4>It sees less</h4>
+    <p>Direct identifiers are reduced before a document reaches it, and the figures it receives for drafting a summary carry no names or account numbers.</p>
+  </div>
+  <div class="panel">
+    <h4>It is approved first</h4>
+    <p>A live provider is used only after the arrangement, including retention and the agreement covering sensitive data, has been approved.</p>
+  </div>
+</div>
+
+## What each failure costs
+
+A useful security design says what happens when a control fails.
+
+| If this fails | The blast radius is |
+| --- | --- |
+| A screen has a bug | Nothing, because rules are not enforced in screens |
+| A query forgets a filter | Nothing across clients, since the store refuses |
+| The family portal is compromised | At most one family's staged answers |
+| The analytics service is compromised | It holds no credential and keeps nothing |
+| The delivery worker is compromised | Queued messages, not resident records |
+| A copy of the database leaks | Ciphertext for sensitive fields, and no identity numbers |
+| A staff credential is stolen | That person's role in their buildings, until revoked, and every read is audited |
+| A single encryption purpose is exposed | Only the data in that purpose |
+
+## What the product does not claim
+
+Some controls belong to the environment, not the software, and the platform does not
+pretend otherwise.
+
+<div class="defs not-content">
+  <div><dt>Network edge</dt><dd>Filtering, access control and transport protection in front of the platform are provided by the hosting arrangement.</dd></div>
+  <div><dt>Key custody</dt><dd>Keys are injected as secrets. Hardware-backed custody is an infrastructure decision, and rotation is supported by the product.</dd></div>
+  <div><dt>Agreements</dt><dd>That the right agreements cover each provider that touches regulated data is a contractual matter for the client and the maker.</dd></div>
+  <div><dt>Identity operations</dt><dd>Multi-factor enforcement, account lifecycle and directory provisioning belong to the client's identity system.</dd></div>
+</div>

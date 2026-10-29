@@ -1,0 +1,87 @@
+---
+title: "The resident record"
+description: "One record, five steps, six states per step, and a screen that never offers what the server would refuse."
+tldr:
+  - "A resident record is a five-step journey: Intake, Documents, Financials, Assessment, Decision."
+  - "A rail on the left always says which step is current, which are done, and which belong to somebody else."
+  - "Each step is in one of six states. Blocked and not-mine always name the owner and the reason."
+  - "One screen shows one job at a time, and never offers an action the records service would refuse."
+---
+
+import Flow from '../../../components/Flow.astro';
+import Shot from '../../../components/Shot.astro';
+
+<div class="kv not-content">
+  <span><b>Route</b><code>/prospects/{'{id}'}</code></span>
+  <span><b>Who</b>Anyone who may see the resident</span>
+  <span><b>Shape</b>Five steps on a rail, one panel at a time</span>
+</div>
+
+## The five steps
+
+<Flow
+  uid="rs"
+  width={880}
+  height={170}
+  title="The five steps of a resident record"
+  nodes={[
+    { id: '1', x: 10, y: 40, w: 150, h: 78, eyebrow: 'STEP 1', title: 'Intake', sub: ['Who we are screening'], align: 'center' },
+    { id: '2', x: 190, y: 40, w: 150, h: 78, eyebrow: 'STEP 2', title: 'Documents', sub: ['Evidence on file'], align: 'center' },
+    { id: '3', x: 370, y: 40, w: 150, h: 78, eyebrow: 'STEP 3', title: 'Financials', sub: ['Confirm the numbers'], kind: 'accent', align: 'center' },
+    { id: '4', x: 550, y: 40, w: 150, h: 78, eyebrow: 'STEP 4', title: 'Assessment', sub: ['Run and read'], kind: 'accent', align: 'center' },
+    { id: '5', x: 730, y: 40, w: 130, h: 78, eyebrow: 'STEP 5', title: 'Decision', sub: ['A person decides'], kind: 'ok', align: 'center' },
+  ]}
+  edges={[
+    { from: '1.r', to: '2.l', kind: 'default' },
+    { from: '2.r', to: '3.l', kind: 'default' },
+    { from: '3.r', to: '4.l', kind: 'default' },
+    { from: '4.r', to: '5.l', kind: 'ok' },
+  ]}
+  caption="<b>One screen, one job at a time.</b> Each step has its own panel, and the rail on the left is always visible."
+/>
+
+<Shot
+  src="/img/shots/resident-intake.webp"
+  route="/prospects/{id}  (Intake step)"
+  role="Admissions counselor"
+  caption="<b>Intake.</b> The rail on the left shows every step and its state. The panel confirms who is being screened: name, level of care, state, and whether an identity number is on file."
+/>
+
+## The six step states
+
+The rail does not just list steps. It tells each viewer how they stand with each one.
+
+<div class="defs not-content">
+  <div><dt>Done</dt><dd>Complete. The step stays reachable so its content can be reviewed.</dd></div>
+  <div><dt>Started</dt><dd>Some work is recorded but the step is not finished.</dd></div>
+  <div><dt>Current</dt><dd>The step this viewer should act on next.</dd></div>
+  <div><dt>Blocked</dt><dd>Waiting on something earlier. The rail names what.</dd></div>
+  <div><dt>Not mine</dt><dd>Belongs to a role this viewer does not hold. The rail names the owner and the reason, so a counselor sees "handled by finance" instead of a bare refusal.</dd></div>
+  <div><dt>Upcoming</dt><dd>Not reached yet.</dd></div>
+</div>
+
+## Behaviour worth knowing
+
+<div class="split not-content">
+  <div class="panel">
+    <h4>It heads to the right place</h4>
+    <p>When a record opens, it lands on the step this viewer should act on, not always on the first one.</p>
+  </div>
+  <div class="panel">
+    <h4>It never offers a refused action</h4>
+    <p>The step's heading and button reflect what the viewer's role can actually do. A finance step does not present a counselor with a button that would fail.</p>
+  </div>
+  <div class="panel">
+    <h4>It explains a blocked step</h4>
+    <p>The panel gives a short "who does this next" card and a way to skip ahead to the next step the viewer can act on.</p>
+  </div>
+</div>
+
+## The steps in detail
+
+<div class="grid-cards not-content">
+  <a class="card-x" href="/screens/documents/"><span class="card-x__eyebrow">Step 2</span><span class="card-x__title">Documents and extraction</span><span class="card-x__body">Drop files, see what was read, verify.</span></a>
+  <a class="card-x" href="/screens/financials/"><span class="card-x__eyebrow">Step 3</span><span class="card-x__title">Financials</span><span class="card-x__body">The profile, and who may see it.</span></a>
+  <a class="card-x" href="/screens/assessment/"><span class="card-x__eyebrow">Step 4</span><span class="card-x__title">Assessment</span><span class="card-x__body">The deterministic result.</span></a>
+  <a class="card-x" href="/screens/decision/"><span class="card-x__eyebrow">Step 5</span><span class="card-x__title">Decision</span><span class="card-x__body">The human of record.</span></a>
+</div>

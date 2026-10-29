@@ -1,0 +1,83 @@
+---
+title: "Signing in"
+description: "Identity, sessions, and why the browser never holds a token."
+tldr:
+  - "Staff sign in through their own organisation's identity system, and the product trusts that system for who they are."
+  - "The browser holds no access token. An encrypted, server-side session does, so there is nothing for a script on the page to steal."
+  - "Who a person is comes from the identity system. What they may do is decided by the product, from the store, on every request."
+  - "Families never sign in this way. They use an invitation link and a one-time code."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+<div class="kv not-content">
+  <span><b>Who</b>Every staff member</span>
+  <span><b>Identity comes from</b>The client's own identity system</span>
+  <span><b>Families</b>Use a separate door, see <a href="/screens/portal/">Family portal</a></span>
+</div>
+
+The product deliberately does not run its own passwords. Each client organisation connects
+its existing corporate identity system, so staff sign in with the credentials they already
+have, with whatever multi-factor policy that organisation enforces, and are removed the
+moment the organisation removes them.
+
+<Flow
+  uid="si"
+  width={880}
+  height={260}
+  title="How a staff sign-in and each later request work"
+  lanes={[
+    { x: 8, y: 8, w: 864, h: 120, label: 'ONCE, AT SIGN-IN' },
+    { x: 8, y: 140, w: 864, h: 112, label: 'ON EVERY REQUEST AFTER' },
+  ]}
+  nodes={[
+    { id: 'b', x: 24, y: 44, w: 160, h: 66, eyebrow: '1', title: 'Staff member', sub: 'Opens the workspace' },
+    { id: 'i', x: 214, y: 44, w: 190, h: 66, eyebrow: '2', title: 'Their identity system', sub: 'Proves who they are', kind: 'violet' },
+    { id: 's', x: 434, y: 44, w: 210, h: 66, eyebrow: '3', title: 'Server-side session', sub: 'Encrypted, never in the browser', kind: 'accent' },
+    { id: 'r', x: 674, y: 44, w: 182, h: 66, eyebrow: 'RESULT', title: 'Signed in', sub: 'No token on the page', kind: 'ok' },
+    { id: 'q1', x: 24, y: 176, w: 240, h: 62, eyebrow: 'LOOK UP AGAIN', title: 'User, organisation, role', sub: 'Read from the store each time' },
+    { id: 'q2', x: 294, y: 176, w: 240, h: 62, eyebrow: 'LOOK UP AGAIN', title: 'Memberships', sub: 'And any emergency grant' },
+    { id: 'q3', x: 564, y: 176, w: 292, h: 62, eyebrow: 'THEN DECIDE', title: 'Scopes for this request', sub: 'Never cached, never trusted from the token', kind: 'accent' },
+  ]}
+  edges={[
+    { from: 'b.r', to: 'i.l', kind: 'accent' },
+    { from: 'i.r', to: 's.l', kind: 'accent' },
+    { from: 's.r', to: 'r.l', kind: 'ok' },
+    { from: 'q1.r', to: 'q2.l', kind: 'default' },
+    { from: 'q2.r', to: 'q3.l', kind: 'default' },
+  ]}
+  caption="<b>The identity system says who. The product decides what.</b> A person's authority is looked up again on every request, so a removed person loses access immediately."
+/>
+
+## What the sign-in gives a person
+
+<div class="defs not-content">
+  <div><dt>An identity</dt><dd>Who they are, according to their organisation. Carried as coordinates only: the product never takes privilege from the token.</dd></div>
+  <div><dt>A working community</dt><dd>If they belong to more than one building, they choose which one they are working in from the top bar. The choice is cleared whenever the identity changes, so one person's selection can never leak into the next sign-in.</dd></div>
+  <div><dt>A session</dt><dd>Held on the server in an encrypted, HTTP-only cookie, refreshed quietly near expiry. The access token is never exposed to the page.</dd></div>
+</div>
+
+## What the product refuses
+
+<div class="split not-content">
+  <div class="panel panel--stop">
+    <h4>Account not ready</h4>
+    <p>A person whose organisation has not finished onboarding, whose account is inactive, or who has no identity bound yet cannot sign in.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>Suspended organisation</h4>
+    <p>When the maker suspends an organisation, every one of its staff is refused at sign-in, immediately.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>No quiet switching</h4>
+    <p>There is no way for a visitor to pick an identity. The development stand-in that exists for building the product is unreachable in production by three independent checks.</p>
+  </div>
+</div>
+
+## Why a person lands where they do
+
+Everyone starts on their home screen, and the left navigation shows only the areas their
+role may open. A counselor sees the overview, pipeline, family portal and review queue. A
+client administrator sees the administration console. A platform administrator sees only the
+platform control plane. The navigation is generated from the same rules the records
+service enforces, so it can never offer a door that is locked.

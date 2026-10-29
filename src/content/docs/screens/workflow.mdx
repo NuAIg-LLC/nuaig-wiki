@@ -1,0 +1,64 @@
+---
+title: "Qualification workflow"
+description: "The configurable approval chain as a screen: requirements, recommendation, committee, exceptions and a permanent timeline."
+tldr:
+  - "The workflow screen shows the independent requirements, the named approvals, any escalations, the final decision and a permanent timeline."
+  - "The action form offers only the review types the current person is eligible to record, with the evidence each one needs."
+  - "The executive director's final form is separate from the review."
+  - "After the decision is recorded, the history accepts notes and corrections only."
+  - "A tenant administrator configures the chain per organisation and per community."
+---
+
+import Shot from '../../../components/Shot.astro';
+
+<div class="kv not-content">
+  <span><b>Route</b><code>/prospects/{'{id}'}/life-plan/qualifications/{'{id}'}/workflow</code></span>
+  <span><b>Read</b>Assessment, financial and health read</span>
+  <span><b>Configure</b>Client administrators</span>
+</div>
+
+## The review screen
+
+<Shot
+  src="/img/shots/qual-workflow-full.webp"
+  route="/prospects/{id}/life-plan/qualifications/{qualificationId}/workflow"
+  role="Sales financial reviewer"
+  caption="<b>A qualification review.</b> The qualification's outcome and the validity window of reviews, then independent requirements with their status, the joint approvals, the recommendation, and notes."
+/>
+
+<div class="defs not-content">
+  <div><dt>Independent requirements</dt><dd>Each prerequisite with its status, such as Complete, who completed it and when, and a Reopen action for those allowed.</dd></div>
+  <div><dt>Joint approvals</dt><dd>The sales recommendation and any committee approvals, each with the person who gave it. A note explains that committee approvals must come from distinct people, separate from the recommender and the final signer, and that a later change requires a renewed review.</dd></div>
+  <div><dt>Recommendations, concerns and notes</dt><dd>Exceptions, promises and escalations, and the form that records a note or a correction.</dd></div>
+  <div><dt>The timeline</dt><dd>Every event in order, permanent.</dd></div>
+  <div><dt>The decision</dt><dd>A separate, executive-director-only form for the final act. Once it is recorded, only notes and corrections can be added.</dd></div>
+</div>
+
+## The action form
+
+The form adapts to the person. It lists the review types **they** may record, and for each
+shows the evidence needed, any exception reference, and the option to correct an earlier
+note. Every action carries a reason. The screen pins the policy revision it loaded, so
+a policy change is shown as a conflict, never silently absorbed.
+
+## Configuring the chain
+
+<Shot
+  src="/img/shots/workflow-config.webp"
+  route="/admin/qualification-workflow/organization"
+  role="Client administrator"
+  caption="<b>Qualification review policy.</b> The policy reference and how long a review stays valid, then the required reviews, committee slots and named exception approvers."
+/>
+
+<div class="defs not-content">
+  <div><dt>Required reviews</dt><dd>Each with a code, a label and the roles allowed to complete it. Added or removed with structured controls rather than a raw text box.</dd></div>
+  <div><dt>Review lifetime</dt><dd>How many hours a review stays valid.</dd></div>
+  <div><dt>Committee slots</dt><dd>Optional, by role or by named person.</dd></div>
+  <div><dt>Exception approvers</dt><dd>Chosen from active assigned staff. An empty list grants no authority.</dd></div>
+</div>
+
+Publishing goes through the central control only. Selecting a target never changes which
+residents anyone can see. An unpublished draft keeps its original revision and its
+idempotency key until it is explicitly discarded or successfully published.
+
+See <a href="/flows/decision/">Review, sign-off and decision</a> for the rules the screen enforces.

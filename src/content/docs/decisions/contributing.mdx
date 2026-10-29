@@ -1,0 +1,107 @@
+---
+title: "How to change this wiki"
+description: "Standards, structure and the process that keep this documentation accurate for decades."
+tldr:
+  - "Code and the running product are the source of truth. Prose, including this wiki, can lag, so verify before you write."
+  - "Describe behaviour and intent. Never name a language, framework, library or vendor."
+  - "Name no client, use no real resident data, and keep every screenshot synthetic."
+  - "Every page has a title, a description, a gist, one home for each fact, and links instead of repetition."
+  - "A change to the product that changes behaviour described here must change this wiki in the same breath."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+This wiki is only useful while it is true. A wiki that is slightly wrong is worse than
+none, because people trust it. These standards exist to keep it accurate, readable and
+neutral for as long as the product lives.
+
+## The source of truth
+
+<Flow
+  uid="sot"
+  width={880}
+  height={200}
+  title="Where the truth lives, in order of trust"
+  nodes={[
+    { id: 'a', x: 10, y: 40, w: 270, h: 90, eyebrow: 'MOST TRUSTED', title: 'The running product', sub: ['What it actually does, observed.'], kind: 'ok' },
+    { id: 'b', x: 305, y: 40, w: 270, h: 90, eyebrow: 'NEXT', title: 'The code and its tests', sub: ['Roles, scopes, rules, models.'], kind: 'accent' },
+    { id: 'c', x: 600, y: 40, w: 260, h: 90, eyebrow: 'A LEAD, NOT A SOURCE', title: 'Other prose', sub: ['Design notes, readmes, old plans.', 'They can lag the code.'], kind: 'warn' },
+  ]}
+  edges={[
+    { from: 'a.r', to: 'b.l', kind: 'accent' },
+    { from: 'b.r', to: 'c.l', kind: 'dash' },
+  ]}
+  caption="<b>Check a claim against the product or the code before it goes in.</b> Treat any other document, including older versions of this wiki, as a lead to be confirmed."
+/>
+
+## Standards
+
+<div class="defs not-content">
+  <div><dt>Describe behaviour, never implementation</dt><dd>No programming language, framework, library, database product or vendor is named. Describe the mechanism: "a relational store with row-level isolation", "a delivery worker", "an identity system". If a page needs a name to make sense, the page is describing the wrong thing.</dd></div>
+  <div><dt>Name no client</dt><dd>The platform serves several organisations. No page, example, screenshot or diagram may identify one, or any real person.</dd></div>
+  <div><dt>Synthetic data only</dt><dd>Screenshots are captured from a working system loaded with invented organisations, people and figures. Check every frame, including headers and footers, before it is added.</dd></div>
+  <div><dt>No project status</dt><dd>Do not record what stage the work is in, release dates, sprint contents or the state of an environment. Those change weekly and belong in the tools that track them. Everything here should stay true for as long as the product behaves as described.</dd></div>
+  <div><dt>No em dashes</dt><dd>Use a comma, a colon, parentheses or a new sentence. This applies to every page, caption, diagram label and summary.</dd></div>
+  <div><dt>Plain language</dt><dd>A new joiner with no domain knowledge should follow it. Define a term on first use, or link to the glossary. Prefer short sentences and concrete examples.</dd></div>
+  <div><dt>Say what it will not do</dt><dd>Limits and refusals are part of the product. Document them as plainly as the capabilities.</dd></div>
+</div>
+
+## Anatomy of a page
+
+<div class="defs not-content">
+  <div><dt>Title and description</dt><dd>A short title and a one-sentence description that says what the page is for.</dd></div>
+  <div><dt>The gist</dt><dd>Three to five bullets in the page's frontmatter, written so a busy person gets the essential facts without scrolling. They appear in the floating summary button. Each is a complete sentence.</dd></div>
+  <div><dt>One idea per page</dt><dd>If a page has two unrelated halves, it is two pages.</dd></div>
+  <div><dt>One home per fact</dt><dd>State a fact once and link to it from elsewhere. If two pages disagree, the one nearer the top of the sidebar wins and the other is fixed.</dd></div>
+  <div><dt>Show before you tell</dt><dd>A diagram or screenshot first, then the explanation. Every diagram has a caption that states its point.</dd></div>
+  <div><dt>Link generously</dt><dd>Concepts link to where they are defined. Dead ends are a documentation bug.</dd></div>
+</div>
+
+## Diagrams and screenshots
+
+<div class="split not-content">
+  <div class="panel">
+    <h4>Diagrams</h4>
+    <p>Draw them from data with the diagram component: nodes on a grid and edges between them. A diagram must make one point, be legible when expanded, and use the colour roles consistently: blue for the main path, green for the decision or a safe state, amber for a warning, red for a refusal, violet for the external family or an advisory part.</p>
+  </div>
+  <div class="panel">
+    <h4>Screenshots</h4>
+    <p>Use the screenshot component so each shows its address and the role it was captured as. Capture at a consistent size, and re-capture when the screen changes. A stale screenshot is a false statement.</p>
+  </div>
+</div>
+
+## Keeping it true
+
+<ol class="steps not-content">
+  <li><h4>A behaviour change changes the page</h4><p>If a change to the product alters anything a page describes, the page changes in the same piece of work. Reviewers should ask "which page does this touch?"</p></li>
+  <li><h4>Verify numbers, thresholds and names</h4><p>Defaults, limits, maximums, role lists and scope lists are the first things to go stale. Check them against the code.</p></li>
+  <li><h4>Re-run examples</h4><p>Any worked figure should be produced by running the real calculation, not worked out by hand and trusted.</p></li>
+  <li><h4>Review for accuracy, not just prose</h4><p>A reviewer's job is to find a claim that is no longer true.</p></li>
+  <li><h4>Prune</h4><p>Delete what is no longer true instead of qualifying it. Add a decision to <a href="/decisions/record/">Decisions on record</a> when the reason for a change matters.</p></li>
+</ol>
+
+## Who owns what
+
+| Part | Typically owned by |
+| --- | --- |
+| Start here, Context | Product |
+| People and permissions | Product, with engineering |
+| Flows and The screens | Product and design |
+| How the numbers work | Engineering and finance leadership |
+| Interfaces | Engineering |
+| Architecture | Engineering |
+| Operations | Operations and support |
+| Working agreements | Product leadership |
+
+Ownership means being the person asked when a page is questioned, not the only person
+allowed to edit it. Anyone may propose a correction.
+
+## A checklist before publishing a change
+
+<div class="defs not-content">
+  <div><dt>Accurate</dt><dd>Every claim has been checked against the product or the code.</dd></div>
+  <div><dt>Neutral</dt><dd>No client, person, language, framework, library or vendor is named.</dd></div>
+  <div><dt>Consistent</dt><dd>No em dashes, no status, terms match the glossary.</dd></div>
+  <div><dt>Findable</dt><dd>It is in the sidebar, has a description and a gist, and is linked from related pages.</dd></div>
+  <div><dt>Visual</dt><dd>Diagrams make one point, screenshots are synthetic and current.</dd></div>
+</div>

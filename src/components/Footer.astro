@@ -1,0 +1,11 @@
+---
+// Wraps the default footer and mounts the page-level extras: the floating
+// "Gist" summary button, the click-to-expand viewer, and the sidebar focus.
+import Default from '@astrojs/starlight/components/Footer.astro';
+import Gist from './Gist.astro';
+import Viewer from './Viewer.astro';
+---
+
+<Default><slot /></Default>
+<Gist />
+<Viewer />

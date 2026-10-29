@@ -1,0 +1,113 @@
+---
+title: "Family portal"
+description: "The external surface, why it is a separate application, and the two walls around it."
+tldr:
+  - "The family portal is a separate application because it is the highest-risk surface: a family sending sensitive information from home."
+  - "It is isolated twice: its own database role that can only touch the staging area, and a second isolation axis per application."
+  - "A family signs in with a link plus a one-time code, then completes sections one step at a time. Progress saves as they go."
+  - "Everything a family enters is staged and unverified. It reaches the calculation only after a person confirms it."
+  - "Branding, welcome text and the contact person come from the community's own portal settings."
+---
+
+import Flow from '../../../components/Flow.astro';
+import Shot from '../../../components/Shot.astro';
+
+<div class="kv not-content">
+  <span><b>Application</b>The family portal, apart from the staff workspace</span>
+  <span><b>Who</b>The family contact, and helpers they invite</span>
+  <span><b>Account</b>None. An invitation link and a one-time code</span>
+</div>
+
+## Why a separate application
+
+Families need to send sensitive financial and medical information from home, without being
+given a staff account. That makes this the highest-risk surface in the product. So it is not
+trusted once. It is isolated twice.
+
+<Flow
+  uid="pw"
+  width={880}
+  height={290}
+  title="The two walls around the family portal"
+  nodes={[
+    { id: 'fam', x: 10, y: 100, w: 150, h: 84, eyebrow: 'OUTSIDE', title: 'Family', sub: ['Link and code,', 'no account'], kind: 'violet', align: 'center' },
+    { id: 'w1', x: 200, y: 30, w: 220, h: 100, eyebrow: 'WALL ONE', title: 'Its own database role', sub: ['Can only reach the staging', 'tables. No grant on any', 'resident record or the audit trail'], kind: 'warn' },
+    { id: 'w2', x: 200, y: 160, w: 220, h: 100, eyebrow: 'WALL TWO', title: 'A second isolation axis', sub: ['Per application, enforced by', 'the store. A family cannot', 'reach another family\'s application'], kind: 'warn' },
+    { id: 'stg', x: 480, y: 100, w: 170, h: 84, eyebrow: 'THE ONLY PLACE THEY WRITE', title: 'Staging area', sub: ['Answers and uploads'], kind: 'accent', align: 'center' },
+    { id: 'pro', x: 690, y: 100, w: 160, h: 84, eyebrow: 'STAFF DECISION', title: 'Promote', sub: ['A person accepts it', 'into the record'], kind: 'ok', align: 'center' },
+  ]}
+  edges={[
+    { from: 'fam.r', to: 'w1.l', kind: 'accent' },
+    { from: 'fam.r', to: 'w2.l', kind: 'accent' },
+    { from: 'w1.r', to: 'stg.l:0.3', kind: 'accent' },
+    { from: 'w2.r', to: 'stg.l:0.7', kind: 'accent' },
+    { from: 'stg.r', to: 'pro.l', kind: 'ok' },
+  ]}
+  caption="<b>A permission error, not a filtered row.</b> Touching anything outside the staging area fails outright. It does not return fewer results."
+/>
+
+## Getting in
+
+<Shot
+  src="/img/shots/portal-front-door.webp"
+  route="/apply/{invitation}"
+  role="Family member"
+  caption="<b>The front door.</b> The community's name and mark lead. The family sees who the invitation is for, a short, human explanation, a masked contact, and one button to send their code."
+/>
+
+<Shot
+  src="/img/shots/portal-code-entry.webp"
+  route="/apply/{invitation}"
+  role="Family member"
+  caption="<b>Entering the code.</b> A six-digit code, with a note that it can take a minute to arrive, a Continue button that stays inactive until six digits are present, and a way to ask for a new code."
+/>
+
+See <a href="/flows/intake/">Intake and the family application</a> for the code rules and what makes the link safe to share.
+
+## The guided application
+
+<Shot
+  src="/img/shots/portal-step-resident.webp"
+  route="/application"
+  role="Family member"
+  caption="<b>One step at a time.</b> A progress rail lists every section with its state. The panel explains the step in plain language and asks only for what it needs. Optional fields say so."
+/>
+
+<div class="defs not-content">
+  <div><dt>Plain language</dt><dd>Every step has a short introduction written for someone who is not a professional, and optional questions are labelled optional.</dd></div>
+  <div><dt>Progress that saves</dt><dd>Each section saves as the family completes it, so they can leave and return. A progress indicator says how many of the required steps are done.</dd></div>
+  <div><dt>Sections the client chooses</dt><dd>About your loved one, financial picture, care needs, and who is helping. A community can switch sections on or off, and decide which document types to request.</dd></div>
+  <div><dt>Money in everyday dollars</dt><dd>Families type dollars. Conversion to whole cents happens only when staff promote.</dd></div>
+</div>
+
+<Shot
+  src="/img/shots/portal-step-financial.webp"
+  route="/application"
+  role="Family member"
+  caption="<b>The financial picture.</b> Income, assets and any benefit, asked in everyday terms."
+/>
+
+<Shot
+  src="/img/shots/portal-step-documents.webp"
+  route="/application"
+  role="Family member"
+  caption="<b>Documents.</b> Bulk upload, with each file tagged by the family. The step shows how many of the requested documents have been added. Nothing is read until staff promote."
+/>
+
+## Helpers
+
+A family member can invite a helper with an explicit, narrow grant: which sections, which
+document types, and whether they may submit. See <a href="/flows/intake/">Intake and the family application</a>.
+
+## What staff control about it
+
+A client administrator sets the community's name, accent colour, welcome text and contact
+person, and which sections and document types are requested. Publishing uses the revision
+the editor loaded, so two administrators cannot overwrite one another by accident.
+
+<Shot
+  src="/img/shots/admin-portal.webp"
+  route="/admin/portal"
+  role="Client administrator"
+  caption="<b>Family portal settings.</b> A chooser lists each target: the organisation default and each community. The editor for a target names what it edits in its address."
+/>

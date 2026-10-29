@@ -1,0 +1,137 @@
+---
+title: "Revisions and idempotency"
+description: "Why a conflict is an answer, why a retry is never a second change, and exactly how to use both."
+tldr:
+  - "Every change needs an idempotency key. Repeating it returns the original answer and does nothing new."
+  - "Every edit names the revision it was based on. If the record moved, the change is refused as a conflict."
+  - "A conflict is never rebased and retried automatically. The caller must look at the new state."
+  - "Using a key with a different request is an error, so a key cannot be reused to smuggle in a different change."
+  - "A lost response is recovered by repeating the same request with the same key."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+Two mechanisms keep changes safe. They solve different problems and are often confused.
+
+<div class="split not-content">
+  <div class="panel panel--info">
+    <h4>Idempotency answers</h4>
+    <p><strong>"Did my request happen once or twice?"</strong> It protects against a network failure that makes a client send the same request again.</p>
+  </div>
+  <div class="panel panel--info">
+    <h4>Revisions answer</h4>
+    <p><strong>"Was I changing the thing I thought I was?"</strong> It protects against two people changing the same record from different starting points.</p>
+  </div>
+</div>
+
+## Idempotency keys
+
+<Flow
+  uid="idem"
+  width={880}
+  height={290}
+  title="What happens when the same request is sent twice"
+  nodes={[
+    { id: 'c1', x: 10, y: 30, w: 170, h: 70, eyebrow: 'FIRST ATTEMPT', title: 'Request with key K', sub: 'The response is lost', align: 'center' },
+    { id: 's1', x: 250, y: 30, w: 220, h: 70, eyebrow: 'THE SERVICE', title: 'Performs the change', sub: 'Stores the answer under K', kind: 'accent', align: 'center' },
+    { id: 'c2', x: 10, y: 170, w: 170, h: 70, eyebrow: 'RETRY', title: 'Same request, key K', sub: 'Identical body', align: 'center' },
+    { id: 's2', x: 250, y: 170, w: 220, h: 70, eyebrow: 'THE SERVICE', title: 'Recognises K', sub: 'Replays the stored answer', kind: 'ok', align: 'center' },
+    { id: 'c3', x: 540, y: 170, w: 160, h: 70, eyebrow: 'MISUSE', title: 'Key K, new body', sub: 'A different request', kind: 'warn', align: 'center' },
+    { id: 's3', x: 730, y: 170, w: 130, h: 70, eyebrow: 'THE SERVICE', title: 'Conflict', sub: 'Refused', kind: 'stop', align: 'center' },
+  ]}
+  edges={[
+    { from: 'c1.r', to: 's1.l', kind: 'accent' },
+    { from: 'c2.r', to: 's2.l', kind: 'accent' },
+    { from: 'c3.r', to: 's3.l', kind: 'stop' },
+  ]}
+  caption="<b>Nothing happens twice.</b> The retry gets the original answer, and a different request under the same key is refused."
+/>
+
+<div class="defs not-content">
+  <div><dt>What a key is</dt><dd>A caller-chosen string of visible characters, between eight and two hundred long. A fresh, unguessable identifier per intended change is the right choice.</dd></div>
+  <div><dt>When it is required</dt><dd>On every operation that changes something. A missing or malformed key is a validation failure, not a default.</dd></div>
+  <div><dt>What it is scoped to</dt><dd>The key is scoped to the verified caller and, for community work, the community in use, plus the operation. The same string used by a different person, or in a different building, is a different key.</dd></div>
+  <div><dt>What is compared</dt><dd>A fingerprint of the request content. Identical content replays. Different content under the same key is a conflict.</dd></div>
+  <div><dt>What is stored</dt><dd>The answer, encrypted, so a replay never bypasses the protections of the original response. It is held only for as long as operational retention allows.</dd></div>
+  <div><dt>Authority is rechecked on replay</dt><dd>A replay does not skip the authorisation check. A person whose access has since been withdrawn cannot recover an old answer with an old key.</dd></div>
+</div>
+
+### The rule for a lost response
+
+If a response is lost, **send the same request again with the same key**. If the first one
+succeeded, the answer comes back. If it did not, the change is made now. Never generate a
+new key for the same intended change, because that is exactly how a duplicate is created.
+
+If the body changes, reload the authoritative state first and use a new key.
+
+## Revisions
+
+A revision is an **opaque token** describing exactly what the caller saw. The caller does not
+build or increment it. It reads the record, receives a revision, and sends it back with the
+change.
+
+<Flow
+  uid="rev"
+  width={880}
+  height={290}
+  title="Two people editing from the same starting point"
+  nodes={[
+    { id: 'r', x: 330, y: 10, w: 220, h: 56, eyebrow: 'THE RECORD', title: 'Revision A', align: 'center' },
+    { id: 'p1', x: 10, y: 110, w: 250, h: 70, eyebrow: 'PERSON ONE', title: 'Reads A, saves with A', sub: 'The record becomes B', kind: 'ok', align: 'center' },
+    { id: 'p2', x: 620, y: 110, w: 250, h: 70, eyebrow: 'PERSON TWO', title: 'Reads A, saves with A', sub: 'But the record is now B', kind: 'warn', align: 'center' },
+    { id: 'ok', x: 10, y: 210, w: 250, h: 56, title: 'Accepted', kind: 'ok', align: 'center' },
+    { id: 'cf', x: 620, y: 210, w: 250, h: 56, title: 'Conflict: reload and decide', kind: 'stop', align: 'center' },
+  ]}
+  edges={[
+    { from: 'r.b:0.2', to: 'p1.t', kind: 'accent' },
+    { from: 'r.b:0.8', to: 'p2.t', kind: 'accent' },
+    { from: 'p1.b', to: 'ok.t', kind: 'ok' },
+    { from: 'p2.b', to: 'cf.t', kind: 'stop' },
+  ]}
+  caption="<b>Exactly one of them wins.</b> The other is told, and is never silently merged."
+/>
+
+<div class="defs not-content">
+  <div><dt>Where it appears</dt><dd>As the expected revision in the body of an edit, for example publishing a policy, editing a unit, changing a grant or recording a review.</dd></div>
+  <div><dt>How it is checked</dt><dd>Under a lock for the thing being changed, so the comparison and the write happen together. Two simultaneous changes from one revision produce one success and one conflict.</dd></div>
+  <div><dt>Records with no revision yet</dt><dd>The first publication of something uses a fixed marker meaning "nothing exists yet" instead of a token.</dd></div>
+  <div><dt>History records</dt><dd>Some records are append-only, and a new revision points at the one it supersedes. The caller names the preceding revision.</dd></div>
+</div>
+
+## A conflict is an answer
+
+When a change conflicts, the right response is **to show the person what changed**, not to
+try again. The product is built to do this at every layer:
+
+<div class="split not-content">
+  <div class="panel panel--ok">
+    <h4>What a client should do</h4>
+    <ul>
+      <li>Surface the conflict to the person</li>
+      <li>Reload the current state and its new revision</li>
+      <li>Let the person review and decide</li>
+      <li>Retry only after that, with a new key</li>
+    </ul>
+  </div>
+  <div class="panel panel--stop">
+    <h4>What a client must never do</h4>
+    <ul>
+      <li>Fetch the new revision and resend automatically</li>
+      <li>Merge the two changes on the person's behalf</li>
+      <li>Treat a conflict as a transient fault to retry</li>
+      <li>Reuse the old key for the new request</li>
+    </ul>
+  </div>
+</div>
+
+An automatic rebase would apply a decision to facts the person never looked at. In a
+product that records evidence, that is the one thing it must not do.
+
+## Cases where revisions and keys combine
+
+<div class="defs not-content">
+  <div><dt>Completing a qualification</dt><dd>Sends the configuration revision the reviewer looked at. If the client published new policy in the meantime, completion conflicts and the reviewer must project again.</dd></div>
+  <div><dt>Quote creation</dt><dd>Sends the schedule and configuration revisions the reviewer saw, so a price cannot be quoted from a schedule that has since changed.</dd></div>
+  <div><dt>Recording the final decision</dt><dd>Sends the review policy revision, and the decision re-checks the latest qualification inside the same transaction.</dd></div>
+  <div><dt>Running an analysis</dt><dd>Carries a key, and the seed is part of the request, so replaying returns the stored artifact instead of spending a new run under a different seed.</dd></div>
+</div>

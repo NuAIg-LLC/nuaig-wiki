@@ -1,0 +1,60 @@
+---
+title: "Projection lab"
+description: "A scratchpad for a conversation with a family. It runs the real calculation and saves nothing."
+tldr:
+  - "The projection lab lets someone move a slider and watch runway, funding gap and risk tier change."
+  - "It runs the same deterministic calculation as a real assessment, so what the family sees is not an approximation."
+  - "Nothing here is saved. It is a scratchpad for a conversation, never a second source of truth."
+  - "Changes are always shown against where the resident stands now, so the effect of a scenario is visible."
+---
+
+import Shot from '../../../components/Shot.astro';
+
+<div class="kv not-content">
+  <span><b>Route</b><code>/model</code></span>
+  <span><b>Saves</b>Nothing</span>
+  <span><b>Calculation</b>The same one a real assessment uses</span>
+</div>
+
+<Shot
+  src="/img/shots/modeling.webp"
+  route="/model"
+  role="Finance reviewer"
+  caption="<b>The projection lab.</b> Resident selector and a baseline scenario across the top. Five measures, each showing the scenario next to what it was, a chart of money over time, and the factors on the right as sliders."
+/>
+
+## What it is for
+
+A family wants to know "what if". What if their income rose, what if they contributed more,
+what if the stay were shorter? The lab lets a reviewer answer in the room, immediately,
+without creating or altering a record.
+
+## How it behaves
+
+<div class="defs not-content">
+  <div><dt>A baseline and a scenario</dt><dd>The lab starts from where the resident stands now. Every change is measured against that baseline, and each measure shows its previous value beneath the new one.</dd></div>
+  <div><dt>Five measures</dt><dd>Runway, Medicaid crossover, funding gap, projected care cost and the risk tier.</dd></div>
+  <div><dt>Money over time</dt><dd>A chart of countable assets falling towards the Medicaid threshold, so the shape of the problem is visible, not just its end point.</dd></div>
+  <div><dt>The factors</dt><dd>Sliders for monthly income, liquid assets and family contribution, plus a level of care and the community's price for it.</dd></div>
+  <div><dt>Reset</dt><dd>Returns every factor to the baseline in one action.</dd></div>
+</div>
+
+## What it deliberately is not
+
+<div class="split not-content">
+  <div class="panel panel--stop">
+    <h4>A second source of truth</h4>
+    <p>Nothing here is stored, attached to the resident or visible to anyone else. It disappears when the page does.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>An approximation</h4>
+    <p>It calls the same deterministic calculation as a real assessment. The numbers it shows are the numbers a saved assessment would show for the same inputs.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>For anyone</h4>
+    <p>It shows money, so it is available only to roles that may see money.</p>
+  </div>
+</div>
+
+The lab belongs to the runway model. For lifetime contracts, the equivalent is comparing a
+baseline with an alternative inside the <a href="/screens/life-plan/">life-plan workspace</a>.

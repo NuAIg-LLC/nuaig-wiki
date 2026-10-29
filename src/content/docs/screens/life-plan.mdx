@@ -1,0 +1,76 @@
+---
+title: "Life-plan workspace"
+description: "Household entry, projection, comparison and completion in one workspace."
+tldr:
+  - "The life-plan workspace is where a reviewer enters one or two residents, projects the residency, compares alternatives and completes a qualification."
+  - "Results sit beside the inputs: the outcome, funds at entrance, entrance fee, ending balance, contingent refund and care cost by level."
+  - "A quote, if attached, sets the entrance and independent-living prices, and the screen says so."
+  - "Drafts and baselines live only in the page and are cleared when the reviewer navigates away."
+  - "Completion needs an attestation, and an unconfigured policy can be previewed but never completed."
+---
+
+import Shot from '../../../components/Shot.astro';
+
+<div class="kv not-content">
+  <span><b>Route</b><code>/prospects/{'{id}'}/life-plan</code></span>
+  <span><b>Needs</b>Assessment, financial and health read; complete needs permission to run assessments</span>
+</div>
+
+<Shot
+  src="/img/shots/life-plan-result.webp"
+  route="/prospects/{id}/life-plan"
+  role="Sales financial reviewer"
+  caption="<b>The workspace after a projection.</b> The assumptions note and the unit quote sit above the household entry on the left. The result sits on the right with the outcome badge, then the measures that matter."
+/>
+
+## The page, from top to bottom
+
+<div class="defs not-content">
+  <div><dt>Monthly planning assumptions</dt><dd>A reminder that care profiles, growth rates and thresholds come from the organisation's policy, that home proceeds enter only in the month specified, and that refunds remain contingent on both residents leaving and the unit being resold.</dd></div>
+  <div><dt>The quote banner</dt><dd>When a unit quote is attached, the page states that it is priced from that quote, shows its status and the quoted entrance and monthly fees with the pricing date, and offers a link to review the quote or use community pricing instead.</dd></div>
+  <div><dt>Where the draft started</dt><dd>The page may start from the last saved household, and says so. It must be reviewed and projected again against the current configuration.</dd></div>
+  <div><dt>Household and contract</dt><dd>The contract, the monthly household expenses outside community fees, and for each resident an approved care duration profile, income streams with survivor percentages, and so on. A second resident can be added or removed along with their entries.</dd></div>
+  <div><dt>Assets, benefits and extra costs</dt><dd>Typed holdings with an owner and a month of availability, insurance benefits and time-limited costs.</dd></div>
+  <div><dt>Update projection</dt><dd>Calculates the draft against the current configuration. A confirmation says the projection was updated.</dd></div>
+</div>
+
+## Projection results
+
+<div class="defs not-content">
+  <div><dt>Reviewed scenario</dt><dd>The outcome badge, such as Definite fit, and the planning period in months.</dd></div>
+  <div><dt>Funds available at entrance</dt><dd>What the household has before the entrance fee is taken.</dd></div>
+  <div><dt>Entrance fee</dt><dd>As priced, whether from community pricing or an attached quote.</dd></div>
+  <div><dt>Ending available balance</dt><dd>What is left after the last resident leaves, before any refund.</dd></div>
+  <div><dt>Contingent refund and potential estate</dt><dd>Shown on separate lines, because the refund is not available to pay for care.</dd></div>
+  <div><dt>First funding shortfall</dt><dd>The first month the balance goes below zero, or "none projected".</dd></div>
+  <div><dt>Projected care fees</dt><dd>The household total by level of care.</dd></div>
+</div>
+
+## Compare and complete
+
+A reviewer can **keep the current result as a comparison baseline**, change something, and
+calculate an alternative next to it. If the two used different configuration revisions the
+page warns. When satisfied, the reviewer completes the qualification, which needs an
+explicit attestation that the inputs were verified. See
+<a href="/flows/qualification/">Life-plan qualification</a>.
+
+## What it refuses
+
+<div class="split not-content">
+  <div class="panel panel--stop">
+    <h4>Blank treated as zero</h4>
+    <p>An unfilled amount fails validation. It is never read as nothing.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>Completing a stale review</h4>
+    <p>If the configuration changed after the projection, completion is refused with a conflict.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>Completing without thresholds</h4>
+    <p>An unconfigured outcome can be projected and read but cannot be saved.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>Remembering anything</h4>
+    <p>Inputs, notes and comparisons are not written to browser storage, a cookie or the address. Navigation warns about unsaved notes.</p>
+  </div>
+</div>

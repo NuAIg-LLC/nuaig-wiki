@@ -1,0 +1,80 @@
+---
+title: "Emergency access"
+description: "Break-glass: what it grants, what it costs, and why a role alone is never enough."
+tldr:
+  - "Emergency access widens what a person may read. It never lets them change anything."
+  - "A grant lasts between 5 and 60 minutes, needs a written justification, and can be revoked at any time."
+  - "A role called break-glass grants nothing by itself. Access exists only while an unrevoked grant is active."
+  - "It never crosses a client boundary. It widens what you see, never whose data you see."
+  - "Every use raises a high-priority audit alert."
+---
+
+import Flow from '../../../components/Flow.astro';
+import Shot from '../../../components/Shot.astro';
+
+Occasionally a person genuinely needs to read something their role does not allow. The
+usual example is an urgent situation where the right person is unavailable. The product
+supports this through **emergency access**, commonly called break-glass, and it is built
+so that using it is deliberate, bounded and loud.
+
+## The shape of a grant
+
+<Flow
+  uid="bg"
+  width={860}
+  height={220}
+  title="The life of an emergency grant"
+  nodes={[
+    { id: 'ask', x: 10, y: 60, w: 150, h: 84, eyebrow: '1 REQUEST', title: 'A need arises', sub: ['A real, urgent reason', 'to read beyond role'], align: 'center' },
+    { id: 'grant', x: 190, y: 60, w: 160, h: 84, eyebrow: '2 GRANT', title: 'An administrator', sub: ['Records a reason and', 'a duration of 5 to 60 min'], kind: 'accent', align: 'center' },
+    { id: 'act', x: 380, y: 60, w: 160, h: 84, eyebrow: '3 ACT', title: 'Read access only', sub: ['Every read is audited', 'and raises an alert'], kind: 'warn', align: 'center' },
+    { id: 'end', x: 570, y: 60, w: 130, h: 84, eyebrow: '4 END', title: 'It expires', sub: ['Or is revoked early,', 'with a reason'], kind: 'ok', align: 'center' },
+    { id: 'rev', x: 730, y: 60, w: 120, h: 84, eyebrow: 'AFTER', title: 'Reviewed', sub: ['By the audit trail'], align: 'center' },
+  ]}
+  edges={[
+    { from: 'ask.r', to: 'grant.l', kind: 'accent' },
+    { from: 'grant.r', to: 'act.l', kind: 'accent' },
+    { from: 'act.r', to: 'end.l', kind: 'accent' },
+    { from: 'end.r', to: 'rev.l', kind: 'dash' },
+  ]}
+  caption="<b>Short, justified, read-only and reviewed.</b> Each step is recorded as its own event."
+/>
+
+## What it grants, and what it does not
+
+<div class="split not-content">
+  <div class="panel panel--ok">
+    <h4>It does</h4>
+    <ul>
+      <li>Add the read half of every scope for the duration of the grant</li>
+      <li>Let a person see across the minimum-necessary boundary</li>
+      <li>Record every access as an alert-level audit event</li>
+    </ul>
+  </div>
+  <div class="panel panel--stop">
+    <h4>It does not</h4>
+    <ul>
+      <li>Grant any write, override, record or manage authority</li>
+      <li>Reach another client organisation, ever</li>
+      <li>Survive its expiry or a revocation</li>
+      <li>Work without a written justification</li>
+    </ul>
+  </div>
+</div>
+
+## Rules worth knowing
+
+<div class="defs not-content">
+  <div><dt>A role is not a grant</dt><dd>Holding the break-glass role confers nothing on its own. Read access is added only while a specific, unrevoked, unexpired grant is presented.</dd></div>
+  <div><dt>Duration is bounded</dt><dd>A grant lasts a minimum of 5 and a maximum of 60 minutes. If more time is genuinely needed, a new grant is issued, which is a new decision and a new record.</dd></div>
+  <div><dt>Justification is mandatory</dt><dd>Both when issuing a grant and when each protected read happens. A request without one is refused, not logged and allowed.</dd></div>
+  <div><dt>Isolation is absolute</dt><dd>The organisation boundary is checked before anything else. Emergency access widens what a person may see inside their own organisation, never whose data they may see.</dd></div>
+  <div><dt>Revocation is audited</dt><dd>Ending a grant early records who did it and why, and that record cannot be edited afterwards.</dd></div>
+</div>
+
+<Shot
+  src="/img/shots/admin-emergency.webp"
+  route="/admin/emergency-access"
+  role="Client administrator"
+  caption="<b>The emergency access console.</b> It explains what a grant does and does not do, lists active grants, and is where an administrator issues or revokes one."
+/>

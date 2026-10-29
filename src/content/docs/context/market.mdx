@@ -1,0 +1,89 @@
+---
+title: "Who buys it, who uses it"
+description: "The buyer, the daily users, and the people whose money is being modelled."
+tldr:
+  - "Four groups surround the product: the maker, the buyer, the users and the families."
+  - "The buyer's finance leadership owns the rules and carries the liability."
+  - "Families never get a staff account. They use an isolated portal and a printed summary."
+  - "The maker holds no access to resident data."
+  - "Clients differ by settings, never by code."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+A product like this has four distinct groups of people around it, and they want different
+things. Mixing them up is the most common way to misread a requirement.
+
+<Flow
+  uid="mkt"
+  width={860}
+  height={300}
+  title="The four groups around the product"
+  nodes={[
+    { id: 'maker', x: 330, y: 8, w: 200, h: 62, eyebrow: 'THE MAKER', title: 'Builds and runs it', sub: 'Operates the platform', align: 'center' },
+    { id: 'org', x: 20, y: 120, w: 240, h: 78, eyebrow: 'THE BUYER', title: 'Client organisation', sub: ['Finance leadership sets the rules', 'and carries the liability'], kind: 'accent', align: 'center' },
+    { id: 'com', x: 310, y: 120, w: 240, h: 78, eyebrow: 'THE USERS', title: 'Community staff', sub: ['Sales, counselors, finance,', 'executive directors'], align: 'center' },
+    { id: 'fam', x: 600, y: 120, w: 240, h: 78, eyebrow: 'THE SUBJECTS', title: 'Families', sub: ['Their money is being modelled', 'and they never log in as staff'], kind: 'violet', align: 'center' },
+    { id: 'aud', x: 310, y: 228, w: 240, h: 56, title: 'Auditors and regulators', sub: 'Read the trail, change nothing', align: 'center' },
+  ]}
+  edges={[
+    { from: 'maker.b', to: 'org.t', kind: 'dash', label: 'provisions' },
+    { from: 'org.r', to: 'com.l', kind: 'accent', label: 'configures' },
+    { from: 'fam.l', to: 'com.r', kind: 'accent', label: 'submits to' },
+    { from: 'com.b', to: 'aud.t', kind: 'dash' },
+  ]}
+  caption="<b>The buyer is not the user, and the user is not the subject.</b> The buyer sets the rules, the user applies them, and the subject is the person they are applied to."
+/>
+
+## The buyer
+
+A **client organisation** operates several communities and carries the financial liability
+of every admission. Its finance leadership owns the definition of every outcome: the
+thresholds, the growth rates, the assumed care durations, the contract catalogue. They are
+the people who must be able to say "this is our policy" and show who approved it.
+
+What they need from the product:
+
+- One definition of an outcome across all their communities
+- Assumptions that cannot be changed without leaving a trace
+- Visibility across communities without being handed every resident's file
+- A defensible record when a decision is later questioned
+
+## The users
+
+<div class="defs not-content">
+  <div><dt>Admissions counselors</dt><dd>Own intake. They meet families, send invitations, chase documents and review what comes back. They run the conversation but do not see the money.</dd></div>
+  <div><dt>Sales financial reviewers</dt><dd>Collect and verify financial evidence, run live scenarios with families, produce quotes and complete qualifications. They cannot sign a final decision.</dd></div>
+  <div><dt>Finance reviewers</dt><dd>Confirm financial profiles, run assessments, validate family-submitted figures and answer exceptions.</dd></div>
+  <div><dt>Executive directors</dt><dd>The human of record. They see everything relevant to a case and are the only role that can record a decision.</dd></div>
+  <div><dt>Client administrators</dt><dd>Manage staff, communities, policy, portal branding and access. They configure the product but do not see residents.</dd></div>
+  <div><dt>Auditors</dt><dd>Read-only oversight, including the full trail. They cannot change anything.</dd></div>
+</div>
+
+## The subjects
+
+Families are the people whose finances are modelled, and they are not users in the usual
+sense. A family completes an application through a separate, isolated surface using a link
+and a one-time code. They never receive a staff account, and they see none of the
+qualification machinery. What they can take away is a single printed summary, prepared by
+staff.
+
+This matters for design. Anything a family can see must be written in plain language,
+because the person reading it is often a worried adult child making a decision about a
+parent, not a finance professional.
+
+## The maker
+
+The platform is operated by its maker on behalf of many client organisations at once. The
+maker provisions each client, activates it, and can repair a locked-out administrator. The
+maker deliberately holds **no access to resident data**: the platform administrator role
+carries no resident-data capability at all.
+
+## Why several clients on one platform
+
+Each client differs in small, important ways: how many approvals they require, what they
+call a level of care, whether a refund counts towards a threshold. The platform handles
+this with settings rather than code, and the rule is strict: **no client-specific
+behaviour is ever written into the product.** A difference between two clients is always a
+setting whose default preserves existing behaviour. See
+<a href="/model/configuration/">Configuration and settings</a>.

@@ -1,0 +1,145 @@
+---
+title: "The life-plan model"
+description: "Exactly how each month of a residency is calculated, and every convention that affects the answer."
+tldr:
+  - "The model projects one or two residents month by month: entrance fee at month zero, then income, care fees, returns and costs each month."
+  - "Each resident passes through independent living, assisted living, memory care and skilled nursing in order, for the months their approved profile says."
+  - "A negative balance is kept, not clamped, so a funding shortfall stays visible even if later proceeds restore cash."
+  - "The contingent refund is added to estate value only. It never funds care."
+  - "Five per-client conventions change specific behaviours, and every one defaults to the original behaviour."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+This page is the reference for the primary model. It is exact on purpose: a reviewer, a
+finance leader or an engineer should be able to reproduce any figure from it. For a gentler
+first read, start with <a href="/model/worked-example/">the worked example</a>.
+
+## Inputs
+
+<div class="defs not-content">
+  <div><dt>Central policy</dt><dd>Approved thresholds (or none), the contract catalogue with allowed refund rates, named care duration profiles, an annual investment return, an annual income increase, a separate annual fee increase for each level of care, an annual expense increase, a weight for insurance benefits, and a cap on how many months a projection may run.</dd></div>
+  <div><dt>Community pricing</dt><dd>For each assigned contract an entrance fee and a refund rate; a monthly fee for each level of care; and the second-person monthly independent-living fee.</dd></div>
+  <div><dt>The household</dt><dd>The chosen contract and primary resident. For one or two residents: a duration profile, adjustable and fixed monthly income, survivor percentages for each, and an estate transfer at exit. Assets with an owner, a kind and a month of availability. Monthly other expenses, insurance benefits and time-limited extra costs.</dd></div>
+</div>
+
+Every amount is a whole number of cents. Every rate and percentage is a whole number of
+basis points. **Rates** may be negative, from -99.99 percent to 100 percent. **Shares**, for
+survivor income, insurance weighting and refunds, run from 0 to 100 percent.
+
+## The shape of a residency
+
+<Flow
+  uid="lpm"
+  width={880}
+  height={300}
+  title="A month in the life-plan model"
+  nodes={[
+    { id: 'o', x: 10, y: 40, w: 130, h: 84, eyebrow: '1', title: 'Opening balance', sub: ['Last month\'s close'], align: 'center' },
+    { id: 'a', x: 160, y: 40, w: 130, h: 84, eyebrow: '2', title: 'Proceeds', sub: ['Assets due this', 'month arrive'], align: 'center' },
+    { id: 'r', x: 310, y: 40, w: 130, h: 84, eyebrow: '3', title: 'Return', sub: ['On the positive', 'balance only'], kind: 'accent', align: 'center' },
+    { id: 'i', x: 460, y: 40, w: 130, h: 84, eyebrow: '4', title: 'Income', sub: ['Per resident, with', 'survivor shares'], align: 'center' },
+    { id: 'l', x: 610, y: 40, w: 120, h: 84, eyebrow: '5', title: 'Benefits', sub: ['Weighted, capped', 'at care cost'], align: 'center' },
+    { id: 'c', x: 750, y: 40, w: 110, h: 84, eyebrow: '6', title: 'Costs out', sub: ['Care, other,', 'transfers'], kind: 'warn', align: 'center' },
+    { id: 'z', x: 310, y: 190, w: 280, h: 70, eyebrow: '7', title: 'Closing balance', sub: 'Kept negative if it goes negative', kind: 'ok', align: 'center' },
+  ]}
+  edges={[
+    { from: 'o.r', to: 'a.l', kind: 'accent' },
+    { from: 'a.r', to: 'r.l', kind: 'accent' },
+    { from: 'r.r', to: 'i.l', kind: 'accent' },
+    { from: 'i.r', to: 'l.l', kind: 'accent' },
+    { from: 'l.r', to: 'c.l', kind: 'accent' },
+    { from: 'c.b', to: 'z.r', kind: 'ok' },
+  ]}
+  caption="<b>The same seven steps every month, for every month of the residency.</b> The closing balance becomes the next month's opening balance."
+/>
+
+## The calculation, step by step
+
+<ol class="steps not-content">
+  <li>
+    <h4>Month zero</h4>
+    <p>Add up the assets available at month zero, then subtract the entrance fee exactly once. If that is negative, the household is already short before the first month.</p>
+  </li>
+  <li>
+    <h4>Each month from one to the horizon</h4>
+    <p>The horizon is the later of the two residents' projected exits. Assets scheduled for the month arrive at its start and join the balance.</p>
+  </li>
+  <li>
+    <h4>Return</h4>
+    <p>Positive balances earn the monthly equivalent of the annual rate, which is (1 + rate) to the power of one twelfth, minus one, rounded to the cent. A negative balance earns nothing and accrues no assumed debt interest.</p>
+  </li>
+  <li>
+    <h4>Care fees</h4>
+    <p>Each resident is at a level of care for each month, in order: independent living, then assisted living, memory care and skilled nursing, for the number of months in their profile. A zero-length phase is skipped. When two residents are both in independent living, the primary resident pays the base fee and the other pays the second-person fee; with one resident in independent living, they pay the full base. The order of residents in the input has no financial meaning.</p>
+  </li>
+  <li>
+    <h4>Inflation</h4>
+    <p>Each fee, and adjustable income, and other expenses, is multiplied by (1 + its own annual rate) to the power of months elapsed over twelve, rounded to the cent. The first month uses current prices. Fixed income does not grow. Each level of care has its own fee increase.</p>
+  </li>
+  <li>
+    <h4>Income and survivors</h4>
+    <p>Each resident's income counts while they are in residence. After one resident leaves, the other household income continues only at the survivor percentages stated for that resident, until the second resident leaves too.</p>
+  </li>
+  <li>
+    <h4>Insurance benefits</h4>
+    <p>A benefit applies only in the covered level of care and inside its window. It is multiplied by the central weight, grows with expenses if marked as inflation-adjusted, and is capped at that person's monthly care fee.</p>
+  </li>
+  <li>
+    <h4>Other costs and transfers</h4>
+    <p>Household expenses continue every month. A person's extra costs apply only while they are in residence and inside their window. An estate transfer leaves the household in the resident's last month.</p>
+  </li>
+  <li>
+    <h4>Close the month</h4>
+    <p>Closing = opening + proceeds + return + income + benefits - care - other expenses - transfers. A negative balance is kept so the shortfall stays visible.</p>
+  </li>
+  <li>
+    <h4>After both exits</h4>
+    <p>The contingent refund is the entrance fee times the refund rate. Estate value is the ending balance plus that refund. The refund is never added to a monthly balance.</p>
+  </li>
+</ol>
+
+## Rounding and safety
+
+<div class="split not-content">
+  <div class="panel">
+    <h4>Exact where it matters</h4>
+    <p>Shares of an amount, such as survivor income, insurance weighting and the refund, use exact integer arithmetic with half-up rounding. Floating multiplication can lose a cent even when both ends are safe integers.</p>
+  </div>
+  <div class="panel">
+    <h4>Deterministic everywhere else</h4>
+    <p>Growth uses deterministic exponentiation and rounds to the cent per cash-flow component.</p>
+  </div>
+  <div class="panel">
+    <h4>Bounded</h4>
+    <p>Every sum is checked against the safe integer range. An overflow fails validation. It never returns a misleading balance.</p>
+  </div>
+</div>
+
+## What it produces
+
+The result holds the starting available assets, the entrance fee, the ending balance, the
+contingent refund, the estate balance, the first month the balance went negative if any,
+the total spent at each level of care, totals for income, return, expenses, benefits,
+proceeds and transfers, each resident's exit month and months by level, the full
+month-by-month table, any warnings, and the engine, policy and pricing versions.
+
+Warnings are stated in words: that thresholds are not approved, that the refund is
+contingent and unavailable to pay for care, that proceeds scheduled after the horizon were
+excluded, and that a shortfall is not erased by later proceeds or a refund.
+
+## The five conventions
+
+Clients differ in small, important ways. Each difference is a **setting whose default
+preserves the original behaviour**. None is a fork in the code.
+
+<div class="defs not-content">
+  <div><dt>Return convention</dt><dd><strong>Monthly, on the declining balance</strong> (default) credits return each month on the balance as it falls, charging the drawdown against the earning base as it happens. <strong>Annual, at opening</strong> credits a full year's return at the start of each twelve-month block, before that year's care is paid. It overstates earnings and exists so a client migrating from a workbook that does this can see their own cases under both conventions side by side.</dd></div>
+  <div><dt>Whether the refund counts towards the threshold</dt><dd>Default <strong>yes</strong>. If no, thresholds are measured against the ending balance alone. The refund is estate value rather than liquidity, so counting it can overstate the cushion in exactly the marginal cases where it decides the answer. The reported estate balance does not change either way.</dd></div>
+  <div><dt>Couples leaving independent living</dt><dd>Default <strong>independent</strong>: each resident follows their own profile. <strong>Earliest</strong> moves both out of independent living on the earlier of the two dates, then lets higher care run independently. It shortens the household's total stay.</dd></div>
+  <div><dt>Where durations come from</dt><dd>Default <strong>profiles</strong>: named, reviewable, the same for every household that picks one. An actuarial-table source is recognised but the tables are not loaded, so the model <strong>refuses</strong> rather than silently falling back.</dd></div>
+  <div><dt>What a client calls the four levels</dt><dd>The words are a setting. The four levels themselves are fixed, because every stored qualification and fee schedule keys on them.</dd></div>
+</div>
+
+See <a href="/model/outcomes/">Outcomes and thresholds</a> for how the result becomes an outcome,
+and <a href="/model/limits/">Known model limits</a> for what the model does not do.

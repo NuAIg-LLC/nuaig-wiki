@@ -1,0 +1,64 @@
+---
+title: "Observations"
+description: "Recording what actually happened, against the forecast that was made."
+tldr:
+  - "The observations screen records dated, verified facts about a household after move-in."
+  - "The page states up front that the original projection stays unchanged."
+  - "Each record compares the observed balance with the original forecast at an explicit month."
+  - "Corrections append a new entry. Earlier entries stay visible."
+  - "Notes are staff-only and never reach the printed summary or leadership reports."
+---
+
+import Shot from '../../../components/Shot.astro';
+
+<div class="kv not-content">
+  <span><b>Route</b><code>/prospects/{'{id}'}/life-plan/qualifications/{'{id}'}/observations</code></span>
+  <span><b>Read</b>Financial, health and prospect read</span>
+  <span><b>Append</b>Also permission to run assessments</span>
+</div>
+
+<Shot
+  src="/img/shots/observations.webp"
+  route="/prospects/{id}/life-plan/qualifications/{qualificationId}/observations"
+  role="Sales financial reviewer"
+  caption="<b>Observed outcomes.</b> A callout says the original projection stays unchanged and explains that month zero is immediately after the entrance fee. Below, the form for a verified follow-up record."
+/>
+
+## The form
+
+<div class="defs not-content">
+  <div><dt>Observation date</dt><dd>When the fact was true.</dd></div>
+  <div><dt>Months since projection start</dt><dd>An explicit elapsed month. The date does not infer it.</dd></div>
+  <div><dt>Verified available funds</dt><dd>The net amount available for care, excluding any refund that remains contingent.</dd></div>
+  <div><dt>Funding support</dt><dd>Chosen from none, partial or full.</dd></div>
+  <div><dt>Residency status</dt><dd>Resident or exited.</dd></div>
+  <div><dt>Staff verification notes</dt><dd>Free text, staff-only.</dd></div>
+  <div><dt>Attestation</dt><dd>A fresh verification with every record.</dd></div>
+</div>
+
+## What the page shows afterwards
+
+<div class="defs not-content">
+  <div><dt>History</dt><dd>Records in observation-date order, paginated.</dd></div>
+  <div><dt>Observed against projected</dt><dd>The observed balance, the projected balance for that month, and the variance. When an observation is beyond the forecast horizon, or the difference would overflow, the page explains why there is no comparison.</dd></div>
+  <div><dt>Corrections</dt><dd>A correction keeps the original date and month, asks for an explanation and requires verification again.</dd></div>
+</div>
+
+## Behaviour worth knowing
+
+<div class="split not-content">
+  <div class="panel">
+    <h4>A failed save keeps the draft</h4>
+    <p>The form and its idempotency key are preserved so the person can fix the problem and try again without duplicating anything.</p>
+  </div>
+  <div class="panel">
+    <h4>A late response cannot cross over</h4>
+    <p>If the person navigates away while a save is in flight, the late response is ignored. It cannot populate or clear another resident's form.</p>
+  </div>
+  <div class="panel">
+    <h4>Nothing is kept in the browser</h4>
+    <p>The page carries no persistent draft state.</p>
+  </div>
+</div>
+
+See <a href="/flows/observations/">After move-in: observations</a>.

@@ -1,0 +1,113 @@
+---
+title: "Assessment"
+description: "Running the runway calculation, reading the result, and overriding it on the record."
+tldr:
+  - "An assessment answers a monthly-fee question: how long does the money last, and what is the gap over the planned stay?"
+  - "It needs a financial profile a person has verified. It refuses to run on an unverified one."
+  - "The result carries a tier, the rules that fired, plain-language factors, and the exact engine and policy versions."
+  - "A finance reviewer may override a result, but an override only records why. It never edits a figure."
+  - "A decision must cite the latest assessment, and a changed input, policy or engine requires a fresh run."
+---
+
+import Flow from '../../../components/Flow.astro';
+import Shot from '../../../components/Shot.astro';
+
+The **assessment** is the monthly-fee view of a resident's finances. It answers the
+question a community without a large entrance fee asks: how many months can this person pay
+the bill, and what is missing if they stay as long as planned? For communities that sell
+lifetime contracts, the <a href="/flows/qualification/">life-plan qualification</a> is the
+primary instrument. Both models are described in <a href="/model/engines/">Two models, one product</a>.
+
+## The flow
+
+<Flow
+  uid="as"
+  width={880}
+  height={240}
+  title="Running and reading an assessment"
+  nodes={[
+    { id: 'prof', x: 10, y: 28, w: 160, h: 84, eyebrow: '1', title: 'Verified profile', sub: ['A person confirmed', 'the figures'], kind: 'ok', align: 'center' },
+    { id: 'run', x: 200, y: 28, w: 160, h: 84, eyebrow: '2', title: 'Run', sub: ['Deterministic,', 'in whole cents'], kind: 'accent', align: 'center' },
+    { id: 'res', x: 390, y: 28, w: 170, h: 84, eyebrow: '3', title: 'The result', sub: ['Tier, runway, gap,', 'rules, factors'], align: 'center' },
+    { id: 'nar', x: 590, y: 28, w: 140, h: 84, eyebrow: '4', title: 'Plain summary', sub: ['Drafted by the', 'assistant'], kind: 'violet', align: 'center' },
+    { id: 'ovr', x: 760, y: 28, w: 100, h: 84, eyebrow: 'IF NEEDED', title: 'Override', sub: ['Reason only'], kind: 'warn', align: 'center' },
+    { id: 'stamp', x: 200, y: 150, w: 360, h: 60, eyebrow: 'STAMPED ON EVERY RESULT', title: 'Engine version and policy version', sub: 'So a result stays reproducible after the policy changes', kind: 'ghost' },
+  ]}
+  edges={[
+    { from: 'prof.r', to: 'run.l', kind: 'accent' },
+    { from: 'run.r', to: 'res.l', kind: 'accent' },
+    { from: 'res.r', to: 'nar.l', kind: 'dash', label: 'text only' },
+    { from: 'nar.r', to: 'ovr.l', kind: 'dash' },
+    { from: 'run.b', to: 'stamp.t:0.2', kind: 'dash' },
+  ]}
+  caption="<b>The assistant appears once, and only to write words.</b> It receives a minimised copy of the figures and returns prose that is stored beside the result, never inside it."
+/>
+
+## What the calculation does
+
+It models one person, one flat monthly price for the level of care, and the household's
+monthly income against it. From that it produces:
+
+<div class="defs not-content">
+  <div><dt>Private-pay runway</dt><dd>The number of months liquid assets can cover the monthly shortfall. If income already covers the cost there is no runway to report.</dd></div>
+  <div><dt>Net monthly burn</dt><dd>Cost less income, family contribution and any long-term care benefit. Positive means money is going out.</dd></div>
+  <div><dt>Funding gap</dt><dd>The total shortfall over the planned length of stay, less what liquid assets can cover. Zero when the money lasts.</dd></div>
+  <div><dt>Medicaid crossover</dt><dd>The month in which countable assets reach the state's asset limit, with the look-back for recent transfers and an estimated penalty period.</dd></div>
+  <div><dt>Care escalation</dt><dd>How the projected care level, and therefore the cost, could rise over the stay. Informational: it informs the narrative and never moves the tier.</dd></div>
+  <div><dt>Risk tier and fired rules</dt><dd>One of four tiers, together with the exact rules that produced it. See <a href="/model/runway/">The runway model</a>.</dd></div>
+</div>
+
+<Shot
+  src="/img/shots/assessment.webp"
+  route="/prospects/{id}  (Assessment step)"
+  role="Finance reviewer"
+  caption="<b>An assessment result.</b> The headline runway and tier, the monthly shortfall, and the plain-language summary, followed by the factors behind it. The footer stamps the exact engine and policy versions used."
+/>
+
+## Explainability is the point
+
+Every result lists **named factors**, each with a short sentence of evidence, and the
+**rules that fired**. Someone reading the result can see not just that a resident is
+high risk, but that the runway fell below the high-risk cutoff, that a recent transfer
+fell inside the look-back window, and which figures made it so.
+
+Health flags can annotate the care trajectory and the narrative. They **never** feed the
+tier. This keeps the tier a function of money alone.
+
+## Overriding a result
+
+A finance reviewer, and only a finance reviewer, can mark a result as overridden.
+
+<div class="split not-content">
+  <div class="panel panel--ok">
+    <h4>What an override does</h4>
+    <ul>
+      <li>Flags the result as overridden</li>
+      <li>Records the reviewer's written reason, encrypted</li>
+      <li>Appears in the audit trail</li>
+    </ul>
+  </div>
+  <div class="panel panel--stop">
+    <h4>What it never does</h4>
+    <ul>
+      <li>Change the tier, the runway or any figure</li>
+      <li>Hide the original result</li>
+      <li>Replace the decision a person must still record</li>
+    </ul>
+  </div>
+</div>
+
+## Keeping a decision honest
+
+The executive director's decision must cite the **latest** assessment. Before it is
+recorded, the stored result is compared with a fresh calculation from the current verified
+data and the policy in force. If a figure, the policy or the calculation version has
+changed since, the decision is refused and a new assessment is required. A stale result can
+never be signed.
+
+## What a counselor sees
+
+The same result is served to every role that may read assessments, with dollar figures
+removed for anyone without the financial scope. A counselor sees the tier, the runway in
+months and the rules, but not the amounts. See
+<a href="/people/minimum-necessary/">Minimum necessary access</a>.

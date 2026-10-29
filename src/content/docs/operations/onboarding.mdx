@@ -1,0 +1,138 @@
+---
+title: "Onboarding a client"
+description: "From a signed agreement to a staff member signing in and a family completing an application."
+tldr:
+  - "Onboarding has five phases: provision, bind identity, activate, configure, and invite."
+  - "Provisioning creates the organisation, its first community and its first administrator in one audited request, and leaves it in a provisioning state."
+  - "Four gates must close before activation. Until they do, nobody in the organisation can sign in."
+  - "No financial assumption is supplied. The client must publish thresholds, rates, durations and prices before a qualification can be completed."
+  - "The first administrator configures the product and sees no residents. Staff are invited with roles and memberships."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+Bringing a client onto the platform is a repeatable procedure, designed so that a mistake
+at any step fails closed instead of leaving a half-working organisation.
+
+<Flow
+  uid="onb"
+  width={880}
+  height={420}
+  title="The five phases of onboarding a client"
+  lanes={[
+    { x: 8, y: 8, w: 864, h: 96, label: 'THE MAKER' },
+    { x: 8, y: 114, w: 864, h: 96, label: 'THE CLIENT ADMINISTRATOR' },
+    { x: 8, y: 220, w: 864, h: 96, label: 'THE CLIENT\'S FINANCE LEADERSHIP' },
+    { x: 8, y: 326, w: 864, h: 86, label: 'THE FIRST FAMILY' },
+  ]}
+  nodes={[
+    { id: 'p1', x: 24, y: 40, w: 190, h: 52, eyebrow: '1 PROVISION', title: 'Create the organisation', sub: 'One audited request' },
+    { id: 'p2', x: 234, y: 40, w: 190, h: 52, eyebrow: '2 BIND', title: 'Connect identity', sub: 'Issuer, first admin' },
+    { id: 'p3', x: 444, y: 40, w: 190, h: 52, eyebrow: '3 ACTIVATE', title: 'Close the four gates', kind: 'ok' },
+    { id: 'c1', x: 444, y: 146, w: 200, h: 52, eyebrow: '4 CONFIGURE', title: 'Facilities, staff, portal', sub: 'Roles and memberships', kind: 'accent' },
+    { id: 'f1', x: 654, y: 252, w: 200, h: 52, eyebrow: '4 CONFIGURE', title: 'Publish the policy', sub: 'Approved thresholds, rates', kind: 'warn' },
+    { id: 'u1', x: 234, y: 252, w: 200, h: 52, eyebrow: '4 CONFIGURE', title: 'Units, prices, approvers', sub: 'And the review chain' },
+    { id: 'fam', x: 654, y: 358, w: 200, h: 42, eyebrow: '5 INVITE', title: 'First application', kind: 'violet' },
+  ]}
+  edges={[
+    { from: 'p1.r', to: 'p2.l', kind: 'accent' },
+    { from: 'p2.r', to: 'p3.l', kind: 'accent' },
+    { from: 'p3.b', to: 'c1.t', kind: 'ok' },
+    { from: 'c1.r', to: 'f1.t', kind: 'accent' },
+    { from: 'f1.l', to: 'u1.r', kind: 'dash' },
+    { from: 'f1.b', to: 'fam.t', kind: 'ok' },
+  ]}
+  caption="<b>The maker opens the door. The client furnishes the house.</b> The maker never sets a financial assumption, and the client's finance leadership approves every number."
+/>
+
+## Phase one: provision
+
+A platform administrator provisions the organisation from the control plane. One audited
+request creates three things:
+
+<div class="defs not-content">
+  <div><dt>The organisation</dt><dd>With its name, its address slug (lowercase letters, digits and single hyphens, unique across the platform) and its identity issuer.</dd></div>
+  <div><dt>Its default community</dt><dd>The first building.</dd></div>
+  <div><dt>Its first administrator</dt><dd>The person who will configure the rest. They hold the administration role and no resident-data capability.</dd></div>
+</div>
+
+The organisation starts in a **provisioning** state. A typo in the identity settings is not
+permanent, since they can be edited afterwards.
+
+## Phase two: bind identity
+
+The administrator's account must be tied to a real identity from the client's own identity
+system, and the organisation's issuer must be recorded. Staff cannot sign in until this is
+done, because the platform does not run its own passwords.
+
+## Phase three: activate
+
+<div class="grid-cards not-content">
+  <div class="panel"><h4>Gate one</h4><p>The identity issuer is bound.</p></div>
+  <div class="panel"><h4>Gate two</h4><p>The default community is active.</p></div>
+  <div class="panel"><h4>Gate three</h4><p>The administrator account is active.</p></div>
+  <div class="panel"><h4>Gate four</h4><p>The administrator is bound to a real identity.</p></div>
+</div>
+
+The control plane shows which gates are open. Activation is refused until all four hold, and
+every transition is recorded with a reason in the organisation's own audit ledger. A
+platform administrator can also **repair** an organisation that has locked itself out.
+
+## Phase four: configure
+
+The client administrator works through the console in a sensible order:
+
+<ol class="steps not-content">
+  <li><h4>Facilities</h4><p>Add each building. Each gets its own pricing and its own residents.</p></li>
+  <li><h4>Staff, roles and memberships</h4><p>Invite colleagues, assign a role, and give each person a membership in the communities they work in. A person with an identity subject is active at once. One without stays inactive until explicitly activated.</p></li>
+  <li><h4>Family portal</h4><p>Set the community's name, accent colour, welcome text, contact person, and the sections and documents requested.</p></li>
+  <li><h4>Communications</h4><p>Choose whether outbound messages are sent, and configure the email and text gateways, so invitations and codes can reach families.</p></li>
+  <li><h4>Life-plan policy</h4><p>The client's finance leadership supplies the thresholds, rates, care duration profiles and contract catalogue. An administrator publishes them. <strong>Until thresholds are approved and published, no qualification can be completed.</strong></p></li>
+  <li><h4>Community pricing</h4><p>For each building, which contracts are offered, with entrance fees and refund rates, and monthly fees for each level of care.</p></li>
+  <li><h4>Review policy</h4><p>The approval chain: prerequisites, committee slots, how long a review stays valid, and the named waiver and escalation approvers.</p></li>
+  <li><h4>Units and approvers</h4><p>Inventory, dated price schedules with sources, and the named people who may approve a price reduction.</p></li>
+  <li><h4>Report access</h4><p>Explicit grants for the leadership who will run cross-community reports.</p></li>
+</ol>
+
+## Phase five: invite
+
+Counselors create the first family applications. A first application is a good end-to-end
+check: the invitation arrives, the family can complete and submit, and staff can review and
+promote.
+
+## Things that commonly go wrong
+
+<div class="defs not-content">
+  <div><dt>Staff cannot sign in</dt><dd>Almost always an unclosed gate: the issuer, the administrator's identity binding, or the account not yet active. The control plane shows which.</dd></div>
+  <div><dt>A person signs in and sees nothing</dt><dd>They have a role but no membership in any building. Membership is what opens resident data.</dd></div>
+  <div><dt>A projection is unconfigured</dt><dd>No approved thresholds have been published. The outcome stays unconfigured until they are.</dd></div>
+  <div><dt>Families never receive the code</dt><dd>The email or text gateway has not been configured, or outbound messages are switched off. See <a href="/operations/runbook/">Support runbook</a>.</dd></div>
+  <div><dt>A reduction cannot be approved</dt><dd>The approver list is empty. It is empty by default on purpose.</dd></div>
+</div>
+
+## Starting a production environment safely
+
+Before any of this, the platform itself must start, and it is built to refuse to start
+badly. In a production setting it will not start if it finds:
+
+<div class="split not-content">
+  <div class="panel panel--stop">
+    <h4>Development secrets</h4>
+    <p>Any encryption key, session key, signing key or audit-chain seed that still has its development default, or is too short.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>The wrong database identities</h4>
+    <p>The application or the portal not connecting as its own restricted identity.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>Insecure endpoints</h4>
+    <p>An identity issuer, key set, portal address or allowed origin that is not secure, or an empty origin list.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>Development shortcuts</h4>
+    <p>The development sign-in stand-in switched on.</p>
+  </div>
+</div>
+
+A refusal to start is a feature. A platform that boots with a development key is a platform
+whose data is protected by a key everyone knows.

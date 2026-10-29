@@ -1,0 +1,58 @@
+---
+title: "Reports"
+description: "Cross-community qualification reports, and the explicit grant that makes them possible."
+tldr:
+  - "The reports screen covers completed qualifications and their latest observed outcome across communities a person has been granted."
+  - "A person selects up to twenty communities and a period of at most 366 days, then runs the report."
+  - "The summary counts describe the rows on the page, and the screen says so."
+  - "A report grant never creates resident access. The person must also hold a live membership in each community."
+---
+
+import Shot from '../../../components/Shot.astro';
+
+<div class="kv not-content">
+  <span><b>Routes</b><code>/reports/life-plan</code> and <code>/admin/report-access</code></span>
+  <span><b>Run</b>People with an explicit grant plus a live membership</span>
+  <span><b>Grant</b>Client administrators</span>
+</div>
+
+## Running a report
+
+<Shot
+  src="/img/shots/reports-run.webp"
+  route="/reports/life-plan"
+  role="Finance reviewer"
+  caption="<b>Qualification reports.</b> Communities to include, from and through dates, and results per page. After running, a summary and the completed qualifications appear."
+/>
+
+<div class="defs not-content">
+  <div><dt>Communities to include</dt><dd>Only the communities this person is currently allowed to report on appear as choices. Up to twenty can be selected.</dd></div>
+  <div><dt>Dates</dt><dd>From and through, defaulting to the last thirty days. The note beneath explains that dates include the full selected days in UTC and that a period may not exceed 366 days.</dd></div>
+  <div><dt>Results per page</dt><dd>A page size, with a maximum of fifty.</dd></div>
+  <div><dt>Before the first run</dt><dd>A short instruction says to select the communities and run the report. Nothing is run automatically.</dd></div>
+</div>
+
+## What the results show
+
+<div class="defs not-content">
+  <div><dt>This page of results</dt><dd>Counts of qualifications, projected shortfalls, qualifications with observations, and those receiving funding support. They are labelled as describing the rows shown, not the whole date range.</dd></div>
+  <div><dt>Completed qualifications</dt><dd>For each: the resident and community, when it was completed, the planning outcome, the ending available funds with the contingent refund beneath, and the latest observed outcome with its month.</dd></div>
+  <div><dt>Paging</dt><dd>The exact filters survive moving between pages.</dd></div>
+  <div><dt>Errors</dt><dd>A failed read is shown as an error, never as an empty result.</dd></div>
+</div>
+
+## Granting access
+
+<Shot
+  src="/img/shots/report-access.webp"
+  route="/admin/report-access"
+  role="Client administrator"
+  caption="<b>Qualification report access.</b> Pick an eligible staff member and a community and grant access. The page states that a grant does not create a membership or widen a role."
+/>
+
+Eligible people are active users with an active membership in an active community holding
+the financial, health and assessment read scopes. Platform administrators and emergency
+identities cannot be granted it. Grants carry a version, conflicts prompt a reload and
+review, and revocation stays available even after membership is removed.
+
+See <a href="/flows/reporting/">Leadership reporting</a>.

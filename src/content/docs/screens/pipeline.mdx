@@ -1,0 +1,71 @@
+---
+title: "Pipeline"
+description: "Every resident by stage, as a board for scanning or a list for working a queue."
+tldr:
+  - "The pipeline shows every resident by stage: intake, documents pending, under review, assessed, decided."
+  - "A board is for scanning. A list is for working a queue, with sorting and focus filters such as older open screenings."
+  - "Filters live in the address so a view can be bookmarked and shared. Resident searches stay in memory only."
+  - "Waitlisted residents and requests for more information deliberately stay in open work rather than disappearing."
+  - "A manual move can never fabricate a milestone."
+---
+
+import Shot from '../../../components/Shot.astro';
+
+<div class="kv not-content">
+  <span><b>Route</b><code>/pipeline</code></span>
+  <span><b>Views</b>Board and list</span>
+  <span><b>Who</b>Anyone who may see residents</span>
+</div>
+
+## The board
+
+<Shot
+  src="/img/shots/pipeline-board.webp"
+  route="/pipeline?view=board"
+  role="Admissions counselor"
+  caption="<b>The board.</b> One column per stage with a count. Each card carries the resident, their care level and the time since intake. A stage selector on each card moves it."
+/>
+
+Each resident sits in the column for the stage they are really at. The board is for
+**scanning**: where is work piling up, and what has been sitting longest.
+
+## The list
+
+<Shot
+  src="/img/shots/pipeline-list.webp"
+  route="/pipeline?view=list"
+  role="Admissions counselor"
+  caption="<b>The list.</b> The same residents, denser, with the next step and the time since intake. It is for working a queue rather than scanning a board."
+/>
+
+## Finding and filtering
+
+<div class="defs not-content">
+  <div><dt>Find a resident</dt><dd>By name, care level or state. This search stays in memory and is never written to the address or storage, because a name is personal data.</dd></div>
+  <div><dt>Focus</dt><dd>Task-oriented queues, for example "older open screenings", that pick out work that is ageing.</dd></div>
+  <div><dt>Care level and stage</dt><dd>Filters that narrow the view to a level of care or a single stage.</dd></div>
+  <div><dt>Sort</dt><dd>Oldest intake first by default, and others available in the list.</dd></div>
+</div>
+
+Filters other than the name search live in the address, so a view such as the list filtered
+to ageing cases can be bookmarked or sent to a colleague. The default view, board or list,
+is a per-browser preference.
+
+## Rules the pipeline enforces
+
+<div class="split not-content">
+  <div class="panel">
+    <h4>Nothing disappears</h4>
+    <p>A waitlisted resident or one awaiting more information stays in open work. A decision is not a reason to hide a case.</p>
+  </div>
+  <div class="panel">
+    <h4>Milestones are earned</h4>
+    <p>Assessed needs an assessment on file. Decided is entered only by recording a decision, and a decided resident cannot be moved back. The records service enforces this, so an integration cannot invent one.</p>
+  </div>
+  <div class="panel">
+    <h4>It shows the next step</h4>
+    <p>The list shows each resident's next step and how long they have been waiting, so the oldest work is easy to find.</p>
+  </div>
+</div>
+
+Opening a resident takes the person to <a href="/screens/resident/">the resident record</a>.

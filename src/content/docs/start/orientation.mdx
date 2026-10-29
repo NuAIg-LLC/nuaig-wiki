@@ -1,0 +1,95 @@
+---
+title: "How to use this wiki"
+description: "How the wiki is organised, and the shortest path through it for each team."
+tldr:
+  - "The wiki describes behaviour and intent, never languages, frameworks or tools."
+  - "Nine parts: Start here, Context, People, Flows, Screens, Numbers, Interfaces, Architecture, Operations."
+  - "Read the flows before the screens. The screens make more sense once you know the journey."
+  - "A new joiner needs five pages and about forty minutes."
+  - "No project status or sprint information lives here, so everything stays true as long as the product behaves this way."
+---
+
+This wiki is the product's written memory. It is meant to outlast any particular release,
+any particular team, and any particular tool. It describes **what the product does and
+why**, never how a given piece of it happens to be built this quarter.
+
+## Three rules it follows
+
+<div class="defs not-content">
+  <div><dt>Behaviour, not implementation</dt><dd>You will not find a programming language, framework or library named anywhere in these pages. Where a page needs to describe a mechanism, it describes the mechanism, not the tool that happens to provide it.</dd></div>
+  <div><dt>No client identities</dt><dd>The platform serves several client organisations. Nothing here names one, and no example uses real resident data. Every figure and name in a screenshot is synthetic.</dd></div>
+  <div><dt>One home per fact</dt><dd>Each fact is stated on exactly one page and linked from the others. If two pages disagree, the one nearer the top of the sidebar is the one to fix.</dd></div>
+</div>
+
+## The nine parts
+
+<div class="defs not-content">
+  <div><dt>Start here</dt><dd>Orientation. What the product is, the whole system on one page, and the vocabulary.</dd></div>
+  <div><dt>Context</dt><dd>The business problem, the manual process being replaced, who pays and who uses it, and the numbered client requirements the product was built against.</dd></div>
+  <div><dt>People and permissions</dt><dd>Tenancy, the eight roles, the capabilities each one holds, and the rules that decide what a given person may see.</dd></div>
+  <div><dt>Flows</dt><dd>The journey a case travels, broken into the nine processes that make it up. Read this before the screens.</dd></div>
+  <div><dt>The screens</dt><dd>Every screen in both applications, with a screenshot, the job it does, who can open it, and what it refuses to do.</dd></div>
+  <div><dt>How the numbers work</dt><dd>The calculation models, their inputs and outputs, the outcome thresholds, the advisory probability layer, and the limits of all of it.</dd></div>
+  <div><dt>Interfaces</dt><dd>The programmatic surface: which resources exist, how changes are made safely, how failures are reported.</dd></div>
+  <div><dt>Architecture</dt><dd>The shape of the system, the records it keeps, and the controls around them.</dd></div>
+  <div><dt>Operations</dt><dd>Onboarding a client, governing configuration, retention, keys, and answering support questions.</dd></div>
+</div>
+
+## The shortest path for your team
+
+<div class="split not-content">
+  <div class="panel panel--info">
+    <h4>Product and design</h4>
+    <ul>
+      <li>The problem being solved</li>
+      <li>The end-to-end journey</li>
+      <li>Screen index, then the screens you own</li>
+      <li>Outcomes and thresholds</li>
+      <li>Open questions</li>
+    </ul>
+  </div>
+  <div class="panel panel--info">
+    <h4>Leadership and commercial</h4>
+    <ul>
+      <li>What this platform is</li>
+      <li>The problem being solved</li>
+      <li>Who buys it, who uses it</li>
+      <li>Requirements register</li>
+      <li>Advanced analysis</li>
+    </ul>
+  </div>
+  <div class="panel panel--info">
+    <h4>Engineering</h4>
+    <ul>
+      <li>The rules that shape the product</li>
+      <li>System map and data model</li>
+      <li>Scopes and capabilities</li>
+      <li>Revisions and idempotency</li>
+      <li>The life-plan model</li>
+    </ul>
+  </div>
+  <div class="panel panel--info">
+    <h4>Implementation and support</h4>
+    <ul>
+      <li>Tenancy model</li>
+      <li>Onboarding a client</li>
+      <li>Configuration governance</li>
+      <li>Support runbook</li>
+      <li>Glossary</li>
+    </ul>
+  </div>
+</div>
+
+## If you are new
+
+Read, in order: **What this platform is**, **The problem being solved**, **The end-to-end
+journey**, **User roles**, and **Two models, one product**. That is roughly forty minutes,
+and it covers everything a conversation about the product will assume you already know.
+Keep the **Glossary** open beside it.
+
+## A note on what you will not find
+
+This wiki deliberately does not record project status, sprint plans, delivery dates or
+the state of any particular environment. Those change weekly and belong in the tools that
+track them. Everything here is intended to be true for as long as the product behaves the
+way it is described.

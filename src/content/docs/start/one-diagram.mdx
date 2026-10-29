@@ -1,0 +1,92 @@
+---
+title: "The product in one diagram"
+description: "Every moving part on a single page, with the line between advice and decision drawn in."
+tldr:
+  - "Two surfaces talk to one system of record, and that system holds every rule."
+  - "The calculation produces the recorded answer. The probability layer reads a frozen copy and returns commentary only."
+  - "The assistant can read documents and draft text but cannot set a number."
+  - "Isolation between clients and communities is enforced by the records store itself."
+  - "Every case ends with a named person."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+If you only keep one picture of the platform in your head, keep this one. Everything in
+the rest of the wiki is a closer look at a part of it.
+
+<Flow
+  uid="one"
+  width={860}
+  height={560}
+  title="The whole platform: people, surfaces, system of record, and the advisory boundary"
+  lanes={[
+    { x: 14, y: 196, w: 560, h: 232, label: 'SYSTEM OF RECORD' },
+    { x: 650, y: 196, w: 196, h: 232, label: 'ADVISORY ONLY' },
+  ]}
+  nodes={[
+    { id: 'fam', x: 14, y: 14, w: 150, h: 54, title: 'Family', sub: 'Applicant and helpers', kind: 'violet', align: 'center' },
+    { id: 'cou', x: 184, y: 14, w: 150, h: 54, title: 'Counselors', sub: 'Intake and documents', align: 'center' },
+    { id: 'fin', x: 354, y: 14, w: 150, h: 54, title: 'Finance and sales', sub: 'Verify and run', align: 'center' },
+    { id: 'edr', x: 524, y: 14, w: 150, h: 54, title: 'Executive director', sub: 'Signs the decision', align: 'center' },
+    { id: 'adm', x: 694, y: 14, w: 152, h: 54, title: 'Administrators', sub: 'Client and platform', align: 'center' },
+
+    { id: 'por', x: 14, y: 106, w: 150, h: 58, title: 'Family portal', sub: 'External, isolated', kind: 'violet', align: 'center' },
+    { id: 'stf', x: 184, y: 106, w: 662, h: 58, title: 'Staff workspace', sub: 'Pipeline, resident record, life-plan, approvals, reports, administration', kind: 'accent', align: 'center' },
+
+    { id: 'acc', x: 28, y: 232, w: 150, h: 62, eyebrow: 'WHO MAY SEE', title: 'Access control', sub: 'Roles, scopes, masks' },
+    { id: 'rec', x: 218, y: 232, w: 150, h: 62, eyebrow: 'WHAT WE KNOW', title: 'Resident records', sub: 'Documents, financials' },
+    { id: 'cfg', x: 408, y: 232, w: 152, h: 62, eyebrow: 'THE RULES', title: 'Policy and pricing', sub: 'Versioned per client' },
+    { id: 'aud', x: 28, y: 336, w: 150, h: 62, eyebrow: 'THE EVIDENCE', title: 'Audit ledger', sub: 'Append-only, chained' },
+    { id: 'wfl', x: 218, y: 336, w: 150, h: 62, eyebrow: 'WHO SIGNED', title: 'Approval workflow', sub: 'Named, configurable' },
+    { id: 'cal', x: 408, y: 336, w: 152, h: 62, eyebrow: 'THE ANSWER', title: 'Calculation', sub: 'Deterministic', kind: 'accent' },
+
+    { id: 'ai', x: 664, y: 232, w: 168, h: 62, eyebrow: 'ASSISTANT', title: 'Document reading', sub: 'Proposes, never sets', kind: 'violet' },
+    { id: 'sim', x: 664, y: 336, w: 168, h: 62, eyebrow: 'PROBABILITY', title: 'Advanced analysis', sub: 'Seeded distributions', kind: 'violet' },
+
+    { id: 'db', x: 14, y: 470, w: 270, h: 62, eyebrow: 'ISOLATED BY CLIENT AND COMMUNITY', title: 'Records store', sub: 'Enforced by the store itself' },
+    { id: 'hum', x: 650, y: 470, w: 196, h: 62, title: 'A named person decides', sub: 'With a written reason', kind: 'ok', align: 'center' },
+  ]}
+  edges={[
+    { from: 'fam.b', to: 'por.t', kind: 'accent' },
+    { from: 'cou.b', to: 'stf.t:0.08', kind: 'accent' },
+    { from: 'fin.b', to: 'stf.t:0.34', kind: 'accent' },
+    { from: 'edr.b', to: 'stf.t:0.6', kind: 'accent' },
+    { from: 'adm.b', to: 'stf.t:0.9', kind: 'accent' },
+    { from: 'por.b', to: 'acc.t:0.3', kind: 'accent' },
+    { from: 'stf.b:0.3', to: 'rec.t', kind: 'accent' },
+    { from: 'cfg.b', to: 'cal.t', kind: 'default' },
+    { from: 'cal.l', to: 'wfl.r', kind: 'accent' },
+    { from: 'aud.b', to: 'db.t:0.4', kind: 'default' },
+    { from: 'cal.r', to: 'sim.l', kind: 'dash', label: 'frozen copy' },
+    { from: 'wfl.b', to: 'hum.l', kind: 'ok', label: 'a person signs' },
+    { from: 'sim.b', to: 'hum.t', kind: 'stop', label: 'no write path' },
+  ]}
+  caption="<b>Read it top to bottom.</b> People use one of two surfaces. Both talk to a single system of record, which holds the rules. Probability and document reading sit to the side and can only advise. The decision always ends with a person."
+/>
+
+## How to read it
+
+<div class="defs not-content">
+  <div><dt>Two surfaces</dt><dd>The family portal and the staff workspace never share a trust level. The portal can only write into a holding area; staff promote what is in it.</dd></div>
+  <div><dt>One system of record</dt><dd>Every rule about who may see what, what a figure means, and what may change lives here. A screen can hide a button, but it is never the thing that stops an action.</dd></div>
+  <div><dt>The calculation is separate from the advice</dt><dd>The deterministic calculation produces the recorded answer. The probability layer works from a frozen copy of that answer and returns commentary beside it.</dd></div>
+  <div><dt>The assistant proposes</dt><dd>Reading a document or drafting a plain-language summary is allowed. Setting a number, changing an outcome or recording a decision is structurally impossible for it.</dd></div>
+  <div><dt>The store enforces isolation</dt><dd>Separation between clients, and between communities, is a property of the database itself. A mistake in application logic cannot bypass it.</dd></div>
+</div>
+
+## Three questions this diagram answers
+
+<ol class="steps not-content">
+  <li>
+    <h4>Where does a number come from?</h4>
+    <p>From the calculation, using the policy and pricing that were in force, on inputs a named person verified. Never from the probability layer and never from the assistant.</p>
+  </li>
+  <li>
+    <h4>Where is a rule enforced?</h4>
+    <p>In the system of record. If a rule is only visible in a screen, it is not a rule.</p>
+  </li>
+  <li>
+    <h4>Who is accountable for an outcome?</h4>
+    <p>The person whose name is on the decision. The workflow shows exactly who recommended, who approved, and who signed.</p>
+  </li>
+</ol>

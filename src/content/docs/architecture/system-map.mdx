@@ -1,0 +1,113 @@
+---
+title: "System map"
+description: "The pieces of the platform, what each one does, and how they talk to each other."
+tldr:
+  - "Two user-facing applications, one records service, one advisory analytics service, one delivery worker, and a handful of stores."
+  - "All business rules live in the records service. The applications are clients of it."
+  - "The analytics service holds no database credential and keeps nothing."
+  - "External providers sit at the edges, each behind its own agreement, and each can be replaced without changing a rule."
+  - "Three runtime database identities, one per trust level, so each part can reach only what it needs."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+This is the whole platform as a set of cooperating parts. It names responsibilities, not
+products, so it stays true when any single part is replaced.
+
+<Flow
+  uid="sys"
+  width={900}
+  height={640}
+  title="The platform's parts and how they connect"
+  lanes={[
+    { x: 8, y: 8, w: 884, h: 96, label: 'PEOPLE' },
+    { x: 8, y: 116, w: 884, h: 112, label: 'USER-FACING APPLICATIONS' },
+    { x: 8, y: 240, w: 884, h: 170, label: 'THE PLATFORM' },
+    { x: 8, y: 422, w: 884, h: 96, label: 'STORES' },
+    { x: 8, y: 530, w: 884, h: 100, label: 'EXTERNAL PROVIDERS (each behind its own agreement)' },
+  ]}
+  nodes={[
+    { id: 'staff', x: 40, y: 44, w: 190, h: 46, title: 'Staff', align: 'center' },
+    { id: 'fam', x: 330, y: 44, w: 190, h: 46, title: 'Families', kind: 'violet', align: 'center' },
+    { id: 'tools', x: 640, y: 44, w: 210, h: 46, title: 'Automated clients (optional)', kind: 'ghost', align: 'center' },
+    { id: 'sw', x: 40, y: 154, w: 330, h: 60, eyebrow: 'SERVER-SIDE SESSION', title: 'Staff workspace', sub: 'Holds the credential, never the browser', kind: 'accent' },
+    { id: 'pw', x: 420, y: 154, w: 220, h: 60, eyebrow: 'OWN DATABASE IDENTITY', title: 'Family portal', sub: 'Staging area only', kind: 'violet' },
+    { id: 'ts', x: 690, y: 154, w: 180, h: 60, eyebrow: 'OPTIONAL', title: 'Tool surface', sub: 'Read-mostly', kind: 'ghost' },
+    { id: 'api', x: 40, y: 284, w: 330, h: 112, eyebrow: 'THE SYSTEM OF RECORD', title: 'Records service', sub: ['Every rule: authority, isolation, masking,', 'revisions, calculation, workflow, audit'], kind: 'accent' },
+    { id: 'an', x: 410, y: 284, w: 210, h: 112, eyebrow: 'NO DATABASE ACCESS', title: 'Analytics service', sub: ['Seeded probability.', 'Handed a household,', 'returns a distribution'], kind: 'violet' },
+    { id: 'wk', x: 660, y: 284, w: 210, h: 112, eyebrow: 'OWN DATABASE IDENTITY', title: 'Delivery worker', sub: ['Sends queued email', 'and text, records', 'results'] },
+    { id: 'db', x: 40, y: 456, w: 300, h: 50, eyebrow: 'ISOLATED BY CLIENT AND COMMUNITY', title: 'Records store', align: 'center' },
+    { id: 'obj', x: 360, y: 456, w: 220, h: 50, title: 'Document store', sub: 'Encrypted, per client', align: 'center' },
+    { id: 'key', x: 600, y: 456, w: 270, h: 50, title: 'Keys and secrets', sub: 'Versioned, rotatable', align: 'center' },
+    { id: 'idp', x: 40, y: 568, w: 190, h: 50, title: 'Identity system', sub: 'Per client', align: 'center' },
+    { id: 'msg', x: 250, y: 568, w: 190, h: 50, title: 'Email and text', align: 'center' },
+    { id: 'ocr', x: 460, y: 568, w: 190, h: 50, title: 'Text recognition', align: 'center' },
+    { id: 'llm', x: 670, y: 568, w: 200, h: 50, title: 'Language model', sub: 'Optional', align: 'center' },
+  ]}
+  edges={[
+    { from: 'staff.b', to: 'sw.t:0.3', kind: 'accent' },
+    { from: 'fam.b', to: 'pw.t:0.5', kind: 'accent' },
+    { from: 'tools.b', to: 'ts.t', kind: 'dash' },
+    { from: 'sw.b:0.4', to: 'api.t:0.4', kind: 'accent' },
+    { from: 'pw.b', to: 'api.t:0.9', kind: 'accent' },
+    { from: 'ts.b', to: 'api.t:0.98', kind: 'dash' },
+    { from: 'api.r', to: 'an.l', kind: 'dash', label: 'frozen copy' },
+    { from: 'api.b:0.2', to: 'db.t:0.4', kind: 'default' },
+    { from: 'wk.b', to: 'msg.t', kind: 'dash' },
+  ]}
+  caption="<b>Every arrow into the system of record is a client of the same interface.</b> Dashed lines are optional or advisory paths."
+/>
+
+## What each part is responsible for
+
+<div class="defs not-content">
+  <div><dt>Staff workspace</dt><dd>The internal application. It is a server-side client: the staff member's credential and session live on the server in an encrypted cookie, and the browser never holds an access token. It composes screens from the records service and enforces nothing of its own.</dd></div>
+  <div><dt>Family portal</dt><dd>The external application. It runs as its own database identity that can reach only the staging area, so a bug in it can disclose at worst one family's own staged answers.</dd></div>
+  <div><dt>Records service</dt><dd>The one place where every rule is enforced: who the caller is, what they may see, which community they act in, whether a change is current, what a calculation returns, which approvals exist, and what is recorded. It is the only writer of business records.</dd></div>
+  <div><dt>Calculation</dt><dd>Two deterministic models, versioned, pure and free of side effects, called by the records service. See <a href="/model/engines/">Two models, one product</a>.</dd></div>
+  <div><dt>Analytics service</dt><dd>A stateless, advisory probability service. It has no database credential and keeps nothing. It is handed a household and returns a distribution. See <a href="/model/simulation/">Advanced analysis</a>.</dd></div>
+  <div><dt>Delivery worker</dt><dd>Drains the message queue and talks to email and text providers, recording the outcome. It has its own narrow database identity. See <a href="/interfaces/notifications/">Notifications</a>.</dd></div>
+  <div><dt>Tool surface</dt><dd>An optional, read-mostly surface for automated clients. See <a href="/interfaces/agents/">Agent and tool access</a>.</dd></div>
+</div>
+
+## The stores
+
+<div class="defs not-content">
+  <div><dt>Records store</dt><dd>A relational database holding every record. It enforces isolation between clients and communities itself, and several tables accept inserts only. See <a href="/architecture/data-model/">Data model</a>.</dd></div>
+  <div><dt>Document store</dt><dd>An object store holding uploaded files under per-client keys, encrypted, written once and checked by checksum on read. Small development fixtures may live in the records store.</dd></div>
+  <div><dt>Keys and secrets</dt><dd>Field encryption keys, session keys and signing secrets, held as versioned secrets that can be rotated. See <a href="/operations/keys/">Keys and rotation</a>.</dd></div>
+</div>
+
+## The edge, outside the platform
+
+Protection in front of the platform, such as filtering of abusive traffic, network access
+control and stripping sensitive data from logs and addresses, is deliberately kept as an
+**edge** concern. It sits in front of the platform and does not persist any resident data.
+Resident data is processed and stored only on infrastructure covered by the agreements that
+must cover it. This split keeps the question "where does regulated data live" short and
+checkable.
+
+## Three database identities
+
+The platform's runtime components never share a database identity. Each gets only what its
+job needs.
+
+| Identity | Used by | Can reach |
+| --- | --- | --- |
+| Application | The records service | Business records, within client and community isolation |
+| Portal | The family portal | The staging area only. No resident record and no audit trail |
+| Notification worker | The delivery worker | The message queue, delivery events and suppression records |
+
+A fourth identity, the owner, runs migrations and nothing else. It is never used while the
+platform is serving requests. See <a href="/architecture/isolation/">Isolation and tenancy</a>.
+
+## How a request flows
+
+<ol class="steps not-content">
+  <li><h4>A client calls the interface</h4><p>With a credential, the community in use, and for changes an idempotency key and revision.</p></li>
+  <li><h4>The caller is identified and authority is loaded</h4><p>Person, organisation, role and memberships, from the store, every time.</p></li>
+  <li><h4>A transaction opens inside the right isolation context</h4><p>The organisation, and for resident work the community, are set for that transaction only.</p></li>
+  <li><h4>The scope check runs</h4><p>The caller must hold the needed permission.</p></li>
+  <li><h4>The work is done</h4><p>Records are read or written, calculations run, and any message is queued.</p></li>
+  <li><h4>The response is masked and audited</h4><p>Withheld fields are removed, and the access is appended to the ledger in the same transaction.</p></li>
+</ol>

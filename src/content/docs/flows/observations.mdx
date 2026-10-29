@@ -1,0 +1,94 @@
+---
+title: "After move-in: observations"
+description: "Recording what actually happened, against the forecast that was made, without ever rewriting that forecast."
+tldr:
+  - "Staff append dated observations of a resident's real situation: balance, funding support and residency status."
+  - "Each one is compared with the ORIGINAL qualification. The forecast is never quietly revised."
+  - "Corrections append a new entry that points at the old one. Nothing is edited away."
+  - "Observation notes are staff-only and never reach the printed summary or leadership reports."
+  - "A refund is never counted as available cash in the comparison."
+---
+
+import Flow from '../../../components/Flow.astro';
+import Shot from '../../../components/Shot.astro';
+
+A forecast is only worth trusting if someone checks it. Observations are how the product
+learns whether the plan held, and the discipline that makes them honest is simple:
+**the forecast is never moved to meet the facts.**
+
+<Flow
+  uid="ob"
+  width={860}
+  height={250}
+  title="An observation is compared with the original forecast"
+  nodes={[
+    { id: 'f', x: 10, y: 28, w: 220, h: 86, eyebrow: 'FROZEN AT COMPLETION', title: 'The forecast', sub: ['Month-by-month balance', 'as originally calculated'], kind: 'accent', align: 'center' },
+    { id: 'o', x: 10, y: 142, w: 220, h: 86, eyebrow: 'APPENDED LATER', title: 'An observation', sub: ['A dated, verified fact', 'about the household'], kind: 'violet', align: 'center' },
+    { id: 'c', x: 330, y: 85, w: 200, h: 86, eyebrow: 'COMPUTED', title: 'The variance', sub: ['Observed minus the', 'forecast for that month'], align: 'center' },
+    { id: 'r', x: 630, y: 28, w: 220, h: 86, eyebrow: 'MAY APPEAR IN', title: 'Leadership reports', sub: ['Latest outcome only,', 'never the notes'], kind: 'ok', align: 'center' },
+    { id: 'n', x: 630, y: 142, w: 220, h: 86, eyebrow: 'STAFF ONLY', title: 'Verification notes', sub: ['Never printed, never', 'in a report'], kind: 'warn', align: 'center' },
+  ]}
+  edges={[
+    { from: 'f.r', to: 'c.l:0.3', kind: 'accent' },
+    { from: 'o.r', to: 'c.l:0.7', kind: 'accent' },
+    { from: 'c.r', to: 'r.l', kind: 'ok' },
+    { from: 'o.r', to: 'n.l', kind: 'dash' },
+  ]}
+  caption="<b>The comparison is always against the original.</b> That is what makes it evidence about the model rather than a moving target."
+/>
+
+## Recording one
+
+<Shot
+  src="/img/shots/observations.webp"
+  route="/prospects/{id}/life-plan/qualifications/{qualificationId}/observations"
+  role="Sales financial reviewer"
+  caption="<b>Observed outcomes.</b> The page says plainly that the original projection stays unchanged, then offers a form for a verified follow-up record and lists the history beneath it."
+/>
+
+An observation asks for facts and nothing else:
+
+<div class="defs not-content">
+  <div><dt>Observation date</dt><dd>When the fact was true. A date in the future is rejected.</dd></div>
+  <div><dt>Months since the projection start</dt><dd>An explicit number. It is never inferred from the date, because completion time is not necessarily the move-in date. Month zero means immediately after the entrance fee.</dd></div>
+  <div><dt>Verified available funds</dt><dd>The net amount actually available to support care. Do not include an entrance-fee refund that is still contingent on residents leaving.</dd></div>
+  <div><dt>Funding support</dt><dd>None, partial or full. It is an observation, never inferred from the balance.</dd></div>
+  <div><dt>Residency status</dt><dd>Resident or exited.</dd></div>
+  <div><dt>Verification</dt><dd>A fresh attestation every time, and optional staff notes.</dd></div>
+</div>
+
+Blank stays blank. A field left empty is never turned into zero or into "none". Dollar
+amounts are converted using exact integer arithmetic and checked against the safe range.
+
+## What the comparison shows
+
+The product looks up the original forecast's balance at the stated month and reports the
+difference. Two cases are reported honestly instead of being forced into a number:
+
+<div class="split not-content">
+  <div class="panel">
+    <h4>Beyond the horizon</h4>
+    <p>If the observation is later than the forecast ever ran, there is nothing to compare against, and the page says so.</p>
+  </div>
+  <div class="panel">
+    <h4>Out of range</h4>
+    <p>If the difference would exceed the safe numerical range, the comparison is reported as unavailable rather than overflowing.</p>
+  </div>
+</div>
+
+## Corrections
+
+An observation can be corrected, but never edited. A correction is a **new entry that
+references the earlier one**. It keeps the original date and month, asks for an explanation
+and a fresh verification, and leaves the earlier entry visible. The store cannot update or
+delete observations at all.
+
+## Why this matters
+
+Observations are the only way the product can answer the question leadership will
+eventually ask: of the households we qualified, how many did what we expected? Because the
+forecast stays frozen and the observations only ever accumulate, the answer is built on
+data nobody can have tidied up.
+
+See <a href="/flows/reporting/">Leadership reporting</a> for how the latest observed outcome
+reaches a report.

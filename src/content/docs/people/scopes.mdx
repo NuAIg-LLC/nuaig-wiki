@@ -1,0 +1,95 @@
+---
+title: "Scopes and capabilities"
+description: "The unit of permission, and how a role resolves to one on every request."
+tldr:
+  - "A scope is a resource and an action, such as financials:read. A role is a bundle of scopes."
+  - "There are seventeen scopes. Financial and health reads are separate from summary reads."
+  - "Anything combining money and care needs all three read scopes."
+  - "Administration grants no resident access, and emergency access is read-only."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+A **scope** is the smallest unit of permission in the product. It is a short phrase of the
+form `resource:action`, such as `financials:read` or `decisions:write`. A role is nothing
+more than a named bundle of scopes, and every check in the product asks "does this person
+hold this scope?" rather than "is this person a finance reviewer?".
+
+This is why roles can be reshuffled without touching the rules, and why the rules can be
+read in one place.
+
+<Flow
+  uid="scope"
+  width={860}
+  height={190}
+  title="From a request to an allow or deny decision"
+  nodes={[
+    { id: 'req', x: 10, y: 46, w: 150, h: 78, eyebrow: '1', title: 'A request', sub: ['Names an action on', 'a record'], align: 'center' },
+    { id: 'who', x: 190, y: 46, w: 170, h: 78, eyebrow: '2', title: 'Who is asking', sub: ['Person, organisation,', 'role, memberships'], align: 'center' },
+    { id: 'res', x: 390, y: 46, w: 170, h: 78, eyebrow: '3', title: 'Role to scopes', sub: ['Re-resolved every', 'time, never cached'], kind: 'accent', align: 'center' },
+    { id: 'chk', x: 590, y: 46, w: 130, h: 78, eyebrow: '4', title: 'The check', sub: ['Does the set contain', 'the needed scope?'], align: 'center' },
+    { id: 'ok', x: 750, y: 14, w: 100, h: 52, title: 'Allow', kind: 'ok', align: 'center' },
+    { id: 'no', x: 750, y: 104, w: 100, h: 52, title: 'Refuse', kind: 'stop', align: 'center' },
+  ]}
+  edges={[
+    { from: 'req.r', to: 'who.l', kind: 'accent' },
+    { from: 'who.r', to: 'res.l', kind: 'accent' },
+    { from: 'res.r', to: 'chk.l', kind: 'accent' },
+    { from: 'chk.r', to: 'ok.l', kind: 'ok' },
+    { from: 'chk.r', to: 'no.l', kind: 'stop' },
+  ]}
+  caption="<b>Nothing is remembered between requests.</b> Authority is looked up again each time, so a change takes effect on the very next action."
+/>
+
+## The seventeen scopes
+
+<div class="defs not-content">
+  <div><dt><code>prospects:read</code></dt><dd>See a resident record at summary level: identity and pipeline state. Held by counselors, sales reviewers, finance reviewers, executive directors and auditors.</dd></div>
+  <div><dt><code>prospects:write</code></dt><dd>Create and edit resident records. Held by counselors and sales reviewers.</dd></div>
+  <div><dt><code>financials:read</code></dt><dd>See raw financial detail: balances, income, extracted amounts. Deliberately separate from summary reads. Held by sales reviewers, finance reviewers and executive directors.</dd></div>
+  <div><dt><code>phi:read</code></dt><dd>See care level, diagnosis and acuity. Held by counselors, sales reviewers, finance reviewers and executive directors.</dd></div>
+  <div><dt><code>assessments:read</code></dt><dd>See the derived result of an assessment, filtered by what else the person may see. Held by every role that works with residents.</dd></div>
+  <div><dt><code>assessments:run</code></dt><dd>Execute a calculation and complete a qualification. Held by sales reviewers and finance reviewers.</dd></div>
+  <div><dt><code>assessments:override</code></dt><dd>Override an assessment result, with a reason. Held by finance reviewers only.</dd></div>
+  <div><dt><code>documents:read</code></dt><dd>Open uploaded evidence. What is visible inside depends on the document's class; see <a href="/people/minimum-necessary/">Minimum necessary access</a>.</dd></div>
+  <div><dt><code>documents:write</code></dt><dd>Upload, review and verify documents. Held by counselors, sales reviewers and finance reviewers.</dd></div>
+  <div><dt><code>decisions:read</code></dt><dd>Read recorded decisions. Held by sales reviewers, finance reviewers, executive directors and auditors.</dd></div>
+  <div><dt><code>decisions:write</code></dt><dd>Record the human-of-record decision. Held by the executive director and nobody else.</dd></div>
+  <div><dt><code>audit:read</code></dt><dd>Read the audit trail. Held by executive directors, auditors and client administrators. Reading a single resident's trail additionally needs <code>prospects:read</code>.</dd></div>
+  <div><dt><code>applications:manage</code></dt><dd>Create family applications, send and revoke invitations, and review submissions.</dd></div>
+  <div><dt><code>applications:promote</code></dt><dd>Accept a submitted application into the pipeline as a resident record.</dd></div>
+  <div><dt><code>users:manage</code></dt><dd>Manage staff accounts. Held by client administrators.</dd></div>
+  <div><dt><code>tenant:admin</code></dt><dd>Configure the organisation: communities, policy, pricing, portal, access. Held by client administrators. Grants no resident-data access.</dd></div>
+  <div><dt><code>platform:admin</code></dt><dd>Provision and manage client organisations. Held by platform administrators only, who carry no other scope.</dd></div>
+</div>
+
+## Why financial and health reads are separate
+
+Seeing that a person exists is not the same as seeing their money, and neither is the same
+as seeing their diagnosis. The product treats these as three different disclosures:
+
+<div class="split not-content">
+  <div class="panel">
+    <h4>Summary</h4>
+    <p><code>prospects:read</code> and <code>assessments:read</code>. Who the person is and where the case stands, plus the derived result with dollar figures withheld.</p>
+  </div>
+  <div class="panel">
+    <h4>Financial</h4>
+    <p><code>financials:read</code>. Balances, income and the figures inside financial documents. Needed for anything that reasons about money.</p>
+  </div>
+  <div class="panel">
+    <h4>Health</h4>
+    <p><code>phi:read</code>. Care level, diagnosis and acuity. Needed for the life-plan workspace as well, since care level drives cost.</p>
+  </div>
+</div>
+
+Anything that combines money and care, such as a life-plan projection, a qualification, a
+report row or a quote, requires **all three** read scopes together. A role missing any one
+of them is refused outright rather than shown a partial view.
+
+## Two rules about administration
+
+<div class="defs not-content">
+  <div><dt>Administration is not access</dt><dd><code>tenant:admin</code> configures the product and carries no resident scope. A client administrator who also needs to read residents must hold a separate, explicit membership with a resident-facing role.</dd></div>
+  <div><dt>Emergency access is read-only</dt><dd>An active emergency grant adds the read half of the scope list and nothing else. It cannot add a write scope, and it never crosses an organisation boundary.</dd></div>
+</div>

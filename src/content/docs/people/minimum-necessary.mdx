@@ -1,0 +1,107 @@
+---
+title: "Minimum necessary access"
+description: "The same screen, two roles, two different payloads, and why the difference is real rather than cosmetic."
+tldr:
+  - "The same page returns different fields to different roles. The restriction is applied when the response is built."
+  - "A hidden field on screen is still a disclosed field. So withheld data is never sent at all."
+  - "Responses state when a mask was applied, and the screen explains who owns the step instead of just saying forbidden."
+  - "Documents are gated by kind: financial documents need the financial scope, medical ones need the health scope, and unknown kinds need both."
+  - "Identity numbers are never returned in full to anyone."
+---
+
+import Flow from '../../../components/Flow.astro';
+import Shot from '../../../components/Shot.astro';
+
+**Minimum necessary** is the principle that a person receives only the information their
+job requires. In this product it is not a styling choice. It is enforced at the moment a
+response is assembled, so that data a role may not see is never transmitted to it.
+
+## Why hiding it on screen is not enough
+
+If a financial figure is sent to the browser and then hidden with styling, it has been
+disclosed. Anyone with the browser's developer tools can read it. So the product does the
+opposite: the figure is removed from the response before it leaves the records service.
+
+<Flow
+  uid="mn"
+  width={860}
+  height={230}
+  title="One request, two roles, two different responses"
+  nodes={[
+    { id: 'rec', x: 10, y: 74, w: 160, h: 82, eyebrow: 'THE RECORD', title: 'Assessment', sub: ['Tier, runway, factors', 'plus every dollar figure'], align: 'center' },
+    { id: 'mask', x: 220, y: 74, w: 170, h: 82, eyebrow: 'AT RESPONSE TIME', title: 'The mask', sub: ['Reads the asker\'s', 'scopes, removes fields'], kind: 'accent', align: 'center' },
+    { id: 'fin', x: 450, y: 20, w: 200, h: 78, eyebrow: 'HOLDS THE FINANCIAL SCOPE', title: 'Full detail', sub: ['Burn, gap, inputs,', 'care cost projection'], kind: 'ok', align: 'center' },
+    { id: 'cou', x: 450, y: 132, w: 200, h: 78, eyebrow: 'DOES NOT', title: 'Derived result only', sub: ['Tier and runway.', 'Dollars shown as withheld'], kind: 'warn', align: 'center' },
+    { id: 'flag', x: 690, y: 132, w: 160, h: 78, eyebrow: 'DECLARED', title: 'Mask applied', sub: ['The response says', 'something was withheld'], align: 'center' },
+  ]}
+  edges={[
+    { from: 'rec.r', to: 'mask.l', kind: 'accent' },
+    { from: 'mask.r', to: 'fin.l', kind: 'ok' },
+    { from: 'mask.r', to: 'cou.l', kind: 'accent' },
+    { from: 'cou.r', to: 'flag.l', kind: 'dash' },
+  ]}
+  caption="<b>The record is the same. The response is not.</b> The mask runs for every request and cannot be skipped by a screen."
+/>
+
+## The two roles, side by side
+
+Here is one resident record, opened at the Financials step by two different people.
+
+<Shot
+  src="/img/shots/financials-counselor.webp"
+  route="/prospects/{id}  (Financials step)"
+  role="Admissions counselor"
+  caption="<b>The counselor is told who owns this step.</b> There are no figures to see, no field to unlock, and no error. The screen says a finance reviewer handles it, and shows what comes next."
+/>
+
+<Shot
+  src="/img/shots/financials-finance.webp"
+  route="/prospects/{id}  (Financials step)"
+  role="Finance reviewer"
+  caption="<b>The finance reviewer sees the figures</b> and the documents each one was drawn from, and confirms them. Nothing here is available to the counselor, even by opening the same address."
+/>
+
+## What each kind of information requires
+
+<div class="defs not-content">
+  <div><dt>Identity</dt><dd>Name and basic details. Visible to anyone who can see the resident at all.</dd></div>
+  <div><dt>Care level and health detail</dt><dd>Needs the health scope. Factors in a result that are built from health detail are removed entirely for anyone without it, not softened.</dd></div>
+  <div><dt>Financial figures</dt><dd>Needs the financial scope. Without it, dollar amounts inside free text, such as a plain-language summary, are replaced with a withheld marker.</dd></div>
+  <div><dt>Derived results</dt><dd>The tier, the months of runway and the rules that fired. Visible to anyone who may read assessments, because they describe the outcome without the underlying money.</dd></div>
+  <div><dt>Identity numbers</dt><dd>Never returned in full to any role. Only the last four digits are ever shown, and the full number is held apart from the resident record in a separate store.</dd></div>
+</div>
+
+## Documents are gated by what is inside them
+
+A document is classified by its **kind**, and the kind decides who may read its content.
+
+<div class="defs not-content">
+  <div><dt>Financial kinds</dt><dd>Bank and brokerage statements, tax returns, pay stubs, property valuations, mortgage statements, trust documents, benefit letters, insurance policies and benefit notices. Content, extracted text and extracted figures all require the financial scope.</dd></div>
+  <div><dt>Medical kinds</dt><dd>Physician statements. Require the health scope.</dd></div>
+  <div><dt>Legal kinds</dt><dd>Power of attorney and guardianship papers. Readable with ordinary document access.</dd></div>
+  <div><dt>Other or unrecognised</dt><dd>Could contain anything, so reading one requires <strong>both</strong> the financial and the health scope. A document with no recognised kind fails closed the same way.</dd></div>
+</div>
+
+The kind a person declares and the kind the assistant infers both count. Relabelling a
+document can therefore never lower the protection it already had.
+
+A counselor can see that a document exists, what it is called, and when it arrived. They
+cannot open its contents or see the figures extracted from it. They run the conversation
+with the family while finance owns the numbers.
+
+## How the screen behaves
+
+<div class="split not-content">
+  <div class="panel">
+    <h4>It never offers a refused action</h4>
+    <p>A button that the records service would reject is not shown. The screen is built from the same rules, so the two cannot disagree.</p>
+  </div>
+  <div class="panel">
+    <h4>It explains instead of refusing</h4>
+    <p>A blocked step names its owner and the reason, and says what to ask for. "Forbidden" on its own helps nobody.</p>
+  </div>
+  <div class="panel">
+    <h4>It declares what was withheld</h4>
+    <p>A response states that a mask was applied, so a screen and an integration can both tell "no data" from "not allowed to see it".</p>
+  </div>
+</div>

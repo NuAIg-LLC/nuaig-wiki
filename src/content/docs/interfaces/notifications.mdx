@@ -1,0 +1,126 @@
+---
+title: "Notifications"
+description: "Invitations, codes and alerts: queued inside the transaction, delivered outside it."
+tldr:
+  - "A message is queued in the same transaction as the change that causes it, and delivered later by a separate worker."
+  - "That removes both failure modes: a message for something that never happened, and something that happened with no message."
+  - "Delivery is retried with limits, ends in a clear terminal state, and provider callbacks are signed so status and opt-outs cannot be forged."
+  - "A destination can be suppressed after a bounce or an opt-out, and an administrator can release a false block through an audited action."
+  - "Destinations and links are sensitive and are stored encrypted."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+Invitations, one-time codes, receipts and alerts are consequences of changes. The way they
+are sent decides whether the product can be trusted to tell people the truth.
+
+## Why not send inside the change
+
+Calling an email or text provider from inside the business transaction creates two failures
+that cannot be repaired afterwards:
+
+<div class="split not-content">
+  <div class="panel panel--stop">
+    <h4>A message for something that never happened</h4>
+    <p>The provider accepts the message, then the transaction rolls back. A family receives an invitation to an application that does not exist.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>Something that happened with no message</h4>
+    <p>The transaction commits, then the provider call fails. A required message is lost unless something reconstructs it.</p>
+  </div>
+</div>
+
+## The outbox
+
+<Flow
+  uid="ob"
+  width={880}
+  height={300}
+  title="A message is queued with the change and delivered afterwards"
+  lanes={[
+    { x: 8, y: 8, w: 360, h: 284, label: 'INSIDE THE TRANSACTION' },
+    { x: 392, y: 8, w: 480, h: 284, label: 'OUTSIDE IT' },
+  ]}
+  nodes={[
+    { id: 'ch', x: 28, y: 50, w: 320, h: 70, eyebrow: 'THE CHANGE', title: 'Invite created, code issued', sub: 'The business record', kind: 'accent' },
+    { id: 'qu', x: 28, y: 150, w: 320, h: 70, eyebrow: 'IN THE SAME COMMIT', title: 'Message queued, encrypted', sub: 'Atomic with the change', kind: 'ok' },
+    { id: 'wk', x: 412, y: 50, w: 210, h: 70, eyebrow: 'SEPARATE WORKER', title: 'Delivery worker', sub: 'Picks queued messages up' },
+    { id: 'pr', x: 652, y: 50, w: 200, h: 70, eyebrow: 'EXTERNAL', title: 'Email or text provider', sub: 'Accepts and reports', kind: 'violet' },
+    { id: 'cb', x: 652, y: 150, w: 200, h: 70, eyebrow: 'SIGNED CALLBACKS', title: 'Status and opt-outs', sub: 'Verified by signature', kind: 'warn' },
+    { id: 'st', x: 412, y: 150, w: 210, h: 70, eyebrow: 'RECORDED', title: 'A terminal state', sub: 'Delivered, failed or dead letter' },
+  ]}
+  edges={[
+    { from: 'ch.b', to: 'qu.t', kind: 'ok' },
+    { from: 'qu.r', to: 'wk.l', kind: 'dash', label: 'later' },
+    { from: 'wk.r', to: 'pr.l', kind: 'accent' },
+    { from: 'pr.b', to: 'cb.t', kind: 'dash' },
+    { from: 'cb.l', to: 'st.r', kind: 'accent' },
+  ]}
+  caption="<b>The queue entry and the change succeed or fail together.</b> A worker delivers it later, so a slow provider never slows a person down."
+/>
+
+## The messages
+
+<div class="defs not-content">
+  <div><dt>Invitation</dt><dd>A family is invited to complete an application.</dd></div>
+  <div><dt>One-time code</dt><dd>The code a family enters to prove who they are.</dd></div>
+  <div><dt>Application received</dt><dd>A receipt for a submitted application.</dd></div>
+  <div><dt>Action required</dt><dd>A prompt that something needs attention, for example a document action.</dd></div>
+  <div><dt>Decision ready</dt><dd>A notice that a case is ready for a decision.</dd></div>
+</div>
+
+## Delivery states
+
+A message moves through a small set of states, each of which is visible in the delivery
+log:
+
+| State | Meaning |
+| --- | --- |
+| Pending | Queued, not yet picked up |
+| Processing | A worker holds it |
+| Retry | A temporary failure, scheduled to try again |
+| Accepted | The provider took it |
+| Delivered | The provider confirmed delivery |
+| Failed | A permanent failure |
+| Dead letter | The worker's lease expired mid-flight, so it needs explicit reconciliation |
+
+Attempts are limited, eight by default, and a failure that can be retried is retried while a
+permanent one is not. A message whose acceptance cannot be recorded is deliberately sent to
+the dead letter state rather than risking a duplicate one-time code.
+
+## Why blind retry is unsafe
+
+A network timeout can mean the provider accepted the message but the answer was lost.
+Retrying a code or an invitation in that state produces a duplicate. So the worker treats
+an uncertain acceptance as something to reconcile, not something to resend.
+
+## Suppression
+
+<div class="defs not-content">
+  <div><dt>Why</dt><dd>When a destination bounces or someone opts out, the product must stop writing to it.</dd></div>
+  <div><dt>How</dt><dd>Provider callbacks, verified by signature, create a suppression for that destination within that organisation. Opt-out and opt-in keywords on text messages are honoured the same way.</dd></div>
+  <div><dt>Releasing a block</dt><dd>An administrator can release a false positive. It is an audited, idempotent action, and a later qualifying signal from the provider will suppress the destination again.</dd></div>
+</div>
+
+## Protecting what a message carries
+
+<div class="split not-content">
+  <div class="panel">
+    <h4>Encrypted at rest</h4>
+    <p>Destinations, links and template values are sensitive, and are stored encrypted. Destinations are also hashed for matching, so suppression works without storing them in clear.</p>
+  </div>
+  <div class="panel">
+    <h4>Callbacks cannot forge state</h4>
+    <p>Delivery status and opt-outs are only accepted when the signature verifies. An unsigned request cannot mark a message delivered or suppress a number.</p>
+  </div>
+  <div class="panel">
+    <h4>The log is minimal</h4>
+    <p>Operational logs record a masked destination and the template, never the address or the rendered body.</p>
+  </div>
+</div>
+
+## Observing it
+
+An aggregate-only view reports counts of messages by state, the age of the oldest pending
+message, dead letters, active suppressions and the freshness of the worker's heartbeat. It
+contains no resident data. See <a href="/operations/runbook/">Support runbook</a>.

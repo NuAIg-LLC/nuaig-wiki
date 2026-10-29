@@ -1,0 +1,58 @@
+---
+title: "Staff home"
+description: "The admissions overview: where the team needs you today."
+tldr:
+  - "The home screen answers one question: where does my team need me today?"
+  - "Four counters link straight into the matching pipeline queue: open screenings, ready for a decision, documents to review, open 14+ days."
+  - "The worklist groups residents by the step they are actually waiting on."
+  - "The right rail shows assessment coverage and the risk and runway distribution across the facility."
+---
+
+import Shot from '../../../components/Shot.astro';
+
+<div class="kv not-content">
+  <span><b>Route</b><code>/</code></span>
+  <span><b>Who</b>Counselors, reviewers, directors and auditors</span>
+  <span><b>Scope</b>The community selected in the top bar</span>
+</div>
+
+<Shot
+  src="/img/shots/home.webp"
+  route="/"
+  role="Admissions counselor"
+  caption="<b>The admissions overview.</b> Four workload counters across the top, the resident worklist grouped by step beneath them, and facility-wide insight on the right."
+/>
+
+## What it is for
+
+It is the screen a person opens first thing and the one that tells them what to do next.
+Nothing on it is a report. Every number is a doorway into the work it counts.
+
+## What is on it
+
+<div class="defs not-content">
+  <div><dt>Workload counters</dt><dd>Open screenings, residents ready for a decision, documents to review, and cases open for fourteen days or more. Each counter links into the pipeline already filtered to those residents.</dd></div>
+  <div><dt>The resident worklist</dt><dd>Residents grouped by the step they are genuinely waiting on, such as "Assessed, awaiting a decision". Each card shows the care level, the current step and the days since intake. A search finds a resident by name, care level or state, and includes decided residents.</dd></div>
+  <div><dt>Assessment coverage</dt><dd>How many residents have an assessment on file, and how many do not yet.</dd></div>
+  <div><dt>Risk and funding runway</dt><dd>The distribution of risk tiers and of runway across the facility's latest assessments. Dollar aggregates appear only for roles with the financial scope.</dd></div>
+</div>
+
+## Behaviour worth knowing
+
+<div class="split not-content">
+  <div class="panel">
+    <h4>It respects the role</h4>
+    <p>Counts and lists cover only what the person may see. Someone without the financial scope sees the distributions but no dollar aggregates.</p>
+  </div>
+  <div class="panel">
+    <h4>It is scoped to one building</h4>
+    <p>Everything counts the community selected in the top bar. Switching community recalculates it. A person never sees a total across buildings they have not been given.</p>
+  </div>
+  <div class="panel">
+    <h4>It refreshes on request</h4>
+    <p>A Refresh control reloads the figures. Nothing updates under the person's hands while they work.</p>
+  </div>
+</div>
+
+A quick link takes a counselor straight to **Family submissions**, since a submitted
+application is the thing most likely to need them. See <a href="/screens/submissions/">Submissions</a>.

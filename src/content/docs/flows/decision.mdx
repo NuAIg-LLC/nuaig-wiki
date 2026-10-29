@@ -1,0 +1,142 @@
+---
+title: "Review, sign-off and decision"
+description: "Prerequisites, recommendations, committees, waivers, escalations and the final signature."
+tldr:
+  - "A qualification is not a decision. An approval chain, configured per organisation, sits between them."
+  - "The chain is made of independent prerequisites, a sales recommendation, optional committee slots, and named waiver and escalation authorities."
+  - "Every step is an append-only event with a reason. Nothing is edited, and a correction points at what it corrects."
+  - "Only a current executive director can sign, and the signer must be a different person from the recommender and every committee approver."
+  - "Approvals expire, and a changed policy, price, quote or reviewer invalidates earlier evidence."
+---
+
+import Flow from '../../../components/Flow.astro';
+import Shot from '../../../components/Shot.astro';
+
+A completed qualification says what the numbers show. It does not say whether to admit
+anyone. Between the two sits an **approval chain** that the client configures for itself and
+that the product enforces without exception.
+
+## The chain
+
+<Flow
+  uid="ch"
+  width={880}
+  height={420}
+  title="The approval chain from qualification to decision"
+  lanes={[
+    { x: 8, y: 8, w: 864, h: 118, label: 'INDEPENDENT REVIEWS (any order)' },
+    { x: 8, y: 138, w: 864, h: 118, label: 'RECOMMENDATION AND APPROVALS' },
+    { x: 8, y: 268, w: 864, h: 144, label: 'EXCEPTIONS AND THE SIGNATURE' },
+  ]}
+  nodes={[
+    { id: 'p1', x: 24, y: 44, w: 200, h: 62, eyebrow: 'PREREQUISITE', title: 'Verify financial evidence', sub: 'Complete or waive' },
+    { id: 'p2', x: 242, y: 44, w: 200, h: 62, eyebrow: 'PREREQUISITE', title: 'Documentation review', sub: 'Complete or waive' },
+    { id: 'p3', x: 460, y: 44, w: 200, h: 62, eyebrow: 'PREREQUISITE', title: 'Health review', sub: 'Often last' },
+    { id: 'p4', x: 678, y: 44, w: 178, h: 62, eyebrow: 'AS CONFIGURED', title: 'Any other step', sub: 'Named by the client', kind: 'ghost' },
+    { id: 'rec', x: 24, y: 174, w: 250, h: 66, eyebrow: 'SALES REVIEWER', title: 'Recommendation', sub: 'Approve, decline, waitlist, more info', kind: 'accent' },
+    { id: 'com', x: 300, y: 174, w: 270, h: 66, eyebrow: 'OPTIONAL', title: 'Committee slots', sub: 'Each a distinct named person', kind: 'violet' },
+    { id: 'wav', x: 24, y: 308, w: 250, h: 82, eyebrow: 'A NAMED AUTHORITY', title: 'Waiver or escalation', sub: ['Never the requester,', 'never inferred from role'], kind: 'warn' },
+    { id: 'sig', x: 596, y: 308, w: 260, h: 82, eyebrow: 'EXECUTIVE DIRECTOR', title: 'The signature', sub: ['Approve or decline,', 'with a written reason'], kind: 'ok' },
+  ]}
+  edges={[
+    { from: 'p1.b', to: 'rec.t:0.2', kind: 'accent' },
+    { from: 'p3.b', to: 'com.t:0.8', kind: 'accent' },
+    { from: 'rec.r', to: 'com.l', kind: 'accent' },
+    { from: 'com.b', to: 'sig.t:0.25', kind: 'ok' },
+    { from: 'wav.r', to: 'sig.l', kind: 'dash', label: 'must be resolved' },
+  ]}
+  caption="<b>The structure is the client's. The enforcement is the product's.</b> Which prerequisites exist, who may complete them and who sits on a committee are all configuration."
+/>
+
+## The building blocks
+
+<div class="defs not-content">
+  <div><dt>Prerequisites</dt><dd>Independent review steps, each with a stable code, a label and the roles allowed to complete it. They carry no order, because in practice they are done in whatever order the case allows. A completed prerequisite can be reopened.</dd></div>
+  <div><dt>Sales recommendation</dt><dd>Recorded by an authorised sales reviewer: approve, decline, waitlist or request more information. The final decision must match it.</dd></div>
+  <div><dt>Committee slots</dt><dd>Optional. Each slot lists the roles or the specific people who may fill it. Every slot must be approved by a different person, and none of them may be the recommender or the signer.</dd></div>
+  <div><dt>Waivers</dt><dd>A request to release a case from one prerequisite. Answered by a named waiver authority who is currently a finance reviewer or executive director in the community, and who is not the person who asked.</dd></div>
+  <div><dt>Escalations</dt><dd>A case-specific concern raised for independent resolution, which ends as cleared or as a recommendation to decline. An unresolved escalation blocks any decision. One that recommends decline blocks approval.</dd></div>
+  <div><dt>Notes</dt><dd>A permanent record of an exception, a promise or a correction. A correction references the original note, and both remain readable.</dd></div>
+</div>
+
+## Every step is an event
+
+<Shot
+  src="/img/shots/qual-workflow-full.webp"
+  route="/prospects/{id}/life-plan/qualifications/{qualificationId}/workflow"
+  role="Sales financial reviewer"
+  caption="<b>The review.</b> Independent requirements with their status, then the joint approvals and recommendation, followed by notes and the permanent timeline. The action form offers only what the current person is eligible to record."
+/>
+
+Each step is appended as an event carrying the actor, their role at that moment, the time,
+the policy in force and the qualification it belongs to. The reason, any note, and the
+actor's name as it was then are encrypted. Events are ordered by a sequence number and are
+never changed. One qualification accepts up to a thousand events, which keeps the state
+bounded and cheap to rebuild.
+
+## Evidence expires and can be invalidated
+
+Approvals are not forever. Each organisation sets how long a review stays valid.
+
+<div class="split not-content">
+  <div class="panel">
+    <h4>They age out</h4>
+    <p>An approval older than the configured validity window no longer counts, so a stale approval cannot travel forward indefinitely.</p>
+  </div>
+  <div class="panel">
+    <h4>A new policy resets them</h4>
+    <p>Publishing a new effective workflow policy invalidates earlier completions and approvals. Escalation requests remain and need a current resolution.</p>
+  </div>
+  <div class="panel">
+    <h4>People must still be eligible</h4>
+    <p>A reviewer whose account was deactivated, whose role changed or whose membership was edited after they acted no longer counts. Reactivating them does not revive old evidence.</p>
+  </div>
+</div>
+
+## The signature
+
+The final decision is separate from the review and has its own form.
+
+<div class="defs not-content">
+  <div><dt>Who</dt><dd>A current executive director who holds the decision scope. Nobody else, and no other route, can record one.</dd></div>
+  <div><dt>What</dt><dd>Approve or decline, with a written rationale. A waitlist or more-information recommendation keeps the workflow open instead.</dd></div>
+  <div><dt>On what</dt><dd>The <strong>latest</strong> completed qualification only. The decision refuses to proceed if the policy, the pricing, the calculation version or an attached quote has changed since that qualification was made. A new qualification is required.</dd></div>
+</div>
+
+Before it is recorded the product re-checks everything in one transaction:
+
+<ol class="steps not-content">
+  <li><h4>A current recommendation exists and matches</h4><p>It was recorded by someone other than the signer, and the decision type is the one that was recommended.</p></li>
+  <li><h4>Every committee slot is approved</h4><p>By distinct people, separate from the recommender and from the signer.</p></li>
+  <li><h4>Every escalation is resolved</h4><p>And, for an approval, none recommends decline.</p></li>
+  <li><h4>For an approval, every prerequisite is complete or validly waived</h4><p>A decline does not force the applicant through extra health checks merely to record a negative financial outcome.</p></li>
+  <li><h4>Everyone who contributed is still eligible</h4><p>Active accounts, current memberships and roles, evidence within its validity window.</p></li>
+</ol>
+
+Concurrent attempts to finalise produce exactly one decision. The rationale, the signer's
+name, the exact policy and the supporting event identifiers are stored encrypted, and the
+store grants only insert and read, so a decision cannot be altered afterwards. Once decided,
+only additional notes and corrections can be appended. A new qualification starts a new
+snapshot.
+
+<Shot
+  src="/img/shots/decision-recorded.webp"
+  route="/prospects/{id}  (Decision step)"
+  role="Executive director"
+  caption="<b>A recorded decision.</b> The outcome, the written reasoning, who recorded it and when. The screen states that the resident's screening is complete."
+/>
+
+## The resident-level decision
+
+The resident record also has a simpler decision for the runway assessment. It offers four
+outcomes (approve, decline, waitlist, request more information), requires a written
+rationale, and is bound to the exact assessment it rests on. A stale assessment reference
+is rejected inside the same transaction as the insert. Only the executive director holds
+the capability to record it.
+
+<Shot
+  src="/img/shots/decision-open.webp"
+  route="/prospects/{id}  (Decision step)"
+  role="Executive director"
+  caption="<b>Recording a decision.</b> The outcome selector and the required reasoning. The screen says plainly that a person owns this decision and that the engine does not make it."
+/>

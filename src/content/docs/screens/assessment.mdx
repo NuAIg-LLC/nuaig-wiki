@@ -1,0 +1,67 @@
+---
+title: "Assessment"
+description: "The deterministic result, factor by factor, with the versions that produced it."
+tldr:
+  - "The Assessment step runs the calculation and shows runway, funding gap, Medicaid crossover and the risk tier."
+  - "Every factor is a named rule with a plain sentence of evidence, so a result can be explained to a family."
+  - "The footer stamps the exact engine and policy versions, so the result stays reproducible after the policy changes."
+  - "A plain-language summary is drafted by the assistant, but it is stored beside the result and cannot change it."
+---
+
+import Shot from '../../../components/Shot.astro';
+
+<div class="kv not-content">
+  <span><b>Route</b><code>/prospects/{'{id}'}</code> (Assessment step)</span>
+  <span><b>Run</b>Finance and sales reviewers</span>
+  <span><b>Read</b>Anyone who may read assessments, masked to their scope</span>
+</div>
+
+<Shot
+  src="/img/shots/assessment.webp"
+  route="/prospects/{id}  (Assessment step)"
+  role="Finance reviewer"
+  caption="<b>A result.</b> The runway gauge and the risk tier at the top, then the monthly shortfall and Medicaid crossover, the plain-language summary, and the factors that led to it."
+/>
+
+## Before it runs
+
+If no assessment exists, the step presents a single action to run one. It is available only
+to roles that may run assessments, and only once the financial profile has been verified.
+While it runs, the button shows progress and cannot be pressed twice.
+
+## Reading a result
+
+<div class="defs not-content">
+  <div><dt>The headline</dt><dd>A gauge showing the runway in months, the risk tier as a labelled badge, and a one-line explanation. The tier is the colour and the word, never the colour alone.</dd></div>
+  <div><dt>Monthly shortfall and Medicaid crossover</dt><dd>What is going out each month beyond income, and how soon countable assets reach the state limit.</dd></div>
+  <div><dt>Plain-language summary</dt><dd>A short paragraph drafted from the figures, written so it can be read aloud to a family. It states the approach and a caveat that the result is a screening aid and not a decision.</dd></div>
+  <div><dt>Factors</dt><dd>Each is a named rule with a one-sentence reason: for example, that income does not cover the monthly cost, or that a recent transfer falls inside the look-back window. Severities distinguish what is adverse from what merely deserves a look.</dd></div>
+  <div><dt>Care factors</dt><dd>The projected care trajectory affects the projection, not the tier.</dd></div>
+  <div><dt>The stamp</dt><dd>At the foot, the exact calculation version and policy version. A result stays reproducible even after the policy changes.</dd></div>
+</div>
+
+## What a different role sees
+
+The result is served to every role that may read assessments, but filtered to what they
+may see. Without the financial scope, dollar amounts inside the summary and the factors
+are replaced with a withheld marker, and a banner says a mask was applied. Without the
+health scope, factors built from care detail are removed entirely.
+
+## What it will not do
+
+<div class="split not-content">
+  <div class="panel panel--stop">
+    <h4>Decide anything</h4>
+    <p>The tier describes the finances. It is not an admission decision, and the screen says a person owns that decision.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>Run on unverified figures</h4>
+    <p>Until a person has confirmed the profile, there is nothing to run on.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>Let the assistant change a number</h4>
+    <p>The summary is text only. It sits beside the result and never inside it.</p>
+  </div>
+</div>
+
+See <a href="/flows/assessment/">Assessment</a> for the flow and <a href="/model/runway/">The runway model</a> for the arithmetic.

@@ -1,0 +1,135 @@
+---
+title: "Data model"
+description: "The records that matter, how they relate, and which are immutable by design."
+tldr:
+  - "Records fall into seven families: organisation, residents, evidence, assessment, life-plan, pricing, and operations."
+  - "Everything hangs from an organisation and, for resident data, a community."
+  - "Evidence and decisions are append-only: qualifications, reviews, decisions, observations, simulations and the audit trail cannot be updated or deleted."
+  - "Sensitive content is stored as ciphertext. Queryable metadata stays in the clear."
+  - "A correction is a new record that points at the one it corrects."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+The product keeps a modest number of record types. What matters is not their number but
+which of them are **mutable** and which are **evidence**.
+
+<Flow
+  uid="dm"
+  width={900}
+  height={470}
+  title="How the main records relate"
+  lanes={[
+    { x: 8, y: 8, w: 884, h: 92, label: 'ORGANISATION' },
+    { x: 8, y: 108, w: 884, h: 172, label: 'THE RESIDENT AND THEIR EVIDENCE (per community)' },
+    { x: 8, y: 288, w: 884, h: 172, label: 'LIFE-PLAN, PRICING AND REVIEW (per community)' },
+  ]}
+  nodes={[
+    { id: 'org', x: 30, y: 40, w: 200, h: 44, title: 'Organisation', align: 'center' },
+    { id: 'com', x: 260, y: 40, w: 200, h: 44, title: 'Community', align: 'center' },
+    { id: 'usr', x: 490, y: 40, w: 180, h: 44, title: 'Staff member', align: 'center' },
+    { id: 'mem', x: 700, y: 40, w: 170, h: 44, title: 'Membership', align: 'center' },
+    { id: 'res', x: 30, y: 144, w: 190, h: 52, eyebrow: 'MUTABLE', title: 'Resident', sub: 'Stage, care level' },
+    { id: 'fin', x: 250, y: 144, w: 190, h: 52, eyebrow: 'ENCRYPTED', title: 'Financial profile', sub: 'Verified figures' },
+    { id: 'doc', x: 470, y: 144, w: 190, h: 52, eyebrow: 'ENCRYPTED', title: 'Document', sub: 'Kind, review status' },
+    { id: 'app', x: 690, y: 144, w: 180, h: 52, eyebrow: 'STAGING', title: 'Application', sub: 'Family answers', kind: 'violet' },
+    { id: 'ass', x: 30, y: 214, w: 190, h: 52, eyebrow: 'RECORD', title: 'Assessment', sub: 'Runway result', kind: 'accent' },
+    { id: 'dec', x: 250, y: 214, w: 190, h: 52, eyebrow: 'APPEND-ONLY', title: 'Decision', sub: 'Human of record', kind: 'ok' },
+    { id: 'aud', x: 470, y: 214, w: 400, h: 52, eyebrow: 'APPEND-ONLY, HASH-CHAINED', title: 'Audit event', sub: 'Every read and write of regulated data', kind: 'ok' },
+    { id: 'cfg', x: 30, y: 324, w: 190, h: 52, eyebrow: 'APPEND-ONLY VERSIONS', title: 'Policy and pricing', kind: 'accent' },
+    { id: 'qua', x: 250, y: 324, w: 190, h: 52, eyebrow: 'APPEND-ONLY, ENCRYPTED', title: 'Qualification', sub: 'Immutable snapshot', kind: 'accent' },
+    { id: 'wfe', x: 470, y: 324, w: 190, h: 52, eyebrow: 'APPEND-ONLY', title: 'Review event', sub: 'Chain of approvals', kind: 'ok' },
+    { id: 'lpd', x: 690, y: 324, w: 180, h: 52, eyebrow: 'APPEND-ONLY', title: 'Final decision', sub: 'Signed, immutable', kind: 'ok' },
+    { id: 'obs', x: 250, y: 394, w: 190, h: 52, eyebrow: 'APPEND-ONLY', title: 'Observation', sub: 'Against the forecast' },
+    { id: 'sim', x: 470, y: 394, w: 190, h: 52, eyebrow: 'INSERT-ONLY', title: 'Analysis', sub: 'Advisory artifact', kind: 'violet' },
+    { id: 'uni', x: 30, y: 394, w: 190, h: 52, eyebrow: 'MUTABLE', title: 'Unit', sub: 'Plus schedules, sales, quotes' },
+  ]}
+  edges={[
+    { from: 'org.r', to: 'com.l', kind: 'default' },
+    { from: 'usr.r', to: 'mem.l', kind: 'default' },
+    { from: 'com.b', to: 'res.t', kind: 'accent' },
+    { from: 'res.r', to: 'fin.l', kind: 'default' },
+    { from: 'fin.r', to: 'doc.l', kind: 'default' },
+    { from: 'res.b', to: 'ass.t', kind: 'accent' },
+    { from: 'ass.r', to: 'dec.l', kind: 'default' },
+    { from: 'qua.r', to: 'wfe.l', kind: 'default' },
+    { from: 'wfe.r', to: 'lpd.l', kind: 'default' },
+    { from: 'cfg.r', to: 'qua.l', kind: 'accent' },
+    { from: 'qua.b', to: 'obs.t', kind: 'default' },
+    { from: 'qua.b:0.8', to: 'sim.t:0.1', kind: 'dash' },
+  ]}
+  caption="<b>The green and blue records are evidence.</b> They are inserted once and never updated, so history cannot be rewritten."
+/>
+
+## The families
+
+<div class="defs not-content">
+  <div><dt>Organisation</dt><dd>The client, its communities, its staff, and each person's membership and role in each community. Break-glass grants and report grants also live here.</dd></div>
+  <div><dt>The resident</dt><dd>The resident record with its stage and care level, the verified financial profile, care context, any responsible party, and the single separate store for identity numbers.</dd></div>
+  <div><dt>Evidence</dt><dd>Documents with their kind, extraction and review status, and the staged family application with its sections, documents, invitations and collaborators.</dd></div>
+  <div><dt>Assessment</dt><dd>Runway assessments and the human decisions that cite them.</dd></div>
+  <div><dt>Life-plan</dt><dd>Central policy and community pricing as versioned records, completed qualifications as immutable snapshots, observations, advisory analyses and the final decision.</dd></div>
+  <div><dt>Review</dt><dd>The review policy, and the append-only events that form each qualification's approval chain.</dd></div>
+  <div><dt>Pricing</dt><dd>Units, their dated price schedules, prior sales and corrections, quotes and the decisions on price reductions, and the approver lists.</dd></div>
+  <div><dt>Operations</dt><dd>The message queue, delivery events and suppressions, idempotency records, rate-limit counters, portal sessions and events, and the audit ledger.</dd></div>
+</div>
+
+## What is immutable
+
+<div class="split not-content">
+  <div class="panel panel--ok">
+    <h4>Inserted once, never changed</h4>
+    <ul>
+      <li>Qualification snapshots</li>
+      <li>Policy and pricing versions</li>
+      <li>Review events and final decisions</li>
+      <li>Observations and their corrections</li>
+      <li>Advisory analyses</li>
+      <li>Price schedules, prior-sale revisions, quotes and quote decisions</li>
+      <li>Approver list versions</li>
+      <li>The audit ledger</li>
+    </ul>
+  </div>
+  <div class="panel">
+    <h4>Mutable, with care</h4>
+    <ul>
+      <li>The resident's stage and details</li>
+      <li>The financial profile, replaced by a verified one</li>
+      <li>A unit's inventory record, changed by revision</li>
+      <li>Memberships and account state</li>
+      <li>Delivery state for a queued message</li>
+    </ul>
+  </div>
+</div>
+
+The runtime database identity is granted only insert and read on the immutable tables, so
+immutability is a property of the permissions and not just of the application's good
+behaviour. A recorded decision also cannot be deleted.
+
+## What is encrypted
+
+Sensitive content is stored as ciphertext in the column, and only queryable metadata stays
+in the clear.
+
+<div class="defs not-content">
+  <div><dt>In the clear</dt><dd>Identifiers, timestamps, relationships, stage, unit codes and dates. Enough to route, order and audit.</dd></div>
+  <div><dt>Encrypted</dt><dd>Names, dates of birth, financial amounts, care detail, document content, extracted values, review reasons and notes, qualification snapshots, summaries, and the stored responses to repeated requests.</dd></div>
+  <div><dt>Held apart</dt><dd>Identity numbers are replaced by a token on the resident record and held in a separate store. The full number is never returned to any role.</dd></div>
+</div>
+
+Different families of data use **different encryption purposes**, so a key or a leak
+affecting one does not become a master key for the rest. See <a href="/operations/keys/">Keys and rotation</a>.
+
+## Every record knows where it belongs
+
+<div class="defs not-content">
+  <div><dt>Organisation</dt><dd>Every record carries its organisation, and the store refuses to show it to anyone else.</dd></div>
+  <div><dt>Community</dt><dd>Resident records also carry their community, and related records are tied to the same community through composite references. A document cannot be attached to a resident in a different building, and a quote cannot point at another community's unit.</dd></div>
+</div>
+
+## Corrections are records
+
+Nothing is silently edited. A corrected observation is a new observation that points at the
+earlier one. A corrected prior sale is a new revision of the same sale. A note correction
+references the original note. In each case the earlier record stays readable, because the
+question "what did we know then" must always have an answer.

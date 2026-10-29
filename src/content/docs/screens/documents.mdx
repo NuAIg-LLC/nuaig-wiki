@@ -1,0 +1,63 @@
+---
+title: "Documents and extraction"
+description: "Dropping files in, seeing what the system read, and the person who confirms it."
+tldr:
+  - "The Documents step takes bank statements, benefit letters and insurance policies, then sorts them by type."
+  - "Each document shows what the assistant read and how confident it was, with Verify and Reject."
+  - "Extraction never fills the record on its own. A person confirms each one."
+  - "Financial document content is hidden from anyone without the financial scope, even though they can see the file exists."
+---
+
+import Shot from '../../../components/Shot.astro';
+
+<div class="kv not-content">
+  <span><b>Routes</b><code>/prospects/{'{id}'}</code> (Documents step) and <code>/documents/{'{id}'}</code></span>
+  <span><b>Who</b>Document readers; content needs the scope for its kind</span>
+</div>
+
+## The Documents step
+
+<Shot
+  src="/img/shots/resident-documents.webp"
+  route="/prospects/{id}  (Documents step)"
+  role="Finance reviewer"
+  caption="<b>Documents on a resident.</b> A drop zone for new files, then each document with its type, its age, and its status. Here all three are verified and the step offers to continue to financials."
+/>
+
+Files are dropped in, or chosen. The product reads them and sorts them by type. Each row
+shows what the file is, how long ago it arrived and where it stands: pending, needs review,
+verified or rejected.
+
+## One document, in detail
+
+<Shot
+  src="/img/shots/document.webp"
+  route="/documents/{id}"
+  role="Finance reviewer"
+  caption="<b>A document under review.</b> The document as uploaded on the left. On the right, the fields the assistant extracted with an overall confidence, any anomalies it noticed, a notes box for the reviewer, and the two decisions: reject, or confirm that it looks right."
+/>
+
+<div class="defs not-content">
+  <div><dt>How to read it</dt><dd>A short guide at the top explains that extraction is a proposal and that the reviewer is the authority.</dd></div>
+  <div><dt>Extracted fields</dt><dd>Each value the assistant found, such as a balance, with the confidence it assigned. Low confidence is called out rather than hidden.</dd></div>
+  <div><dt>Anomalies</dt><dd>Things worth a human's attention. For example, that the extraction was made with low confidence and must be human-verified before use.</dd></div>
+  <div><dt>Reviewer notes</dt><dd>A free-text box for a correction or a reason for rejecting.</dd></div>
+  <div><dt>Verify or reject</dt><dd>The two outcomes. Verified documents can inform a calculation. Rejected ones cannot.</dd></div>
+</div>
+
+## Who sees what
+
+<div class="split not-content">
+  <div class="panel panel--ok">
+    <h4>Can see the content</h4>
+    <p>Someone with the scope the document's kind requires: the financial scope for a bank statement, the health scope for a physician statement. A document of unknown kind needs both.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>Sees only that it exists</h4>
+    <p>A counselor sees the file name, type and arrival time, but not the text or the figures read from it. They are told who to ask.</p>
+  </div>
+</div>
+
+The boundary extends to the extraction itself: a counselor sees the document, never the
+dollar values inside it. See <a href="/people/minimum-necessary/">Minimum necessary access</a>
+and <a href="/flows/documents/">Documents and verification</a>.

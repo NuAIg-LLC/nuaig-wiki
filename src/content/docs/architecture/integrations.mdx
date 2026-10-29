@@ -1,0 +1,78 @@
+---
+title: "Integrations"
+description: "What the platform connects to, the boundary each connection sits behind, and what is deliberately left outside."
+tldr:
+  - "The platform connects to an identity system, email and text providers, a text recognition provider, an optional language model, and an object store."
+  - "Each sits behind an interface, so a provider can be replaced without changing a rule."
+  - "Anything touching regulated data needs the right agreement in place first. The product refuses to use some providers until that is declared."
+  - "Several things a client may expect are deliberately not integrated, such as a live pricing system or health-record exchange."
+  - "Nothing integrates by passing a person's credential on to another service."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+The platform deliberately has few integrations, and each is narrow. An integration is a
+place where regulated data can leave the platform, so each one is a decision.
+
+<Flow
+  uid="int"
+  width={880}
+  height={380}
+  title="What the platform connects to"
+  lanes={[
+    { x: 8, y: 8, w: 420, h: 364, label: 'CONNECTED' },
+    { x: 452, y: 8, w: 420, h: 364, label: 'DELIBERATELY NOT CONNECTED' },
+  ]}
+  nodes={[
+    { id: 'idp', x: 28, y: 44, w: 380, h: 56, eyebrow: 'WHO YOU ARE', title: 'Client identity system', sub: 'Single sign-on per client', kind: 'accent' },
+    { id: 'msg', x: 28, y: 112, w: 380, h: 56, eyebrow: 'REACHING PEOPLE', title: 'Email and text delivery', sub: 'Through the delivery worker' },
+    { id: 'ocr', x: 28, y: 180, w: 380, h: 56, eyebrow: 'READING SCANS', title: 'Text recognition provider', sub: 'Behind an interface, fails closed' },
+    { id: 'llm', x: 28, y: 248, w: 380, h: 56, eyebrow: 'OPTIONAL', title: 'Language model provider', sub: 'Extraction and summaries only', kind: 'violet' },
+    { id: 'obj', x: 28, y: 316, w: 380, h: 44, title: 'Object store and key management', kind: 'default' },
+    { id: 'n1', x: 472, y: 44, w: 380, h: 56, eyebrow: 'LEFT TO THE CLIENT', title: 'Live pricing and availability systems', sub: 'Prices arrive as dated, sourced schedules', kind: 'ghost' },
+    { id: 'n2', x: 472, y: 112, w: 380, h: 56, eyebrow: 'NOT INTEGRATED', title: 'Health record exchange', sub: 'No automatic health input to anything', kind: 'ghost' },
+    { id: 'n3', x: 472, y: 180, w: 380, h: 56, eyebrow: 'NOT INTEGRATED', title: 'Account aggregation for assets', sub: 'Balances are entered and verified by people', kind: 'ghost' },
+    { id: 'n4', x: 472, y: 248, w: 380, h: 56, eyebrow: 'NOT INTEGRATED', title: 'CRM, waiting lists, deposits, payments', sub: 'The client\'s own commercial systems', kind: 'ghost' },
+    { id: 'n5', x: 472, y: 316, w: 380, h: 44, title: 'Electronic signature and external audit anchoring', kind: 'ghost' },
+  ]}
+  caption="<b>Fewer integrations is a feature.</b> Each connection is a place regulated data can leave, so each is chosen, not inherited."
+/>
+
+## What is connected
+
+<div class="defs not-content">
+  <div><dt>Client identity system</dt><dd>Each client connects its own system, so staff sign in with credentials they already hold, under that client's own multi-factor policy and lifecycle. The platform validates the issuer and audience exactly and re-reads authority from its own store. Provisioning of accounts is the client's.</dd></div>
+  <div><dt>Email and text</dt><dd>Messages are queued with the change and delivered by a separate worker through a provider interface. Delivery status and opt-outs come back as signed callbacks. See <a href="/interfaces/notifications/">Notifications</a>.</dd></div>
+  <div><dt>Text recognition</dt><dd>Scanned documents can be read by a provider behind an interface. If a live provider errors, the document fails closed. Plain documents are read locally.</dd></div>
+  <div><dt>Language model</dt><dd>Optional, for proposing fields from documents and drafting plain summaries. It sees reduced input, can only produce words, and is used only once the arrangement has been approved. The product runs completely without it. See <a href="/model/ai-boundary/">Where AI starts and stops</a>.</dd></div>
+  <div><dt>Object store and key management</dt><dd>Documents are held in an encrypted object store under per-client keys. Encryption keys and secrets are supplied to the platform as versioned secrets.</dd></div>
+</div>
+
+## What is deliberately not connected
+
+<div class="defs not-content">
+  <div><dt>Live pricing and availability</dt><dd>Which system is the authoritative source of unit prices is a client decision. The product records **dated, sourced price schedules**, including a reference to where each came from, so a price always has provenance. An imported record is described as imported. It does not imply a live feed.</dd></div>
+  <div><dt>Health records</dt><dd>There is no automatic path from any health system into a qualification. Health information is entered or read by people, and never adjusts an outcome.</dd></div>
+  <div><dt>Account aggregation</dt><dd>Balances are entered by families and verified by people against documents. The product does not pull them from financial institutions.</dd></div>
+  <div><dt>Customer relationship and payments</dt><dd>Waiting lists, deposits, unit holds and payments are the client's own commercial systems. The product records the financial qualification, not the sale.</dd></div>
+  <div><dt>Electronic signature and anchoring</dt><dd>The final decision is recorded in the product with the signer's identity. Anchoring the audit chain head outside the platform is an operational option.</dd></div>
+</div>
+
+## The rules every integration follows
+
+<ol class="steps not-content">
+  <li><h4>Behind an interface</h4><p>The flow depends on a boundary, not on a vendor. Changing provider is a change at the edge.</p></li>
+  <li><h4>Fail closed</h4><p>If a dependency errors, the product does not guess or skip the step. The affected item stays unprocessed and visible.</p></li>
+  <li><h4>Minimum data across the boundary</h4><p>Only what the provider needs, reduced where it can be.</p></li>
+  <li><h4>Agreement first</h4><p>Where a provider will touch regulated data, the product refuses to use it until the arrangement is declared as approved, and does not assume coverage.</p></li>
+  <li><h4>Never forward a credential</h4><p>An integration acts as its own client. It never passes a person's credential to another service.</p></li>
+  <li><h4>Signed in, verified out</h4><p>Inbound callbacks are authenticated by signature. Nothing a provider says can change state without it.</p></li>
+  <li><h4>Everything has a stand-in</h4><p>A deterministic stand-in exists for each, so the whole product runs, and is tested, without an external call.</p></li>
+</ol>
+
+## Adding an integration
+
+A new integration is a design decision, not a configuration. It needs, at minimum: what data
+crosses the boundary, under which agreement, what happens on failure, how it is audited, and
+what stands in for it when it is absent. If any of those cannot be answered, the integration
+is not ready.

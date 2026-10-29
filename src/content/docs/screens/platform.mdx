@@ -1,0 +1,91 @@
+---
+title: "Platform control plane"
+description: "Provisioning a client, and the gates that must close before its staff can sign in."
+tldr:
+  - "The control plane is the maker's console for creating, activating, suspending and repairing client organisations."
+  - "A persistent banner says the operator is acting across all organisations, and that every change lands in the target organisation's own audit trail."
+  - "Provisioning creates the organisation, its default community and its first administrator in one audited request."
+  - "Four onboarding gates must close before an organisation is active. Until then its staff cannot sign in."
+  - "The platform administrator carries no resident-data capability at all."
+---
+
+import Flow from '../../../components/Flow.astro';
+import Shot from '../../../components/Shot.astro';
+
+<div class="kv not-content">
+  <span><b>Routes</b><code>/platform/tenants</code></span>
+  <span><b>Who</b>Platform administrators (the maker, not a client role)</span>
+  <span><b>Reads</b>No resident data, ever</span>
+</div>
+
+<Shot
+  src="/img/shots/platform-tenants.webp"
+  route="/platform/tenants"
+  role="Platform administrator"
+  caption="<b>The tenant directory.</b> A banner warns that the operator is acting across all organisations. Each organisation shows its address, status, onboarding state and whether its administrator is bound."
+/>
+
+## The banner is the point
+
+The control plane is the one place where a person acts outside any single client's
+boundary. The product refuses to let that feel routine. A persistent banner says so on every
+page, and it also says that every change is recorded in the **target organisation's own
+audit trail**, so a client can see what the maker did to it.
+
+## Provisioning an organisation
+
+<Shot
+  src="/img/shots/platform-new.webp"
+  route="/platform/tenants/new"
+  role="Platform administrator"
+  caption="<b>Provision a tenant.</b> Creates the organisation, its default community and its first administrator in one audited request. The form asks for the organisation name, its address slug and its identity issuer."
+/>
+
+A single request creates three things: the organisation, its first community, and its first
+administrator. The organisation starts in **provisioning** and stays there until every
+activation precondition is met.
+
+<Flow
+  uid="gate"
+  width={880}
+  height={230}
+  title="The four onboarding gates"
+  nodes={[
+    { id: 'g1', x: 10, y: 50, w: 190, h: 80, eyebrow: 'GATE 1', title: 'Identity issuer bound', sub: 'The client\'s sign-in system', align: 'center' },
+    { id: 'g2', x: 220, y: 50, w: 190, h: 80, eyebrow: 'GATE 2', title: 'Default community active', sub: 'A building exists', align: 'center' },
+    { id: 'g3', x: 430, y: 50, w: 200, h: 80, eyebrow: 'GATE 3', title: 'Administrator active', sub: 'An account that can act', align: 'center' },
+    { id: 'g4', x: 650, y: 50, w: 210, h: 80, eyebrow: 'GATE 4', title: 'Administrator identity-bound', sub: 'Tied to a real identity', align: 'center' },
+    { id: 'act', x: 330, y: 170, w: 220, h: 50, title: 'Organisation can be activated', kind: 'ok', align: 'center' },
+  ]}
+  edges={[
+    { from: 'g1.r', to: 'g2.l', kind: 'accent' },
+    { from: 'g2.r', to: 'g3.l', kind: 'accent' },
+    { from: 'g3.r', to: 'g4.l', kind: 'accent' },
+    { from: 'g4.b', to: 'act.r', kind: 'ok' },
+  ]}
+  caption="<b>Provisioning is a product, not a script.</b> The gates fail closed: until all four hold, the organisation stays in provisioning and nobody in it can sign in."
+/>
+
+## What the platform administrator can do
+
+<div class="defs not-content">
+  <div><dt>Create</dt><dd>Provision a new organisation.</dd></div>
+  <div><dt>Activate and suspend</dt><dd>Move an organisation through its lifecycle. Suspension, with a recorded reason, refuses every one of its staff at sign-in.</dd></div>
+  <div><dt>Edit identity settings</dt><dd>The identity issuer and related settings. A typo at provisioning is not permanent.</dd></div>
+  <div><dt>Repair an administrator</dt><dd>Recover an organisation that has locked itself out, by activating or re-binding its administrator.</dd></div>
+</div>
+
+## What it can never do
+
+<div class="split not-content">
+  <div class="panel panel--stop">
+    <h4>Read a resident</h4>
+    <p>The platform role carries no resident-data capability. It can run an organisation's lifecycle without ever becoming a member of its clinical or financial workforce.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>List organisations by reaching into their data</h4>
+    <p>The directory reads through a single hardened lookup that returns control-plane metadata and readiness figures only. It is not a bypass of the isolation, and the repair writes enter the target organisation's own boundary.</p>
+  </div>
+</div>
+
+See <a href="/operations/onboarding/">Onboarding a client</a> for the whole procedure.

@@ -1,0 +1,78 @@
+---
+title: "Units and pricing"
+description: "Inventory, dated price schedules, prior sales and the quotes that bind a price to a household."
+tldr:
+  - "A client administrator maintains unit inventory and publishes dated price schedules, each with a stated source."
+  - "Prior sales are appended as revisions, so corrections never overwrite history."
+  - "Sales reviewers create quotes against a unit, and a price reduction needs a named independent approver."
+  - "Approvers are chosen explicitly. The default list is empty, so no reduction can be approved until it is filled."
+---
+
+import Shot from '../../../components/Shot.astro';
+
+<div class="kv not-content">
+  <span><b>Routes</b><code>/admin/units</code>, <code>/admin/unit-approvers</code>, <code>/prospects/{'{id}'}/unit-quotes</code></span>
+  <span><b>Administer</b>Client administrators</span>
+  <span><b>Quote</b>Sales and finance reviewers</span>
+</div>
+
+## Unit inventory
+
+<Shot
+  src="/img/shots/units.webp"
+  route="/admin/units"
+  role="Client administrator"
+  caption="<b>Unit inventory.</b> The units in the selected community with their type and availability, and when the source was last checked. Below, a form adds a unit with where the information came from."
+/>
+
+A unit has a code that is unique within its community, a label, a type and an availability.
+It also records its **source**: the kind of source, a document or import reference, and the
+date it was checked. Changing a unit needs the revision the administrator saw.
+
+## One unit
+
+<Shot
+  src="/img/shots/unit-detail.webp"
+  route="/admin/units/{id}"
+  role="Client administrator"
+  caption="<b>A unit.</b> The inventory record, then a section to publish unit prices, and the prior-sale history."
+/>
+
+<div class="defs not-content">
+  <div><dt>Publish prices</dt><dd>A complete schedule effective from a date, with an entrance fee and a monthly independent-living fee for each contract. Contracts and refund percentages come from the central catalogue and the community's assignment.</dd></div>
+  <div><dt>Prior sales</dt><dd>The actual historical contract, refund rate, entrance price and outstanding refund obligation, each with a source. To correct one, the administrator picks it from a list, and the correction is appended as a new revision.</dd></div>
+</div>
+
+## Price reduction approvers
+
+<Shot
+  src="/img/shots/unit-approvers.webp"
+  route="/admin/unit-approvers"
+  role="Client administrator"
+  caption="<b>Designated approvers.</b> The page says explicit assignments are required, then lists eligible staff with their role and community. Publishing a new list means existing reduction quotes must be re-requested."
+/>
+
+An administrator selects specific people with a live finance reviewer or executive director
+membership. Sales staff cannot be designated through their sales role, and nobody is
+assigned automatically.
+
+## Quoting
+
+Quotes are created from a resident's own record.
+
+<Shot
+  src="/img/shots/unit-quotes.webp"
+  route="/prospects/{id}/unit-quotes"
+  role="Sales financial reviewer"
+  caption="<b>Unit quotes.</b> A reviewer chooses a unit and a pricing date, sees the unit's source prices and its prior sales, and prepares a quote with a stated reason."
+/>
+
+<Shot
+  src="/img/shots/unit-quote-detail.webp"
+  route="/prospects/{id}/unit-quotes/{quoteId}"
+  role="Sales financial reviewer"
+  caption="<b>A quote.</b> Its status, the source and quoted prices, who requested it and why. When approved, a link opens the life-plan workspace priced from it."
+/>
+
+How quotes, approvals and staleness work is described in
+<a href="/flows/pricing/">Units, pricing and quotes</a>.

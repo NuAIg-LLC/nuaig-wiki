@@ -1,0 +1,110 @@
+---
+title: "Outcomes and thresholds"
+description: "Three outcomes, two floors, an unconfigured state, and the cash-flow check that overrides all of them."
+tldr:
+  - "A qualification ends in one of three outcomes: definite fit, consider another unit, or not qualified. A fourth state, unconfigured, means no approved thresholds exist."
+  - "Two floors set by the client define the bands. The definite-fit floor must sit strictly above the marginal floor."
+  - "Any month with a negative balance makes the outcome not qualified, whatever the estate value."
+  - "A client setting decides whether the contingent refund counts towards the floors."
+  - "The outcome describes the finances. It is not an admission decision."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+The result of a life-plan projection is a set of figures. The **outcome** is the product's
+classification of those figures against thresholds the client has approved. It exists so
+that "marginal" means the same thing for every community in an organisation.
+
+<Flow
+  uid="oc"
+  width={880}
+  height={330}
+  title="How a projection becomes an outcome"
+  nodes={[
+    { id: 'th', x: 10, y: 20, w: 210, h: 70, eyebrow: 'FIRST CHECK', title: 'Are thresholds approved?', sub: 'Set centrally by the client' },
+    { id: 'un', x: 10, y: 130, w: 210, h: 70, eyebrow: 'IF NOT', title: 'Unconfigured', sub: 'Previewable, never completed', kind: 'warn' },
+    { id: 'ct', x: 270, y: 20, w: 240, h: 70, eyebrow: 'SECOND CHECK', title: 'Did any month go negative?', sub: 'The cash-flow check' },
+    { id: 'nq1', x: 270, y: 130, w: 240, h: 70, eyebrow: 'IF YES', title: 'Not qualified', sub: 'Regardless of estate value', kind: 'stop' },
+    { id: 'fl', x: 560, y: 20, w: 290, h: 70, eyebrow: 'THIRD CHECK', title: 'Where does the basis fall?', sub: 'Estate value, or ending balance if the refund is excluded' },
+    { id: 'nq2', x: 560, y: 130, w: 290, h: 52, title: 'Below the marginal floor: not qualified', kind: 'stop', align: 'center' },
+    { id: 'cu', x: 560, y: 192, w: 290, h: 52, title: 'Between the floors: consider another unit', kind: 'warn', align: 'center' },
+    { id: 'df', x: 560, y: 254, w: 290, h: 52, title: 'At or above the definite-fit floor: definite fit', kind: 'ok', align: 'center' },
+  ]}
+  edges={[
+    { from: 'th.b', to: 'un.t', kind: 'dash', label: 'no' },
+    { from: 'th.r', to: 'ct.l', kind: 'accent', label: 'yes' },
+    { from: 'ct.b', to: 'nq1.t', kind: 'stop' },
+    { from: 'ct.r', to: 'fl.l', kind: 'accent', label: 'no' },
+    { from: 'fl.b', to: 'nq2.t', kind: 'dash' },
+  ]}
+  caption="<b>The order of the checks is the point.</b> A shortfall is tested before any floor, so it can never be outweighed by a large estate."
+/>
+
+## The four states
+
+| Outcome | When it applies |
+| --- | --- |
+| **Unconfigured** | The client has not published approved thresholds. The projection is valid and readable but cannot be completed as a qualification. |
+| **Not qualified** | Any month's balance went negative, **or** the threshold basis is below the marginal floor. |
+| **Consider another unit** | Every month funded, and the basis is at or above the marginal floor but below the definite-fit floor. |
+| **Definite fit** | Every month funded, and the basis is at or above the definite-fit floor. |
+
+## The thresholds
+
+Two numbers, set centrally by the client's finance leadership and published with a version:
+
+<div class="defs not-content">
+  <div><dt>The marginal floor</dt><dd>The lowest basis at which a household is worth considering. Below it, not qualified.</dd></div>
+  <div><dt>The definite-fit floor</dt><dd>The basis at which a household is a definite fit. It must be strictly above the marginal floor, and the product refuses a policy where it is not.</dd></div>
+  <div><dt>The approval flag</dt><dd>Thresholds carry an explicit approved marker. Publishing without it records no thresholds, and the outcome stays unconfigured.</dd></div>
+</div>
+
+Either floor may be negative or zero, since they are amounts in whole cents. The product
+supplies no value for either. A figure mentioned in a meeting is an example and never a
+default.
+
+## What the thresholds are measured against
+
+The **basis** is a client setting:
+
+<div class="split not-content">
+  <div class="panel panel--info">
+    <h4>Estate value (default)</h4>
+    <p>The ending balance plus the contingent refund. This follows how many operators already think about the refundable entrance fee.</p>
+  </div>
+  <div class="panel panel--info">
+    <h4>Ending balance only</h4>
+    <p>The refund is excluded. A client may prefer this because the refund is estate value, not liquidity, and counting it can overstate the cushion in marginal cases.</p>
+  </div>
+</div>
+
+The reported estate balance is the same either way. Only the measuring stick changes. The
+<a href="/model/worked-example/">worked example</a> shows one household switching outcome
+on this setting alone.
+
+## The cash-flow check
+
+The check that matters most is not a threshold at all. If **any month closes with a
+negative balance**, the outcome is not qualified, however large the estate is.
+
+This is deliberate. A household that cannot pay for care in one month has a real problem
+in that month, and it does not go away because a house sells later or a refund is due
+decades on. The projection keeps the first such month on the record, and the screen says
+so in words.
+
+## What an outcome is not
+
+<div class="split not-content">
+  <div class="panel panel--stop">
+    <h4>An admission decision</h4>
+    <p>The outcome is financial. A person, through the approval chain, decides whether to admit. See <a href="/flows/decision/">Review, sign-off and decision</a>.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>A prediction</h4>
+    <p>It classifies a single projection under stated assumptions. It says nothing about how likely the assumptions are. See <a href="/model/simulation/">Advanced analysis</a>.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>Permanent</h4>
+    <p>A qualification pins the policy and pricing it used. A change in thresholds later requires a new qualification. It never changes an old one.</p>
+  </div>
+</div>

@@ -1,0 +1,68 @@
+---
+title: "Submissions"
+description: "Where family work becomes staff work: the queue, the review, and the promotion."
+tldr:
+  - "The submissions queue lists every family application with its state, primary contact and last activity."
+  - "A submitted application is the trigger for review. It does not appear in the resident pipeline until it is promoted."
+  - "Staff read each document, verify or reject it, and validate the financial figures. A counselor can run the conversation but finance owns the numbers."
+  - "Accept is blocked while any requested document is missing, unscanned or unreviewed."
+---
+
+import Shot from '../../../components/Shot.astro';
+
+<div class="kv not-content">
+  <span><b>Routes</b><code>/submissions</code> and <code>/submissions/{'{id}'}</code></span>
+  <span><b>Who</b>Counselors, reviewers and directors</span>
+  <span><b>Scope</b>Application management; financial figures need the financial scope</span>
+</div>
+
+## The queue
+
+<Shot
+  src="/img/shots/submissions.webp"
+  route="/submissions"
+  role="Admissions counselor"
+  caption="<b>Family submissions.</b> Each application shows its state, how many contacts and documents it has, and when it was submitted. An Invite a family control creates a new one."
+/>
+
+<div class="defs not-content">
+  <div><dt>Invited</dt><dd>The family has an invitation and has not yet submitted. The counselor can reissue the invitation from the application's detail.</dd></div>
+  <div><dt>Ready to review</dt><dd>The family has submitted. This is what needs staff.</dd></div>
+  <div><dt>Accepted</dt><dd>Staff promoted it. The resident record exists.</dd></div>
+  <div><dt>Declined</dt><dd>Staff did not accept it.</dd></div>
+</div>
+
+A submitted application does **not** appear in the resident pipeline until promoted. That
+is the point of the holding area.
+
+## Reviewing one
+
+<Shot
+  src="/img/shots/submission-review.webp"
+  route="/submissions/{id}"
+  role="Finance reviewer"
+  caption="<b>A submission under review.</b> A note explains that staff read each document, verify it, validate the numbers and then accept. Documents are listed with OCR detail and Verify or Reject, contacts and an activity trail sit alongside."
+/>
+
+<div class="defs not-content">
+  <div><dt>Each document</dt><dd>Shows what was detected, the family's own label, the extracted figure and its confidence, with Verify and Reject.</dd></div>
+  <div><dt>Contacts</dt><dd>The primary contact, how they were reached, when they last signed in, and a way to reissue or revoke the invitation.</dd></div>
+  <div><dt>Activity</dt><dd>A trail the family can also see: the claim, section saves, uploads, verifications and the submission.</dd></div>
+  <div><dt>Validate the financial figures</dt><dd>Needs the financial scope. A counselor can run the review and the conversation, while a person with the scope owns the numbers.</dd></div>
+  <div><dt>Accept</dt><dd>Blocked while any requested document is missing, unscanned or unreviewed, and the button says the figures are unverified until validation is done.</dd></div>
+</div>
+
+## Promotion
+
+Promotion is one explicit step. It creates the resident record, copies the verified
+documents across, and carries the validated profile with it.
+
+<Shot
+  src="/img/shots/resident-intake.webp"
+  route="/prospects/{id}"
+  role="Admissions counselor"
+  caption="<b>After promotion.</b> The resident record exists, built from the family's answers. From here it is the ordinary pipeline, and the family portal has no further reach into it."
+/>
+
+Validated financials land ready to assess. Otherwise a person still has to confirm them in
+the workspace. See <a href="/flows/documents/">Documents and verification</a>.

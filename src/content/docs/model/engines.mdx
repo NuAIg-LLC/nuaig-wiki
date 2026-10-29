@@ -1,0 +1,105 @@
+---
+title: "Two models, one product"
+description: "Which calculation answers which question, why both exist, and where the probability layer fits."
+tldr:
+  - "There are two deterministic models. The runway model answers a monthly-fee question. The life-plan model answers a lifetime question."
+  - "The life-plan model is the primary one for communities that sell entrance-fee contracts. The runway model remains for monthly-fee communities and quick views."
+  - "Neither takes age, sex, diagnosis or any characteristic of the person. Money, care level and explicit choices only."
+  - "A third layer, advanced analysis, adds probability beside a recorded qualification. It never decides."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+The product contains two calculation models. They answer different questions, they are
+kept strictly apart, and confusing them is the single most common way to misunderstand the
+numbers. This page says which is which.
+
+<Flow
+  uid="eng"
+  width={880}
+  height={360}
+  title="The two models and the advisory layer"
+  lanes={[
+    { x: 8, y: 8, w: 420, h: 344, label: 'THE RUNWAY MODEL' },
+    { x: 452, y: 8, w: 420, h: 344, label: 'THE LIFE-PLAN MODEL (primary)' },
+  ]}
+  nodes={[
+    { id: 'rq', x: 28, y: 44, w: 380, h: 64, eyebrow: 'THE QUESTION', title: 'How many months can they pay?', sub: 'A monthly-fee question' },
+    { id: 'ri', x: 28, y: 122, w: 380, h: 64, eyebrow: 'MODELS', title: 'One person, one flat monthly price', sub: 'Income against cost, until liquid assets run out' },
+    { id: 'ro', x: 28, y: 200, w: 380, h: 64, eyebrow: 'RETURNS', title: 'Runway, funding gap, crossover, four tiers', sub: 'Plus the rules that produced them' },
+    { id: 'rn', x: 28, y: 278, w: 380, h: 58, eyebrow: 'BEST FOR', title: 'Monthly-fee communities and quick views', kind: 'ghost' },
+    { id: 'lq', x: 472, y: 44, w: 380, h: 64, eyebrow: 'THE QUESTION', title: 'Will the money last a lifetime?', sub: 'A lifetime question', kind: 'accent' },
+    { id: 'li', x: 472, y: 122, w: 380, h: 64, eyebrow: 'MODELS', title: 'One or two residents over decades', sub: 'Entrance fee, care levels, survivors, refunds, timed proceeds', kind: 'accent' },
+    { id: 'lo', x: 472, y: 200, w: 380, h: 64, eyebrow: 'RETURNS', title: 'A balance curve and one of three outcomes', sub: 'Plus the contingent refund, separately', kind: 'accent' },
+    { id: 'ln', x: 472, y: 278, w: 380, h: 58, eyebrow: 'BEST FOR', title: 'Communities that sell entrance-fee contracts', kind: 'ghost' },
+  ]}
+  caption="<b>Different questions, different arithmetic.</b> Both are deterministic, both work in whole cents, neither reads the clock."
+/>
+
+## Side by side
+
+| | Runway model | Life-plan model |
+| --- | --- | --- |
+| **Question** | How long can they pay the monthly bill? | Does their money outlast the whole residency? |
+| **People** | One | One or two, with survivor effects |
+| **Horizon** | The planned length of stay | As long as the longer-lived resident |
+| **Cost** | One flat price for the level of care | Fees that rise yearly, differently at each level of care |
+| **Care levels** | A single level, with an informational escalation | A sequence through four levels, per resident |
+| **Entrance fee** | None | Taken at month zero, with a contingent refund |
+| **Investment** | Not modelled | Earned on positive balances |
+| **Result** | Runway, funding gap, Medicaid crossover, tier | Month-by-month balance, shortfall, estate value, outcome |
+| **Classification** | Four risk tiers | Three outcomes plus an unconfigured state |
+| **Policy** | Tier cutoffs, state limits, look-back | Thresholds, rates, durations, contracts, conventions |
+| **Stored as** | An assessment | A qualification |
+
+## Why there are two
+
+The runway model came first and answers a real question for a community whose residents pay
+a monthly fee and nothing else. A community that sells a **lifetime contract** has a
+different problem: a large entrance fee, a contract with a contingent refund, and decades
+of changing care. Patching one model to serve both would have changed the meaning of results
+already on record, so they are separate calculations with separate configuration and
+separate stored records.
+
+**For a community that sells entrance-fee contracts, the life-plan model is the instrument.**
+The runway model is retained for monthly-fee communities and for the quick scenarios in the
+<a href="/screens/modeling/">projection lab</a>.
+
+## What neither model ever uses
+
+<div class="split not-content">
+  <div class="panel panel--stop">
+    <h4>Characteristics of the person</h4>
+    <p>No age, date of birth, sex, name, identity number or diagnosis. The input is a strict shape that rejects any such field outright.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>The clock</h4>
+    <p>No calculation reads today's date. Every date is an explicit input.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>A language model</h4>
+    <p>The assistant may describe a result in words after the fact. It never takes part in producing one.</p>
+  </div>
+  <div class="panel panel--stop">
+    <h4>Approved defaults</h4>
+    <p>The life-plan model ships with no thresholds, rates or durations. The client supplies and approves them.</p>
+  </div>
+</div>
+
+Why this matters: choosing a projected length of stay from someone's age and sex is a
+decision about how a protected characteristic may be used to price a service. That decision
+belongs to the client and their counsel, not to a calculation.
+
+## The third layer: advice
+
+A recorded qualification can be examined further by **advanced analysis**, a seeded
+probability simulation that reports how a household behaves across many plausible futures.
+It reads a frozen copy of the qualification and returns commentary stored beside it. It
+cannot set or change an outcome. See <a href="/model/simulation/">Advanced analysis</a>.
+
+<div class="grid-cards not-content">
+  <a class="card-x" href="/model/runway/"><span class="card-x__eyebrow">Model</span><span class="card-x__title">The runway model</span><span class="card-x__body">Runway, funding gap, crossover and look-back.</span></a>
+  <a class="card-x" href="/model/life-plan/"><span class="card-x__eyebrow">Model</span><span class="card-x__title">The life-plan model</span><span class="card-x__body">Exactly how each month is calculated.</span></a>
+  <a class="card-x" href="/model/worked-example/"><span class="card-x__eyebrow">Example</span><span class="card-x__title">A worked example</span><span class="card-x__body">One household, month by month.</span></a>
+  <a class="card-x" href="/model/outcomes/"><span class="card-x__eyebrow">Result</span><span class="card-x__title">Outcomes and thresholds</span><span class="card-x__body">How a balance becomes an outcome.</span></a>
+</div>

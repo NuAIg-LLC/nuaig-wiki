@@ -1,0 +1,79 @@
+---
+title: "How the decision is made today"
+description: "The manual process the platform replaces, and where each part of the product comes from."
+tldr:
+  - "Today it is five manual steps plus an unwritten side path for marginal cases, red flags and waivers."
+  - "The gaps are scattered evidence, loosely modelled couples, an undefined marginal, informal approvals and no outcome tracking."
+  - "Each gap maps to a product feature, linked from the page."
+  - "Spreadsheet speed is preserved through the projection lab."
+  - "Waiting lists, deposits and unit holds are deliberately out of scope."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+Every feature in this product exists because of something a person was already doing by
+hand. This page describes that process in the form most life-plan operators run it, so the
+rest of the wiki has something to be compared against.
+
+## The manual process
+
+<Flow
+  uid="today"
+  width={860}
+  height={330}
+  title="The manual qualification process"
+  lanes={[
+    { x: 6, y: 8, w: 848, h: 150, label: 'COMMUNITY' },
+    { x: 6, y: 172, w: 848, h: 150, label: 'WHEN IT GETS HARD' },
+  ]}
+  nodes={[
+    { id: 'enq', x: 24, y: 48, w: 142, h: 80, eyebrow: '1', title: 'Enquiry', sub: ['Sales meets the', 'family'], align: 'center' },
+    { id: 'evi', x: 190, y: 48, w: 142, h: 80, eyebrow: '2', title: 'Collect evidence', sub: ['Tax pages, face', 'sheets, property'], align: 'center' },
+    { id: 'sht', x: 356, y: 48, w: 142, h: 80, eyebrow: '3', title: 'Fill the sheet', sub: ['One copy per', 'community'], kind: 'warn', align: 'center' },
+    { id: 'rev', x: 522, y: 48, w: 142, h: 80, eyebrow: '4', title: 'Read the balance', sub: ['What is left at', 'the end?'], align: 'center' },
+    { id: 'dec', x: 688, y: 48, w: 148, h: 80, eyebrow: '5', title: 'Joint decision', sub: ['Sales and the', 'director agree'], kind: 'accent', align: 'center' },
+    { id: 'mar', x: 356, y: 210, w: 142, h: 80, eyebrow: 'MARGINAL', title: 'Finance joins', sub: ['Undefined, so', 'judged case by case'], kind: 'warn', align: 'center' },
+    { id: 'esc', x: 522, y: 210, w: 142, h: 80, eyebrow: 'RED FLAG', title: 'Escalate', sub: ['To a central', 'contact'], kind: 'stop', align: 'center' },
+    { id: 'wav', x: 688, y: 210, w: 148, h: 80, eyebrow: 'EXCEPTION', title: 'Waiver', sub: ['Granted centrally,', 'recorded in email'], kind: 'stop', align: 'center' },
+  ]}
+  edges={[
+    { from: 'enq.r', to: 'evi.l', kind: 'accent' },
+    { from: 'evi.r', to: 'sht.l', kind: 'accent' },
+    { from: 'sht.r', to: 'rev.l', kind: 'accent' },
+    { from: 'rev.r', to: 'dec.l', kind: 'accent' },
+    { from: 'rev.b', to: 'mar.t:0.9', kind: 'dash' },
+    { from: 'mar.r', to: 'esc.l', kind: 'dash' },
+    { from: 'esc.r', to: 'wav.l', kind: 'dash' },
+  ]}
+  caption="<b>Five steps in the normal case, and a side path nobody has written down.</b> The steps have no fixed order, and the health assessment is deliberately last."
+/>
+
+## Where it breaks, and what the product does about each
+
+<div class="defs not-content">
+  <div><dt>Evidence is scattered</dt><dd>Two years of tax pages, investment face sheets, home valuation less mortgage, an insurance policy that may have lapsed. The product collects these through a guided family application and treats each document as something a person must verify. See <a href="/flows/documents/">Documents and verification</a>.</dd></div>
+  <div><dt>Couples are modelled loosely</dt><dd>Two people have separate income and assets, and one of them leaving changes what the survivor receives. The product models each resident separately, with explicit survivor percentages. See <a href="/model/life-plan/">The life-plan model</a>.</dd></div>
+  <div><dt>"Marginal" has no definition</dt><dd>The product makes the thresholds central, versioned and approved by named people, and refuses to classify anything until they exist. See <a href="/model/outcomes/">Outcomes and thresholds</a>.</dd></div>
+  <div><dt>Approval chains are informal</dt><dd>Who must agree, in what order, who may waive what: all of it lives in people's heads. The product makes the chain configurable and records every step. See <a href="/flows/decision/">Review, sign-off and decision</a>.</dd></div>
+  <div><dt>Exceptions vanish</dt><dd>A promise made to a family ("we will honour this price") is remembered by whoever made it. The product keeps exceptions as permanent notes tied to the qualification. See <a href="/screens/workflow/">Qualification workflow</a>.</dd></div>
+  <div><dt>Pricing is manual</dt><dd>Unit prices come from a schedule, and the history of what the same unit sold for before is found by hand. The product keeps dated schedules and prior sales together. See <a href="/flows/pricing/">Units, pricing and quotes</a>.</dd></div>
+  <div><dt>Access is too wide</dt><dd>Anyone who can open the file sees everything in it. The product limits financial detail to the people who need it. See <a href="/people/minimum-necessary/">Minimum necessary access</a>.</dd></div>
+  <div><dt>Nobody learns from outcomes</dt><dd>Nothing compares what was forecast to what actually happened. The product records observations against the original forecast. See <a href="/flows/observations/">After move-in</a>.</dd></div>
+</div>
+
+## What the manual process does well
+
+It is worth being fair to it. A spreadsheet is fast, flexible and understood by the people
+who use it. A sales person can change a number and see the result immediately, in front of
+the family. The platform has to keep that, which is why it includes a <a href="/screens/modeling/">projection lab</a>
+and a household workspace that recalculates on demand, while moving everything that must be
+governed (the rates, the thresholds, the approvals) out of the hands of whoever happens to
+hold the file.
+
+## Commercial mechanics around qualification
+
+Qualification sits inside a larger sales process that the platform deliberately does not
+own: waiting lists, deposits, unit holds and the time between deposit and closing. Those
+are customer-relationship concerns, and organisations differ widely in how they run them.
+The platform records the financial qualification and the decision; it does not take
+payments or manage a waiting list.

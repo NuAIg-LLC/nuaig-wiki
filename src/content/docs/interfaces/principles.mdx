@@ -1,0 +1,108 @@
+---
+title: "Interface principles"
+description: "Eight rules every programmatic interface in the platform obeys, so that one habit works everywhere."
+tldr:
+  - "Every screen is built on the same programmatic interface that an integration would use. There is no private back door."
+  - "Authority is decided per request from the store, and the community in use is named explicitly on every resident call."
+  - "Every change carries an idempotency key and the revision it was based on."
+  - "A conflict is an answer, not a retry prompt. A repeated request is never a second change."
+  - "The interface is described by a published machine-readable contract, and generated clients are never hand-edited."
+---
+
+import Flow from '../../../components/Flow.astro';
+
+The platform exposes one programmatic interface. The staff workspace, the family portal and
+any integration all use it, and none has a private route around it. This page states the
+rules that interface follows. Learn them once and every resource behaves the same way.
+
+<Flow
+  uid="ifp"
+  width={880}
+  height={230}
+  title="Every client reaches the platform through one interface"
+  nodes={[
+    { id: 'staff', x: 10, y: 24, w: 190, h: 54, title: 'Staff workspace', sub: 'Server-side only', align: 'center' },
+    { id: 'por', x: 10, y: 92, w: 190, h: 54, title: 'Family portal', sub: 'Own session, own grants', kind: 'violet', align: 'center' },
+    { id: 'int', x: 10, y: 160, w: 190, h: 54, title: 'An integration', sub: 'Authenticated like a person', align: 'center' },
+    { id: 'ifc', x: 290, y: 60, w: 300, h: 110, eyebrow: 'ONE INTERFACE', title: 'Versioned resources over HTTP', sub: ['Same rules for everyone:', 'authority, revisions, idempotency,', 'paging, errors'], kind: 'accent', align: 'center' },
+    { id: 'sor', x: 680, y: 60, w: 170, h: 110, eyebrow: 'BEHIND IT', title: 'System of record', sub: ['The only place a', 'rule is enforced'], align: 'center' },
+  ]}
+  edges={[
+    { from: 'staff.r', to: 'ifc.l:0.2', kind: 'accent' },
+    { from: 'por.r', to: 'ifc.l:0.5', kind: 'accent' },
+    { from: 'int.r', to: 'ifc.l:0.8', kind: 'accent' },
+    { from: 'ifc.r', to: 'sor.l', kind: 'accent' },
+  ]}
+  caption="<b>No screen can do anything an integration cannot.</b> A screen is a client of the interface, not a part of it."
+/>
+
+## The eight rules
+
+<ol class="steps not-content">
+  <li>
+    <h4>Resources, not procedures</h4>
+    <p>The interface is organised around the things in the product: residents, applications, documents, qualifications, units, quotes, grants. Operations are the standard verbs on those things. See <a href="/interfaces/catalogue/">Resource catalogue</a>.</p>
+  </li>
+  <li>
+    <h4>Authority is decided on every request</h4>
+    <p>The caller's person, organisation, role and memberships are loaded from the store each time. A bearer credential identifies a person. It never carries privilege. See <a href="/people/scopes/">Scopes and capabilities</a>.</p>
+  </li>
+  <li>
+    <h4>The community is named, not assumed</h4>
+    <p>Calls that touch resident data say which community they act in, through a community header holding its identifier. The caller must hold a membership there. A missing or malformed value is rejected, and nothing is inferred from a default.</p>
+  </li>
+  <li>
+    <h4>Every change is idempotent</h4>
+    <p>A mutation needs an idempotency key. Repeating it returns the original answer and changes nothing. See <a href="/interfaces/concurrency/">Revisions and idempotency</a>.</p>
+  </li>
+  <li>
+    <h4>Every change names the revision it was based on</h4>
+    <p>An edit states the version of the record the caller saw, so a concurrent change conflicts instead of being overwritten.</p>
+  </li>
+  <li>
+    <h4>A conflict is surfaced, never resolved silently</h4>
+    <p>The interface will not rebase a stale change and retry it. The caller must look at the new state and decide.</p>
+  </li>
+  <li>
+    <h4>Lists are paged by a stable cursor</h4>
+    <p>Large collections come back in bounded pages, in a stable order, with a cursor for the next one. See <a href="/interfaces/paging/">Paging and cursors</a>.</p>
+  </li>
+  <li>
+    <h4>Failures are typed</h4>
+    <p>Every failure carries a stable code and a message a person can act on. Some failures are the product working correctly. See <a href="/interfaces/errors/">Errors and responses</a>.</p>
+  </li>
+</ol>
+
+## The published contract
+
+The interface is described by a **machine-readable contract** that the platform itself
+serves. Client code for the staff workspace is generated from that contract rather than
+written by hand, so a client cannot drift from the interface it calls. Generated clients are
+regenerated whenever the contract changes and are never edited directly.
+
+The contract is built from the same definitions the interface validates requests against. A
+field exists in the contract because it exists in the validation, and not the other way
+round.
+
+## What every request carries
+
+| Item | Where | Purpose |
+| --- | --- | --- |
+| Credential | Authorization header | Identifies the caller. Carries no privilege |
+| Community | Community header | Names the building the call acts in |
+| Idempotency key | Idempotency-Key header, on changes | Makes a retry safe |
+| Expected revision | Request body, on edits | Detects a concurrent change |
+
+## What every response carries
+
+<div class="defs not-content">
+  <div><dt>The result</dt><dd>The record, or a page of records, shaped for the caller's role.</dd></div>
+  <div><dt>A declared mask</dt><dd>Where a response was filtered for minimum-necessary access, it says so, so a client can tell "nothing there" from "not allowed to see".</dd></div>
+  <div><dt>A revision</dt><dd>On any record that can be edited, an opaque token to send back with the next change.</dd></div>
+</div>
+
+## Health and readiness
+
+The platform exposes unauthenticated health and readiness checks, for deployment
+infrastructure to use, and a protected metrics endpoint that reports aggregate operational
+figures only. None of them returns resident data.

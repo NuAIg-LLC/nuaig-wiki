@@ -1,0 +1,127 @@
+---
+title: "The end-to-end journey"
+description: "From first enquiry to a recorded outcome, as one diagram and seven steps."
+tldr:
+  - "A case moves through seven steps: intake, family application, evidence review, promotion, qualification, approval chain, and decision."
+  - "Each step has one owner role, and the screen only offers what that role may do."
+  - "The family's answers are staged and unverified until a person confirms them. Nothing reaches the calculation unreviewed."
+  - "The decision is bound to one exact qualification, and a stale reference is refused."
+  - "Every read and write along the way lands in a tamper-evident trail."
+---
+
+import Flow from '../../../components/Flow.astro';
+import Shot from '../../../components/Shot.astro';
+
+This is the spine of the product. Every other flow in this section is a closer look at one
+step of it, and every screen belongs to one of these steps.
+
+<Flow
+  uid="jr"
+  width={880}
+  height={540}
+  title="The end-to-end journey of a case, by who does each step"
+  lanes={[
+    { x: 8, y: 8, w: 864, h: 96, label: 'THE FAMILY' },
+    { x: 8, y: 114, w: 864, h: 96, label: 'ADMISSIONS COUNSELOR' },
+    { x: 8, y: 220, w: 864, h: 96, label: 'FINANCE AND SALES REVIEWERS' },
+    { x: 8, y: 326, w: 864, h: 96, label: 'EXECUTIVE DIRECTOR' },
+    { x: 8, y: 432, w: 864, h: 98, label: 'THE SYSTEM, THROUGHOUT' },
+  ]}
+  nodes={[
+    { id: 'apply', x: 190, y: 34, w: 190, h: 56, eyebrow: '2', title: 'Completes the application', sub: 'Answers and documents', kind: 'violet' },
+    { id: 'invite', x: 24, y: 140, w: 150, h: 56, eyebrow: '1', title: 'Starts the case', sub: 'Record or invitation' },
+    { id: 'review', x: 400, y: 140, w: 190, h: 56, eyebrow: '3 AND 4', title: 'Reviews, then promotes', sub: 'A submission becomes a resident' },
+    { id: 'verify', x: 400, y: 246, w: 190, h: 56, eyebrow: '3', title: 'Verifies figures', sub: 'Documents and numbers', kind: 'accent' },
+    { id: 'qual', x: 616, y: 246, w: 240, h: 56, eyebrow: '5', title: 'Runs the qualification', sub: 'Projection and attestation', kind: 'accent' },
+    { id: 'chain', x: 616, y: 352, w: 120, h: 56, eyebrow: '6', title: 'Approval chain', sub: 'Named steps' },
+    { id: 'dec', x: 752, y: 352, w: 104, h: 56, eyebrow: '7', title: 'Decision', sub: 'Signed', kind: 'ok' },
+    { id: 'aud', x: 24, y: 458, w: 832, h: 56, eyebrow: 'ALWAYS', title: 'Audit ledger, minimum-necessary masking, isolation', sub: 'Every read and write is recorded, and every response is masked to the asker', kind: 'ghost' },
+  ]}
+  edges={[
+    { from: 'invite.r', to: 'apply.l', kind: 'accent', label: 'invite' },
+    { from: 'apply.r', to: 'review.t:0.25', kind: 'accent', label: 'submit' },
+    { from: 'review.b', to: 'verify.t', kind: 'accent' },
+    { from: 'verify.r', to: 'qual.l', kind: 'accent' },
+    { from: 'qual.b:0.25', to: 'chain.t:0.5', kind: 'accent' },
+    { from: 'chain.r', to: 'dec.l', kind: 'ok' },
+  ]}
+  caption="<b>One path, five kinds of people.</b> The system lane runs beneath every step: nothing here happens outside the audit trail or outside the access rules."
+/>
+
+## The seven steps
+
+<ol class="steps not-content">
+  <li>
+    <h4>Counselor starts the case</h4>
+    <p>Either by creating the resident record directly, or by inviting the family to apply. An invitation is a secure link sent by email or text to a named contact. See <a href="/flows/intake/">Intake and the family application</a>.</p>
+  </li>
+  <li>
+    <h4>The family completes the guided application</h4>
+    <p>They open the link, prove who they are with a one-time code, answer the requested sections, and upload documents. Everything lands in a holding area the family role can reach, never in the resident's record.</p>
+  </li>
+  <li>
+    <h4>Staff review the submission</h4>
+    <p>Each document is read, its type confirmed and its figures verified by a person. Validating the numbers needs the financial scope, so a counselor can run the conversation while finance confirms the money. See <a href="/flows/documents/">Documents and verification</a>.</p>
+  </li>
+  <li>
+    <h4>Staff promote the submission</h4>
+    <p>Promotion creates the resident record, copies the verified documents across and carries the validated profile with it. Nothing is promoted unvalidated, and after this the family portal has no further reach into the record.</p>
+  </li>
+  <li>
+    <h4>A reviewer runs the qualification</h4>
+    <p>The household is entered, a projection is calculated against the client's policy and pricing, scenarios are compared, and the reviewer attests that the inputs were verified. See <a href="/flows/qualification/">Life-plan qualification</a>.</p>
+  </li>
+  <li>
+    <h4>The approval chain responds</h4>
+    <p>Prerequisites are completed or waived, a sales recommendation is recorded, any committee approvals are given, and any escalation is resolved. See <a href="/flows/decision/">Review, sign-off and decision</a>.</p>
+  </li>
+  <li>
+    <h4>The executive director records the decision</h4>
+    <p>Approve, decline, waitlist or request more information, with a written reason, bound to the exact qualification it rests on. A stale reference is refused inside the same transaction.</p>
+  </li>
+</ol>
+
+## The resident's stages
+
+Separately from the journey, a resident record carries a stage that the pipeline shows.
+
+<Flow
+  uid="stg"
+  width={860}
+  height={190}
+  title="Pipeline stages and what moves a resident between them"
+  nodes={[
+    { id: 'i', x: 10, y: 34, w: 150, h: 70, eyebrow: 'STAGE', title: 'Intake', sub: 'Record on file', align: 'center' },
+    { id: 'd', x: 188, y: 34, w: 150, h: 70, eyebrow: 'STAGE', title: 'Documents pending', sub: 'Evidence arriving', align: 'center' },
+    { id: 'u', x: 366, y: 34, w: 150, h: 70, eyebrow: 'STAGE', title: 'Under review', sub: 'Being verified', align: 'center' },
+    { id: 'a', x: 544, y: 34, w: 150, h: 70, eyebrow: 'STAGE', title: 'Assessed', sub: 'A result is on file', kind: 'accent', align: 'center' },
+    { id: 'x', x: 722, y: 34, w: 128, h: 70, eyebrow: 'STAGE', title: 'Decided', sub: 'Terminal', kind: 'ok', align: 'center' },
+  ]}
+  edges={[
+    { from: 'i.r', to: 'd.l', kind: 'default' },
+    { from: 'd.r', to: 'u.l', kind: 'default' },
+    { from: 'u.r', to: 'a.l', kind: 'accent', label: 'a run' },
+    { from: 'a.r', to: 'x.l', kind: 'ok', label: 'a decision' },
+  ]}
+  notes={[
+    { x: 430, y: 150, text: 'Only running an assessment can enter Assessed. Only recording a decision can enter Decided.', align: 'middle' },
+    { x: 430, y: 170, text: 'A decided resident cannot be moved back. Earlier stages can be revisited by hand.', align: 'middle' },
+  ]}
+  caption="<b>A manual move can never fabricate a milestone.</b> The same rule is enforced by the records service, so an integration cannot invent one either."
+/>
+
+<Shot
+  src="/img/shots/pipeline-board.webp"
+  route="/pipeline?view=board"
+  role="Admissions counselor"
+  caption="<b>The pipeline board.</b> Every resident appears under the stage they are actually at, with a care level and an age since intake."
+/>
+
+## Where each step is documented
+
+<div class="grid-cards not-content">
+  <a class="card-x" href="/flows/intake/"><span class="card-x__eyebrow">Steps 1 and 2</span><span class="card-x__title">Intake and the family application</span><span class="card-x__body">Two ways a case begins, and how a family is let in safely.</span></a>
+  <a class="card-x" href="/flows/documents/"><span class="card-x__eyebrow">Steps 3 and 4</span><span class="card-x__title">Documents and verification</span><span class="card-x__body">Ingestion as a gate, extraction as a proposal, a person as the authority.</span></a>
+  <a class="card-x" href="/flows/qualification/"><span class="card-x__eyebrow">Step 5</span><span class="card-x__title">Life-plan qualification</span><span class="card-x__body">Household, projection, comparison and completion.</span></a>
+  <a class="card-x" href="/flows/decision/"><span class="card-x__eyebrow">Steps 6 and 7</span><span class="card-x__title">Review, sign-off and decision</span><span class="card-x__body">Prerequisites, recommendations, waivers and the final signature.</span></a>
+</div>
