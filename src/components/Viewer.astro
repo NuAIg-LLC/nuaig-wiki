@@ -109,6 +109,32 @@
     if (p) p.scrollTop = saved;
   });
 
+  // ---- 3. Search after an in-place page change ------------------------------
+  // The built-in search box starts itself once, when the browser finishes a full
+  // load. A page swapped in place never gets that event, so its search box would
+  // stay empty. Start it ourselves, using the same search index and interface.
+  let searchUi: Promise<void> | null = null;
+  const loadSearchUi = () =>
+    (searchUi ??= new Promise<void>((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = '/pagefind/pagefind-ui.js';
+      s.onload = () => resolve();
+      s.onerror = () => reject(new Error('search is unavailable'));
+      document.head.appendChild(s);
+    }));
+  const startSearch = async () => {
+    if (import.meta.env.DEV) return;
+    const box = document.querySelector<HTMLElement>('#starlight__search');
+    if (!box || box.childElementCount) return;
+    try {
+      await loadSearchUi();
+      const Ui = (window as any).PagefindUI;
+      new Ui({ element: '#starlight__search', showImages: false, showSubResults: true, bundlePath: '/pagefind/', baseUrl: '/' });
+    } catch {
+      /* search stays closed rather than breaking the page */
+    }
+  };
+
   let first = true;
   document.addEventListener('astro:page-load', () => {
     const isFirst = first;
@@ -118,5 +144,6 @@
     window.setTimeout(() => centre(!isFirst), 70);
     // A new page starts at its top.
     if (!isFirst) window.scrollTo({ top: 0 });
+    if (!isFirst) void startSearch();
   });
 </script>
